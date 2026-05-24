@@ -8,7 +8,7 @@ git commit -m "update"
 git push
 
 ssh ch@3dfg.de "
-cd /home/ch/c3-23 &&
+cd /home/ch/3dfg &&
 git pull &&
 npm install &&
 pm2 restart all

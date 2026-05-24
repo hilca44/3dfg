@@ -1,0 +1,533 @@
+
+* {
+      font-size: 1.05em;
+      font-family: monospace;
+      margin: 0;
+      padding: 0;
+    }
+
+    
+    .top {
+      position: fixed;
+      width: 100vw;
+      height: 45vh;
+      left: 0;
+      top: 0;
+    }
+    
+    .middle {
+      width: 100vw;
+      position: fixed;
+      left: 0;
+      height: 30vh;
+      top: 45vh;
+      overflow-y: scroll;
+      background: #1e1e1e;
+    }
+
+
+    .bottom {
+      width: 100vw;
+
+      /* display: flex; */
+      /* border: 2px solid red; */
+      left: 0;
+      position: fixed;
+      height: 20vh;
+      height: 25dvh;
+      top: 75vh;
+      /* bottom: 0px; */
+      /* overflow-x: auto; */
+
+    }
+
+    .bl {
+      background-color: #121212;
+    }
+    body {
+      background-color: #121212;
+      color: ivory;
+      font-family: monospace;
+      padding: 5px;
+    }
+
+    #err {
+      position: absolute;
+      /* font-: 2em; */
+      top: 50px;
+      background: none;
+      color: red;
+      width: 100vw;
+      z-index: 2;
+    }
+
+    .inn12 {
+      z-index: 6;
+    }
+
+    #inn,
+    textarea {
+      color: ivory;
+      background: #1e1e1e;
+      padding: 10px;
+      padding-bottom: 25px;
+      margin: 0px;
+      width: 90vw;
+      height: 20vh;
+      overflow-y: scroll;
+      
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      /* border: 4px dashed red; */
+      /* user-select: none; */
+    }
+
+    .keyboard {
+      /* border: 2px solid yellowgreen; */
+      margin-top: 0px;
+      align-items: start;
+      z-index: 4;
+    }
+
+    .row {
+      display: flex;
+      /* margin: 2px; */
+      overflow-x: auto;
+      width: 100vw;
+      padding: 0px;
+      scrollbar-width: thin;
+      align-items: start;
+      height: 6vh;
+    }
+
+    .row button {
+      background: #424040;
+      color: ivory;
+      font-family: monospace;
+      border: 1px solid #121212;
+      margin: 0px;
+      padding: auto;
+      
+      /* border-radius: 5px; */
+      min-width: 10vw;
+      height: 6vh;
+      align-self: self-start;
+      flex: auto;
+    }
+
+    /* .row .w6 {
+      width: 16vw;
+      max-width: 16vw;
+    } */
+
+
+/* 
+    .char {
+      color: #569cd6;
+    } */
+
+    .firstchar {
+      color: orange;
+    }
+
+    button.firstchar {
+      color: orange;
+    }
+
+    /* .number {
+      color: #b8d2bf;
+    } */
+
+    /* .pas {
+      color: #48e71c;
+    }
+
+    button.pas {
+      color: #48e71c;
+    } */
+
+    .firstword {
+      /* color: #d93bde; */
+      color: orange;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      background: ivory;
+      animation: blink 1s steps(2, start) infinite;
+    }
+
+    @keyframes blink {
+      to {
+        visibility: hidden;
+      }
+    }
+
+    #hintBox {
+      position: absolute;
+      top: 0px;
+      left: 16vw;
+      padding: 3px;
+      background: none;
+      color: orange;
+      width: 84vw;
+      z-index: 2;
+    }
+
+    #zzz {
+      position: absolute;
+      top: 0px;
+      font-size: 3em;
+      left: 60px;
+      padding: 3px;
+      background: none;
+      color: orange;
+
+      overflow-wrap: break-word;
+      width: 100vw;
+      z-index: 9;
+    }
+
+    .topleft {
+      position: fixed;
+      top: 5px;
+      left: 5px;
+      max-width: 44px;
+      z-index: 9;
+    }
+    #layl {
+      position: absolute;
+      color: orange;
+      top: 0;
+      font-size: 3em;
+      left: 0;
+      height: 44px;
+      width: 33%;
+      z-index: 100;
+    }
+
+    #layh {
+      position: fixed;
+      border-left: 1px dashed gray;
+      border-right: 1px dashed gray;
+
+      top: 0;
+      left: 33%;
+      height: 44px;
+      width: 33%;
+      z-index: 100;
+    }
+
+    #layr {
+      position: fixed;
+      /* border-bottom: 1px dotted gray; */
+
+      top: 0;
+      right: 0;
+      height: 44px;
+      width: 33%;
+      z-index: 100;
+    }
+
+    #inn2 {
+      width: 90vw;
+      margin-top: 0px;
+      min-height: 20vh;
+      user-select: text;
+
+
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .menu-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+    }
+
+    .menu-container {
+      position: relative;
+      display: inline-block;
+    }
+
+.w6 {
+  width: 15vw;
+}
+
+    .hamburger span {
+      display: block;
+      height: 2px;
+      margin: 3px auto;
+      width: 50%;
+      background-color: orange;
+      border-radius: 2px;
+    }
+
+    /* Flyout-Menü (standardmäßig versteckt) */
+    .flyout-menu {
+      position: fixed ;
+      bottom: 40vh;
+      width: 100vw;
+      left: 0;
+      flex-wrap: wrap;
+      display: none;
+      align-items: end;
+      gap: 4px;  
+      background: #222;
+      padding: 6px;
+      z-index: 9999;
+    }
+
+    /* Buttons im Flyout */
+    .flyout-menu button {
+      background: #333;
+      color: orange;
+      border: none;
+      padding: 6px 12px;
+      cursor: pointer;
+      margin: 0;
+      border-radius: 0;
+      flex: auto;
+      /* keine Rundung */
+    }
+
+    .flyout-menu button:hover {
+      background: #555;
+    }
+
+@media (max-width: 600px) {
+  * {
+    font-size: 1.1em; /* deutlich größere Schrift für kleine Bildschirme */
+  }
+}
+ /* @media screen and (orientation: landscape) {  
+ ##################################################
+ ##################################################
+ ##################################################
+ ##################################################
+ ##################################################
+ */
+      @media (orientation: landscape) {
+  
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.section.top {
+  display: flex;
+  flex-direction: row; 
+  height: 100vh;
+  width: 50vw;
+}
+
+.canvas {
+  flex: 1;
+  display: block;
+  background-color: #1e1e1e;
+}
+
+#hintBox, #err, #zzz {
+  flex: 1;
+  padding: 1em;
+}
+
+* {
+  width: 50vw;
+}
+
+.top .canvas #canva{
+        border: 13px dotted red;
+        position: fixed;
+        right: 0px;
+        top: 0px;
+        width: 50vw;
+        height: 100vh;
+  background-color: #1e1e1e;
+
+        z-index: 1;
+      }
+      .canvas {
+        position: fixed;
+        right: 0px;
+      }
+
+      .middle {
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 50vw;
+        height: 75vh;
+        overflow-y: auto;
+        background: #1e1e1e;
+        z-index: 2;
+      }
+
+      .bottom {
+        position: fixed;
+        left: 0;
+        top: 75vh;
+        width: 50vw;
+        height: 25vh;
+        z-index: 2;
+      }
+
+       #inn,
+    textarea {
+      color: ivory;
+      background: #1e1e1e;
+      padding: 10px 10px 25px 10px;
+      margin: 0;
+      width: 45vw;
+      height: 60vh;
+      overflow-y: scroll;
+      font-size: 1.05em;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+    }
+
+
+
+    .flyout-menu {
+      position: fixed;
+      bottom: 26vh;
+      width: 40vw;
+      left: 0;
+      display: none;
+      align-items: end;
+      flex-direction: row;
+      gap: 4px;
+      background: #222;
+      padding: 6px;
+      border: 1px solid #444;
+      z-index: 9999;
+    }
+
+    .flyout-menu button {
+      background: #333;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      
+      cursor: pointer;
+      margin: 0;
+      border-radius: 0;
+    }
+
+    .flyout-menu button:hover {
+      background: #555;
+    }
+      #zzz {
+      position: absolute;
+      top: 0;
+      font-size: 3em;
+      left: 60px;
+      padding: 3px;
+      background: none;
+      color: #d93bde;
+      overflow-wrap: break-word;
+      width: 50vw;
+      z-index: 9;
+    }
+
+       .row button {
+      background: #424040;
+      color: ivory;
+      font-family: monospace;
+      border: 1px solid #121212;
+      margin: 0;
+      padding: auto;
+    
+      width: 5vw;
+      height: 6vh;
+      align-self: self-start;
+      flex: 0 0 auto;
+    }
+
+    .row .w6 {
+      width: 8vw;
+      max-width: 16vw;
+    }
+.keyboard {
+  position: fixed;
+  left: 0px;
+}
+     .section {
+      width: 50vw;
+      position: fixed;
+      right: 0px;
+    } 
+
+    .topleft {
+      position: fixed;
+      top: 5px;
+      left: 5px;
+      max-width: 44px;
+      z-index: 9;
+    }
+
+    #layl {
+      position: absolute;
+      color: #d93bde;
+      top: 0;
+      font-size: 3em;
+      left: 50vw;
+      height: 44px;
+      width: 33%;
+      z-index: 100;
+    }
+
+    #layh {
+      position: fixed;
+      border-left: 1px dashed #d93bde;
+      border-right: 1px dashed #b93bde;
+      top: 0;
+      left: 66vw;
+      height: 44px;
+      width: 16vw;
+      z-index: 100;
+    }
+
+    #layr {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 44px;
+      width: 33%;
+      z-index: 100;
+    }
+ #hintBox {
+      left: 56vw;
+ }
+    }
+.dropdown {
+  position: absolute;
+  z-index: 9999;
+      background: #333;
+  
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  
+  padding: 5px;
+}
+.dropdown div {
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.dropdown div:hover {
+  background-color: #eee;
+}
+
+

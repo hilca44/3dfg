@@ -1,0 +1,202 @@
+/* ===============================
+   GLOBAL BASICS
+=============================== */
+
+:root {
+  --bg: ivory;
+  --text: #333;
+  --accent: #8b5a2b;      /* warmes Holzbraun */
+  --border: #d0d0c8;
+
+  --code-bg: #2e2e2e;
+  --code-text: #ffe680;
+
+  --radius: 6px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 18px;
+  line-height: 1.55;
+
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  max-width: 800px;
+  margin: 15px auto;
+  padding: 12px 16px;
+}
+
+/* ===============================
+   HEADINGS
+=============================== */
+
+h1, h2, h3 {
+  font-weight: 600;
+  margin-top: 1.6em;
+  margin-bottom: 0.4em;
+}
+
+h2 {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+
+/* ===============================
+   TEXT & LISTS
+=============================== */
+
+p {
+  margin: 0.6em 0;
+}
+
+ul {
+  padding-left: 0;
+}
+
+li {
+  list-style: none;
+  margin: 6px 0;
+  padding-left: 14px;
+  position: relative;
+}
+
+li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+/* ===============================
+   CODE & PREFORMATTED
+=============================== */
+
+code {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 2px 6px;
+  border-radius: var(--radius);
+  font-size: 0.95em;
+}
+
+pre {
+  background: var(--code-bg);
+  color: ivory;
+
+  padding: 14px 16px;
+  margin: 12px 0;
+
+  overflow-x: auto;
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+/* Inline code in pre nicht doppelt stylen */
+pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* ===============================
+   LINKS & MENU
+=============================== */
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.main-menu a {
+  display: flex;
+  padding: 6px 8px;
+  border-radius: var(--radius);
+}
+
+.main-menu a:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* ===============================
+   FOOTER
+=============================== */
+
+footer {
+  margin-top: 40px;
+  padding-top: 12px;
+
+  font-size: 0.85em;
+  color: #666;
+
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+/* ===============================
+   SMALL SCREENS
+=============================== */
+
+@media (max-width: 600px) {
+  html {
+    font-size: 16px;
+  }
+
+  body {
+    margin: 8px;
+    padding: 10px;
+  }
+}
+/* ===== NAVIGATION ===== */
+.main-nav ul {
+  display: flex;
+  flex-wrap: wrap;              /* 🔑 Umbruch erlaubt */
+  gap: 0.75rem 1.25rem;
+
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem 1rem;
+
+  border-bottom: 1px solid #ccc;
+}
+
+.main-nav li {
+  white-space: nowrap;          /* einzelne Punkte nicht umbrechen */
+}
+
+.main-nav a {
+  text-decoration: none;
+  color: #111;
+  font-weight: 500;
+}
+
+.main-nav a:hover {
+  text-decoration: underline;
+}
+/* ===== HEADER TABLE ===== */
+.site-header {
+  padding: 0.6rem 1rem;
+}
+
+.header-row {
+  display: table;
+  width: 100%;
+}
+
+.header-logo,
+.header-nav {
+  display: table-cell;
+  vertical-align: middle; /* 🔑 exakt gleiche Höhe */
+}
+
+

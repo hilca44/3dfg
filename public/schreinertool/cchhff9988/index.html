@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rechnung/Angebot – PWA Offline</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb"/>
+  <link rel="icon" sizes="192x192" href="icon-192.png">
+  <link rel="icon" sizes="512x512" href="icon-512.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>Rechnung/Angebot – Offline</h1>
+  <div class="right">
+    <button id="installBtn" class="btn secondary" title="Als App installieren" style="display:none">Installieren</button>
+    <button id="togglePreview" class="btn secondary">Vorschau ausblenden</button>
+  </div>
+</header>
+
+<main id="layout">
+  <section class="card" id="formCard">
+    <div class="section-title">Dokument</div>
+    <div class="row">
+      <div>
+        <label for="docType">Typ</label>
+        <select id="docType">
+          <option>Rechnung</option>
+          <option>Lieferschein</option>
+          <option>Angebot</option>
+        </select>
+      </div>
+      <div>
+        <label for="invoiceNumber">Nummer</label>
+        <input id="invoiceNumber" placeholder="z. B. 6-1754" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="invoiceDate">Datum</label>
+        <input id="invoiceDate" type="date" />
+      </div>
+      <div>
+        <label for="deliveryDate">Liefer-/Leistungsdatum</label>
+        <input id="deliveryDate" type="date" />
+      </div>
+    </div>
+    <label for="projectName">Projekt / Betreff</label>
+    <input id="projectName" placeholder="z. B. Sensoriklabor Tisch, Blenden, Fotoecke" />
+
+    <div class="section-title">Kunde</div>
+    <label for="clientName">Name / Firma</label>
+    <input id="clientName" list="customerList" placeholder="Kundenname GmbH" />
+    <datalist id="customerList"></datalist>
+
+    <label for="clientAddress">Adresse</label>
+    <textarea id="clientAddress" placeholder="Straße Nr.&#10;PLZ Ort"></textarea>
+    <div class="row">
+      <div>
+        <label for="clientRef">Ihr Zeichen / Bestellnr.</label>
+        <input id="clientRef" placeholder="z. B. Bestellung 3058297" />
+      </div>
+      <div>
+        <label for="clientContact">Kontakt / E-Mail</label>
+        <input id="clientContact" placeholder="optional" />
+      </div>
+    </div>
+
+    <div class="btnbar" id="customerButtons">
+      <button class="btn secondary" id="saveCustomer">Kunden speichern / aktualisieren</button>
+      <button class="btn secondary" id="renameCustomer">Kunde umbenennen</button>
+      <button class="btn secondary" id="deleteCustomer">Kunde löschen</button>
+      <button class="btn secondary" id="exportCustomerBook">Kundenbuch exportieren</button>
+      <label class="btn secondary" for="importCustomerBookInput" style="margin:0">Kundenbuch importieren</label>
+      <input id="importCustomerBookInput" type="file" accept="application/json" style="display:none" />
+    </div>
+
+    <div class="section-title">Positionen</div>
+    <table class="items" id="itemsTable">
+      <thead>
+        <tr>
+          <th style="width:68px">Anz.</th>
+          <th style="width:70px">Einh.</th>
+          <th>Gegenstand / Beschreibung</th>
+          <th style="width:120px">E-Preis</th>
+          <th style="width:120px">G-Preis</th>
+          <th style="width:40px">🗑</th>
+        </tr>
+      </thead>
+      <tbody id="itemsBody"></tbody>
+    </table>
+    <div class="btnbar">
+      <button id="addItem" class="btn">+ Position</button>
+      <button class="btn secondary" id="addHeading">+ Abschnitt (Überschrift)</button>
+      <button class="btn secondary" id="clearItems">Positionen leeren</button>
+    </div>
+
+    <div class="section-title">Summen & Format</div>
+    <div class="row-3">
+      <div>
+        <label for="vatRate">USt-Satz (%)</label>
+        <input id="vatRate" type="number" step="0.1" value="19" />
+      </div>
+      <div>
+        <label for="currency">Währung</label>
+        <select id="currency">
+          <option value="EUR" selected>EUR</option>
+          <option value="CHF">CHF</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+      <div>
+        <label for="locale">Format</label>
+        <select id="locale">
+          <option value="de-DE" selected>de-DE</option>
+          <option value="en-GB">en-GB</option>
+          <option value="en-US">en-US</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="btnbar">
+      <button id="updatePreview" class="btn">Vorschau aktualisieren</button>
+      <button id="downloadHTML" class="btn">HTML-Rechnung downloaden</button>
+      <label class="tiny" style="display:flex;gap:.5rem;align-items:center">
+        <input type="checkbox" id="saveJsonTogether" checked>
+        JSON zusammen mit HTML speichern
+      </label>
+      <button class="btn secondary" id="saveJSON">Daten (JSON) separat speichern</button>
+      <label class="btn secondary" for="loadJSONInput" style="margin:0">Daten (JSON) laden</label>
+      <input id="loadJSONInput" type="file" accept="application/json" style="display:none" />
+      <button class="btn secondary" id="resetForm">Formular zurücksetzen</button>
+    </div>
+
+    <div class="section-title">Vergangene Aufträge</div>
+    <div class="row">
+      <div>
+        <label for="historySearch">Suchen</label>
+        <input id="historySearch" type="search" placeholder="Kunde, Nummer, Projekt, Datum…" />
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <div class="btnbar">
+          <label class="btn secondary" for="importHistoryCsvInput" style="margin:0">CSV importieren</label>
+          <input id="importHistoryCsvInput" type="file" accept=".csv,text/csv" style="display:none" />
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="historySelect">Auftrag auswählen</label>
+        <select id="historySelect"></select>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <div class="btnbar">
+          <button class="btn secondary" id="loadFromHistory">Laden</button>
+          <button class="btn secondary" id="deleteFromHistory">Aus Historie entfernen</button>
+          <button class="btn secondary" id="exportFromHistory">Als JSON exportieren</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Backup</div>
+    <div class="btnbar" id="backupButtons">
+      <button class="btn secondary" id="exportBackup">Backup exportieren (JSON)</button>
+      <label class="btn secondary" for="importBackupInput" style="margin:0">Backup importieren</label>
+      <input id="importBackupInput" type="file" accept="application/json" style="display:none" />
+    </div>
+
+    <div class="tiny muted" style="margin-top:6px">
+      PWA & IndexedDB aktiv – Daten bleiben erhalten. Tippe oben rechts auf „Installieren“ für App-Feeling.
+    </div>
+  </section>
+
+  <section class="card preview">
+    <div id="preview" class="doc">
+      <div class="muted">Noch keine Vorschau – „Vorschau aktualisieren“ klicken.</div>
+    </div>
+  </section>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>

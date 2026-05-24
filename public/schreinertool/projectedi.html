@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
+
+  <title>c3cad v11</title>
+  <link rel="shortcut icon" , href="logo.svg" , type="image/x-icon">
+<title>C3CAD Galerie</title>
+
+<style>
+body {
+  font-family: sans-serif;
+  padding: 20px;
+  background: #f5f5f5;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+input, select {
+  padding: 6px;
+  margin-top: 4px;
+  width: 200px;
+}
+
+.material-box {
+  background: white;
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 8px;
+}
+</style>
+  <link rel="stylesheet" href="c3cad.css">
+
+</head>
+
+<body>
+
+<h2>Projekt bearbeiten</h2>
+
+<label>Projektname</label>
+<input id="projName">
+
+<div id="materials"></div>
+
+<br>
+<button onclick="saveProject()">Speichern</button>
+
+<script>
+
+// Beispiel – normalerweise kommt das von URL oder parent
+let firstLine = "test m19btf14,1 m16blm16";
+
+
+// --------------------------------------
+// Parsing
+// --------------------------------------
+
+function parseProjectLine(line) {
+
+  const parts = line.trim().split(/\s+/);
+
+  const name = parts[0];
+
+  const materials = [];
+
+  for (let i = 1; i < parts.length; i++) {
+
+    const m = parts[i];
+
+    if (!m.startsWith("m")) continue;
+
+    const strength = m.match(/^m(\d+)/)?.[1] || "";
+    const color = m.match(/[a-z]{2}$/)?.[0] || "";
+    const price = m.includes(",") ? m.split(",")[1] : "";
+
+    materials.push({
+      raw: m,
+      strength,
+      color,
+      price
+    });
+  }
+
+  return { name, materials };
+}
+
+
+// --------------------------------------
+// UI Aufbau
+// --------------------------------------
+
+function buildUI(data) {
+
+  document.getElementById("projName").value = data.name;
+
+  const container = document.getElementById("materials");
+  container.innerHTML = "";
+
+  data.materials.forEach((mat, index) => {
+
+    const box = document.createElement("div");
+    box.className = "material-box";
+
+    box.innerHTML = `
+      <label>Stärke (mm)</label>
+      <input type="number" value="${mat.strength}" class="strength">
+
+      <label>Farbe</label>
+      <select class="color"></select>
+
+      <label>Preis</label>
+      <input type="number" step="0.01" value="${mat.price}" class="price">
+    `;
+
+    // Farben befüllen
+    const sel = box.querySelector(".color");
+    initColorSelect(sel);
+
+    if (mat.color)
+      sel.value = mat.color;
+
+    container.appendChild(box);
+  });
+
+}
+
+
+// --------------------------------------
+// Speichern
+// --------------------------------------
+
+function saveProject() {
+
+  const name = document.getElementById("projName").value.trim();
+
+  const mats = [];
+
+  document.querySelectorAll(".material-box").forEach(box => {
+
+    const s = box.querySelector(".strength").value;
+    const c = box.querySelector(".color").value;
+    const p = box.querySelector(".price").value;
+
+    let m = "m" + s;
+
+    if (c) m += c;
+    if (p) m += "," + p;
+
+    mats.push(m);
+  });
+
+  const newLine = name + " " + mats.join(" ");
+
+  alert("Neue erste Zeile:\n" + newLine);
+}
+
+
+// --------------------------------------
+// Farb-Select
+// --------------------------------------
+
+function initColorSelect(sel) {
+
+  sel.innerHTML = "";
+
+  for (const key in window.colors) {
+
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = window.colors[key].de;
+
+    opt.style.background = window.colors[key].css;
+    opt.style.color = "white";
+
+    sel.appendChild(opt);
+  }
+}
+
+
+// --------------------------------------
+
+const parsed = parseProjectLine(firstLine);
+buildUI(parsed);
+
+</script>
+</body>
+</html>

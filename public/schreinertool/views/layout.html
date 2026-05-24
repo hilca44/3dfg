@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="{{lang}}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- <link rel="stylesheet" href="css/c3.css"> -->
+
+  <style>
+    :root {
+      --page-max: 980px;
+      --line: #d8ddd6;
+      --ink: #222;
+      --muted: #5f675f;
+      --soft: #f6f7f4;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .site-header {
+      max-width: var(--page-max);
+      margin: 0 auto;
+      padding: 10px 16px 4px;
+      box-sizing: border-box;
+    }
+
+    .header-logo img {
+      width: 128px;
+      max-width: 42vw;
+      display: block;
+    }
+
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 6px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-links a {
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 14px;
+      line-height: 1.2;
+      padding: 5px 7px;
+      border-radius: 4px;
+    }
+
+    .nav-links a:hover {
+      background: var(--soft);
+    }
+
+    /* 🔹 Hamburger */
+    .menu-toggle {
+      font-size: 22px;
+      padding: 6px 10px;
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      background: #f7f7f7;
+      cursor: pointer;
+    }
+
+    /* 🔹 Dropdown Menu */
+    .menu-dropdown {
+      position: absolute;
+      top: 50px;
+      left: 10px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      display: none;
+      flex-direction: column;
+      min-width: 200px;
+      overflow: hidden;
+    }
+
+    .menu-dropdown a {
+      padding: 10px 14px;
+      text-decoration: none;
+      color: #222;
+      border-bottom: 1px solid #eee;
+    }
+
+    .menu-dropdown a:hover {
+      background: #f2f2f2;
+    }
+
+    .menu-dropdown.show {
+      display: flex;
+    }
+
+    /* 🔹 Jump Dropdown */
+    .jump-select {
+      flex: 1;
+      min-width: 220px;
+      max-width: 600px;
+      padding: 6px 8px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+    }
+
+    .lang-switch {
+      padding: 6px 8px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      background: #fff;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    /* 🔹 Scroll Offset */
+    main h2, main h3 {
+      scroll-margin-top: 78px;
+    }
+
+    body > h1,
+    body > h2,
+    .art-quote,
+    main {
+      max-width: var(--page-max);
+      margin-left: auto;
+      margin-right: auto;
+      box-sizing: border-box;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    body > h1 {
+      margin-top: 18px;
+      margin-bottom: 4px;
+      font-size: 26px;
+      line-height: 1.15;
+    }
+
+    body > h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 17px;
+      line-height: 1.3;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .art-quote {
+      margin-top: 0;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    main {
+      padding-bottom: 36px;
+    }
+
+    main h1,
+    main h2,
+    main h3 {
+      margin-top: 1.1em;
+      margin-bottom: .35em;
+      line-height: 1.2;
+    }
+
+    main p,
+    main ul,
+    main ol {
+      margin-top: .45em;
+      margin-bottom: .7em;
+      line-height: 1.5;
+    }
+
+    main hr {
+      border: 0;
+      border-top: 1px solid var(--line);
+      margin: 18px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="header-row">
+    <div class="header-logo">
+      <img src="/img/logo2.svg" width="40%" alt="3DFG Logo">
+    </div>
+  </div>
+</header>
+
+<div class="top-bar">
+
+    <nav class="nav-links" aria-label="Navigation">
+      <a href="{{href.start}}">{{nav.start}}</a>
+      <a href="{{href.app}}">{{nav.app}}</a>
+      <a href="{{href.tut}}">{{nav.tut}}</a>
+      <a href="{{href.example}}">{{nav.example}}</a>
+      <a href="{{href.commands}}">{{nav.commands}}</a>
+      <a href="{{href.spick}}">{{nav.spick}}</a>
+      <a href="/docs/spickzettel-ultra-kompakt.pdf" target="_blank" rel="noopener">Spick PDF</a>
+      <a href="{{href.getstart}}">{{nav.getstart}}</a>
+      <a href="{{href.videos}}">{{nav.videos}}</a>
+      <a href="{{href.price}}">Preise</a>
+      <a href="{{href.ai}}">AI</a>
+      <a href="{{href.gallery}}">Galerie</a>
+      <a href="{{href.login}}">Login</a>
+      <a href="{{href.impressum}}">{{nav.impressum}}</a>
+    </nav>
+
+  <select id="jumpSelect" class="jump-select">
+    <option value="">{{ui.jumpPlaceholder}}</option>
+  </select>
+
+  <select id="langSwitch" class="lang-switch" aria-label="Language">
+    <option value="{{href.de}}" lang="de">DE</option>
+    <option value="{{href.en}}" lang="en">EN</option>
+    <option value="{{href.fr}}" lang="fr">FR</option>
+    <option value="{{href.nl}}" lang="nl">NL</option>
+    <option value="{{href.pl}}" lang="pl">PL</option>
+    <option value="{{href.it}}" lang="it">IT</option>
+  </select>
+
+</div>
+<h1>
+  3dfg 3D Furniture Generator
+</h1>
+<h2>
+  Möbel sofort im Browser erzeugen
+</h2>
+<aside class="art-quote">
+  {{ui.quote}}
+</aside>
+
+<main>
+  {{content}}
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // 🔹 Hamburger Menü
+  const btn = document.getElementById("menuBtn");
+  const menu = document.getElementById("menuDropdown");
+
+  if (btn && menu) {
+    btn.addEvsentListener("click", () => {
+      menu.clasList.toggle("show");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!btn.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.remove("show");
+      }
+    });
+  }
+
+  // 🔹 Language Switch
+  const langSwitch = document.getElementById("langSwitch");
+  if (langSwitch) {
+    langSwitch.value = "{{href.current}}";
+    langSwitch.addEventListener("change", () => {
+      window.location.href = langSwitch.value;
+    });
+  }
+
+  // 🔹 Jump Navigation
+  const select = document.getElementById("jumpSelect");
+  const headings = document.querySelectorAll("main h2, main h3");
+
+  headings.forEach((el, i) => {
+    if (!el.id) el.id = "jump_" + i;
+
+    const option = document.createElement("option");
+    const prefix = el.tagName === "H3" ? "↳ " : "";
+
+    option.value = el.id;
+    option.textContent = prefix + el.textContent.trim();
+
+    select.appendChild(option);
+  });
+
+  select.addEventListener("change", () => {
+    const target = document.getElementById(select.value);
+    if (!target) return;
+
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,84 @@
+# ==========================================
+# BESCHLAG-KATALOG
+# ==========================================
+beschlaege:
+
+  topfscharnier_110:
+    name: "Topfscharnier 110°"
+    hersteller: "haefele"
+    artikel_nr: "329.68.503"
+    preis_eur: 2.45
+    einheit: "stk"
+
+  griff_standard:
+    name: "Bügelgriff Edelstahl"
+    hersteller: "haefele"
+    artikel_nr: "155.00.724"
+    preis_eur: 4.80
+    einheit: "stk"
+
+  exzenterverbinder:
+    name: "Exzenterverbinder"
+    hersteller: "haefele"
+    artikel_nr: "263.23.902"
+    preis_eur: 1.10
+    einheit: "stk"
+
+  fachbodentraeger:
+    name: "Fachbodenträger 5 mm"
+    hersteller: "haefele"
+    artikel_nr: "282.40.700"
+    preis_eur: 0.25
+    einheit: "stk"
+
+  universal-winkel-verbinder:
+    name: "Universal-Winkel"
+    hersteller: "haefele"
+    artikel_nr: "262.90.110"
+    preis_eur: 0.65
+    einheit: "stk"
+
+
+# ==========================================
+# REGELN PRO KORPUS-TEIL (c3cad-native)
+# ==========================================
+# l = linke seite
+# r = rechte seite
+# g = ground (boden)
+# t = top (deckel)
+# b = back (rückwand)
+# c = fachboden
+
+regeln:
+
+  f:   # front
+    beschlaege:
+      - ref: topfscharnier_110
+        min: 2
+        pro_m2: 4
+
+      - ref: griff_standard
+        fix: 1
+
+  g:   # ground / boden
+    beschlaege:
+      - ref: exzenterverbinder
+        fix: 4
+
+  t:   # top / deckel
+    beschlaege:
+      - ref: exzenterverbinder
+        fix: 4
+
+  c:   # fachboden
+    beschlaege:
+      - ref: fachbodentraeger
+        fix: 4
+
+  b:   # back / rückwand
+    beschlaege:
+      - ref: universal-winkel-verbinder
+        pro_m2: 4
+
+  l: {}   # linke seite (keine beschläge)
+  r: {}   # rechte seite (keine beschläge)

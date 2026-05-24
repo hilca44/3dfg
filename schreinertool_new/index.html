@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SchreinerTool New DSL</title>
+    <script type="module" src="main.js"></script>
+</head>
+<body>
+<h2>New DSL Test</h2>
+<textarea id="input" style="width:100%;height:150px;">
+a w.60 d.60 h.210
+u1 w.60 d.60 h.73 right.a
+u2 w.45 d.60 h.73 right.u1
+u3 w.60 d.60 h.73 right.u2
+</textarea>
+<br><br>
+<button onclick="run()">Run</button>
+<pre id="output"></pre>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>

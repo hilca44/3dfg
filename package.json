@@ -1,0 +1,14 @@
+{
+  "name": "c3cad-node",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "codemirror-colorpicker": "^1.9.80",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "marked": "^17.0.1",
+    "pm2": "^6.0.14",
+    "sanitize-html": "^2.17.1",
+    "vhost": "^3.0.2"
+  }
+}

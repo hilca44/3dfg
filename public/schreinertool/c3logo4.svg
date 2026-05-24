@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="100.07714"
+   height="100.46081"
+   viewBox="0 0 100.07714 100.46081"
+   version="1.1"
+   id="svg577"
+   sodipodi:docname="c3logo4.svg"
+   inkscape:export-filename="c3cad_flat_logo3.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs581" />
+  <sodipodi:namedview
+     id="namedview579"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="3.0935475"
+     inkscape:cx="-40.891565"
+     inkscape:cy="36.68927"
+     inkscape:window-width="1854"
+     inkscape:window-height="1009"
+     inkscape:window-x="66"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg577" />
+  <!-- C: schwarzer Block -->
+  <!-- 3: braune Blöcke -->
+  <!-- CAD: schwarzer Text, nicht überlappend -->
+  <g
+     id="g285"
+     transform="scale(1,0.73548842)">
+    <path
+       id="path277"
+       style="fill:#333333"
+       d="M 0,0 V 80 H 46.75357 V 60 H 20 V 20 H 46.75357 V 0 Z"
+       sodipodi:nodetypes="ccccccccc" />
+    <path
+       id="rect279"
+       style="fill:#c57c1f"
+       d="M 54.608486,4.2455578e-7 100,0 V 20 H 54.608486 Z"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       id="rect281"
+       style="fill:#c57c1f"
+       d="M 54.608486,30 H 100 V 50 H 54.608486 Z"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       id="rect283"
+       style="fill:#c57c1f"
+       d="M 54.608486,60 H 100 V 80 H 54.608486 Z"
+       sodipodi:nodetypes="ccccc" />
+  </g>
+  <text
+     x="-2.8957403"
+     y="99.94825"
+     font-size="51.2558px"
+     fill="#111111"
+     font-family="sans-serif"
+     font-weight="bold"
+     id="text287"
+     style="fill:#333333;stroke-width:1.06783">CAD</text>
+</svg>

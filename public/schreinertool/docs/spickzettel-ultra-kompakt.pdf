@@ -1,0 +1,305 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+3 0 obj
+<< /Length 10111 >>
+stream
+0.969 0.976 0.984 rg
+0.6 w 0 0 842 595 re f
+0.090 0.129 0.169 rg
+0.6 w 0 537 842 58 re f
+1.000 1.000 1.000 rg
+BT /F1 18 Tf 22 571 Td (schreinertool / 3dfg) Tj ET
+0.788 0.831 0.875 rg
+BT /F1 9 Tf 22 552 Td (Ultra-kompakter Spickzettel - 1 Seite) Tj ET
+0.851 0.976 0.616 rg
+BT /F1 10 Tf 562 564 Td (Prinzip: Textzeile -> Korpus / Teile / Ausgabe) Tj ET
+1.000 1.000 1.000 rg
+0.843 0.871 0.910 RG
+0.5 w 22 387 260.6666666666667 132 re B
+0.184 0.502 0.929 rg
+0.6 w 22 499 260.6666666666667 20 re f
+1.000 1.000 1.000 rg
+BT /F1 9.5 Tf 30 505 Td (Grundform) Tj ET
+0.184 0.502 0.929 rg
+BT /F2 7.2 Tf 30 485 Td (Projekt) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 485 Td (projekt m19wh m8gr) Tj ET
+0.184 0.502 0.929 rg
+BT /F2 7.2 Tf 30 473 Td (Korpus) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 473 Td (a p=lrgtbc w=80 d=40 h=72) Tj ET
+0.184 0.502 0.929 rg
+BT /F2 7.2 Tf 30 461 Td (Kurz) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 461 Td (a 80,40,72) Tj ET
+0.184 0.502 0.929 rg
+BT /F2 7.2 Tf 30 449 Td (Name) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 449 Td (a, b, c ... / a1 erbt von a) Tj ET
+1.000 1.000 1.000 rg
+0.843 0.871 0.910 RG
+0.5 w 290.6666666666667 387 260.6666666666667 132 re B
+0.059 0.624 0.431 rg
+0.6 w 290.6666666666667 499 260.6666666666667 20 re f
+1.000 1.000 1.000 rg
+BT /F1 9.5 Tf 298.6666666666667 505 Td (Teile) Tj ET
+0.059 0.624 0.431 rg
+BT /F2 7.2 Tf 298.6666666666667 485 Td (p) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 485 Td (Teile am Korpus) Tj ET
+0.059 0.624 0.431 rg
+BT /F2 7.2 Tf 298.6666666666667 473 Td (l r) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 473 Td (linke / rechte Seite) Tj ET
+0.059 0.624 0.431 rg
+BT /F2 7.2 Tf 298.6666666666667 461 Td (g t) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 461 Td (Boden / Deckel) Tj ET
+0.059 0.624 0.431 rg
+BT /F2 7.2 Tf 298.6666666666667 449 Td (b f) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 449 Td (Rueckwand / Front) Tj ET
+0.059 0.624 0.431 rg
+BT /F2 7.2 Tf 298.6666666666667 437 Td (c v) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 437 Td (Fachboden / Mittelseite) Tj ET
+0.059 0.624 0.431 rg
+BT /F2 7.2 Tf 298.6666666666667 425 Td (vc/cv) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 425 Td (Reihenfolge bestimmt, wer) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 417 Td (durchlaeuft) Tj ET
+1.000 1.000 1.000 rg
+0.843 0.871 0.910 RG
+0.5 w 559.3333333333334 387 260.6666666666667 132 re B
+0.486 0.227 0.929 rg
+0.6 w 559.3333333333334 499 260.6666666666667 20 re f
+1.000 1.000 1.000 rg
+BT /F1 9.5 Tf 567.3333333333334 505 Td (Masse + Position) Tj ET
+0.486 0.227 0.929 rg
+BT /F2 7.2 Tf 567.3333333333334 485 Td (w d h) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 485 Td (Breite / Tiefe / Hoehe) Tj ET
+0.486 0.227 0.929 rg
+BT /F2 7.2 Tf 567.3333333333334 473 Td (x y z) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 473 Td (links-rechts / vorne-hinten /) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 465 Td (unten-oben) Tj ET
+0.486 0.227 0.929 rg
+BT /F2 7.2 Tf 567.3333333333334 453 Td (+3) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 453 Td (relativ addieren) Tj ET
+0.486 0.227 0.929 rg
+BT /F2 7.2 Tf 567.3333333333334 441 Td (3,5,7) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 441 Td (Liste / Sequenz) Tj ET
+0.486 0.227 0.929 rg
+BT /F2 7.2 Tf 567.3333333333334 429 Td (dito) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 429 Td (letzte Sequenz wiederholen) Tj ET
+1.000 1.000 1.000 rg
+0.843 0.871 0.910 RG
+0.5 w 22 247 260.6666666666667 132 re B
+0.545 0.369 0.204 rg
+0.6 w 22 359 260.6666666666667 20 re f
+1.000 1.000 1.000 rg
+BT /F1 9.5 Tf 30 365 Td (Material) Tj ET
+0.545 0.369 0.204 rg
+BT /F2 7.2 Tf 30 345 Td (m19wh) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 345 Td (Material 1: 19 mm weiss) Tj ET
+0.545 0.369 0.204 rg
+BT /F2 7.2 Tf 30 333 Td (m=2) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 333 Td (Korpusmaterial) Tj ET
+0.545 0.369 0.204 rg
+BT /F2 7.2 Tf 30 321 Td (b.m=2) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 321 Td (Teilmaterial) Tj ET
+0.545 0.369 0.204 rg
+BT /F2 7.2 Tf 30 309 Td (v.s=3) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 309 Td (Teilstaerke in cm) Tj ET
+1.000 1.000 1.000 rg
+0.843 0.871 0.910 RG
+0.5 w 290.6666666666667 247 260.6666666666667 132 re B
+0.961 0.620 0.043 rg
+0.6 w 290.6666666666667 359 260.6666666666667 20 re f
+1.000 1.000 1.000 rg
+BT /F1 9.5 Tf 298.6666666666667 365 Td (Aendern) Tj ET
+0.961 0.620 0.043 rg
+BT /F2 7.2 Tf 298.6666666666667 345 Td (u=8gs) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 345 Td (Sockel unten) Tj ET
+0.961 0.620 0.043 rg
+BT /F2 7.2 Tf 298.6666666666667 333 Td (f.u=0.4) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 333 Td (Front umlaufend kleiner) Tj ET
+0.961 0.620 0.043 rg
+BT /F2 7.2 Tf 298.6666666666667 321 Td (c.u=2f) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 321 Td (Fachboden vorne kuerzer) Tj ET
+0.961 0.620 0.043 rg
+BT /F2 7.2 Tf 298.6666666666667 309 Td (l.u=7f,9tg) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 309 Td (links: vorne, oben/unten) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 301 Td (kuerzen) Tj ET
+0.961 0.620 0.043 rg
+BT /F2 7.2 Tf 298.6666666666667 289 Td (leg=22,4) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 289 Td (4 Beine, 22 cm) Tj ET
+1.000 1.000 1.000 rg
+0.843 0.871 0.910 RG
+0.5 w 559.3333333333334 247 260.6666666666667 132 re B
+0.086 0.639 0.290 rg
+0.6 w 559.3333333333334 359 260.6666666666667 20 re f
+1.000 1.000 1.000 rg
+BT /F1 9.5 Tf 567.3333333333334 365 Td (Innenaufteilung) Tj ET
+0.086 0.639 0.290 rg
+BT /F2 7.2 Tf 567.3333333333334 345 Td (layout=30:4,240:2,rest:3) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 345 Td (Spaltenbreite:Faecher) Tj ET
+0.086 0.639 0.290 rg
+BT /F2 7.2 Tf 567.3333333333334 333 Td (cols=3:4) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 333 Td (3 gleiche Spalten, 4 Faecher) Tj ET
+0.086 0.639 0.290 rg
+BT /F2 7.2 Tf 567.3333333333334 321 Td (v.s=3 c.s=2) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 321 Td (Mittelseite/Fachboden staerker) Tj ET
+0.086 0.639 0.290 rg
+BT /F2 7.2 Tf 567.3333333333334 309 Td (rest) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 309 Td (nimmt verbleibende Breite) Tj ET
+1.000 1.000 1.000 rg
+0.843 0.871 0.910 RG
+0.5 w 22 107 260.6666666666667 132 re B
+0.031 0.569 0.698 rg
+0.6 w 22 219 260.6666666666667 20 re f
+1.000 1.000 1.000 rg
+BT /F1 9.5 Tf 30 225 Td (Wiederholen + Split) Tj ET
+0.031 0.569 0.698 rg
+BT /F2 7.2 Tf 30 205 Td (nx=3,10) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 205 Td (3x in X mit Abstand 10) Tj ET
+0.031 0.569 0.698 rg
+BT /F2 7.2 Tf 30 193 Td (nz=4,20) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 193 Td (4x in Z mit Abstand 20) Tj ET
+0.031 0.569 0.698 rg
+BT /F2 7.2 Tf 30 181 Td (f.sx=3,5) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 181 Td (Front in X teilen) Tj ET
+0.031 0.569 0.698 rg
+BT /F2 7.2 Tf 30 169 Td (f.sz=2,4) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 169 Td (Front in Z teilen) Tj ET
+0.031 0.569 0.698 rg
+BT /F2 7.2 Tf 30 157 Td (l.h=40,30,g6,1) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 100 157 Td (ungleiche Stuecke + Rest) Tj ET
+1.000 1.000 1.000 rg
+0.843 0.871 0.910 RG
+0.5 w 290.6666666666667 107 260.6666666666667 132 re B
+0.863 0.149 0.149 rg
+0.6 w 290.6666666666667 219 260.6666666666667 20 re f
+1.000 1.000 1.000 rg
+BT /F1 9.5 Tf 298.6666666666667 225 Td (Verbinden) Tj ET
+0.863 0.149 0.149 rg
+BT /F2 7.2 Tf 298.6666666666667 205 Td (i / c) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 205 Td (mit vorherigem Korpus verbinden) Tj ET
+0.863 0.149 0.149 rg
+BT /F2 7.2 Tf 298.6666666666667 193 Td (i=a,,0_b,,3) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 193 Td (Punkt auf Punkt) Tj ET
+0.863 0.149 0.149 rg
+BT /F2 7.2 Tf 298.6666666666667 181 Td (cur / tar) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 181 Td (aktueller Punkt / Zielpunkt) Tj ET
+0.863 0.149 0.149 rg
+BT /F2 7.2 Tf 298.6666666666667 169 Td (0-3) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 169 Td (vordere Ecken) Tj ET
+0.863 0.149 0.149 rg
+BT /F2 7.2 Tf 298.6666666666667 157 Td (4-7) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 157 Td (hintere Ecken) Tj ET
+0.863 0.149 0.149 rg
+BT /F2 7.2 Tf 298.6666666666667 145 Td (06) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 368.6666666666667 145 Td (Diagonal/Zentrum) Tj ET
+1.000 1.000 1.000 rg
+0.843 0.871 0.910 RG
+0.5 w 559.3333333333334 107 260.6666666666667 132 re B
+0.278 0.333 0.412 rg
+0.6 w 559.3333333333334 219 260.6666666666667 20 re f
+1.000 1.000 1.000 rg
+BT /F1 9.5 Tf 567.3333333333334 225 Td (Aliase) Tj ET
+0.278 0.333 0.412 rg
+BT /F2 7.2 Tf 567.3333333333334 205 Td (sk=a,14,3) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 205 Td (Schubkaesten in a) Tj ET
+0.278 0.333 0.412 rg
+BT /F2 7.2 Tf 567.3333333333334 193 Td (soc=8) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 193 Td (Sockelblende) Tj ET
+0.278 0.333 0.412 rg
+BT /F2 7.2 Tf 567.3333333333334 181 Td (leg=22,2) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 181 Td (2 Beine) Tj ET
+0.278 0.333 0.412 rg
+BT /F2 7.2 Tf 567.3333333333334 169 Td (...,e) Tj ET
+0.153 0.192 0.239 rg
+BT /F1 6.8 Tf 637.3333333333334 169 Td (Alias sichtbar ausschreiben) Tj ET
+1.000 0.992 0.969 rg
+0.918 0.843 0.651 RG
+0.6 w 22 20 798 74 re B
+0.631 0.384 0.027 rg
+0.6 w 22 74 798 20 re f
+1.000 1.000 1.000 rg
+BT /F1 9 Tf 30 80 Td (Beispiele zum Kopieren) Tj ET
+0.247 0.184 0.071 rg
+BT /F2 7.2 Tf 32 62 Td (schrank m19wh) Tj ET
+0.247 0.184 0.071 rg
+BT /F2 7.2 Tf 32 52 Td (a p=lrgtb w=300 d=60 h=220 layout=30:4,240:2,rest:3) Tj ET
+0.247 0.184 0.071 rg
+BT /F2 7.2 Tf 32 42 Td (a p=lrgtbvc w=80 d=40 h=72 v.x=9) Tj ET
+0.247 0.184 0.071 rg
+BT /F2 7.2 Tf 32 32 Td (b sk=a,14,3) Tj ET
+0.247 0.184 0.071 rg
+BT /F2 7.2 Tf 32 22 Td (c p=lrgtbc 60,40,72 i=a,,0_a,,3) Tj ET
+0.420 0.357 0.208 rg
+BT /F1 6.8 Tf 452 27 Td (Farben: Blau=Grundform, Gruen=Teile/Layout, Violett=Masse, Gelb=Aendern, Rot=Verbinden.) Tj ET
+endstream
+endobj
+4 0 obj
+<< /Type /Page /Parent 5 0 R /MediaBox [0 0 842 595] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 3 0 R >>
+endobj
+5 0 obj
+<< /Type /Pages /Kids [4 0 R] /Count 1 >>
+endobj
+6 0 obj
+<< /Type /Catalog /Pages 5 0 R >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000079 00000 n 
+0000000147 00000 n 
+0000010311 00000 n 
+0000010447 00000 n 
+0000010504 00000 n 
+trailer
+<< /Size 7 /Root 6 0 R >>
+startxref
+10553
+%%EOF

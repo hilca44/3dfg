@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>C3CAD Assembler</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #view {
+      width: 100%;
+      height: 420px;
+      border: 1px solid #ccc;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<h2>C3CAD Assembling</h2>
+
+<section>
+  <h3>Basis (A)</h3>
+  <textarea id="baseA" placeholder="C3CAD URL für A" rows="4"></textarea>
+</section>
+
+<section>
+  <button id="btnRender">Render A</button>
+</section>
+
+<div id="view"></div>
+
+<!-- WICHTIG: assemble.js als MODULE -->
+<script type="module" src="assemble.js"></script>
+
+</body>
+</html>

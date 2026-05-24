@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
+
+  <title>schreinertool v11</title>
+  <link rel="shortcut icon" , href="logo.svg" , type="image/x-icon">
+<title>schreinertool Publish</title>
+<script
+
+  link rel="stylesheet" href="c3cad.css">
+</script>
+
+<style>
+
+/* ===== Header ===== */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: #111;
+  color: white;
+}
+
+.header h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.header button {
+  background: white;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+/* ===== Content ===== */
+
+.container {
+  max-width: 900px;
+  margin: 30px auto;
+}
+
+.preview {
+  width: 320px;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+  display: block;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.notice {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #888;
+}
+
+.publishbtn {
+  margin-top: 15px;
+  padding: 10px 16px;
+  background: black;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.publishbtn:disabled {
+  background: #777;
+  cursor: default;
+}
+
+.publishbtn:hover:not(:disabled) {
+  background: #333;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h1>Möbel veröffentlichen</h1>
+  <button onclick="goBack()">Abbrechen</button>
+</div>
+
+<div class="container">
+
+  <img id="preview" class="preview">
+
+  <input 
+    type="text"
+    id="desc"
+    placeholder="Kurzbeschreibung..."
+    maxlength="200"
+  >
+
+  <div class="notice">
+    Dieses Möbel wird öffentlich in der schreinertool-Datenbank gespeichert.
+  </div>
+
+  <button class="publishbtn" id="publishBtn" onclick="send()">
+    Veröffentlichen
+  </button>
+
+</div>
+
+<script>
+
+/* ==========================================
+   Material & Beschreibung Generator
+========================================== */
+
+const COLOR_NAMES = {
+  wh: "weiss",
+  bl: "blau",
+  re: "rot",
+  oc: "ocker"
+};
+
+const PART_NAMES = {
+  b: "rückwand",
+  c: "mitte",
+  f: "front",
+  g: "unten",
+  l: "links",
+  r: "rechts",
+  t: "oben",
+  v: "steg",
+  a: "korpus"
+};
+
+function extractProjectName(inn) {
+  if (!inn) return "";
+
+  const firstLine = inn.split(/\r?\n/)[0]?.trim();
+  if (!firstLine) return "";
+
+  // alles vor dem ersten "m" (Material) nehmen
+  const name = firstLine.split(/\bm/i)[0].trim();
+
+  return name;
+}
+
+function parseMaterials(inn) {
+
+  const materials = {};
+  const lines = inn.split(/\r?\n/);
+  let nextIndex = 1;
+
+  for (const line of lines) {
+    const oldStyle = line.match(/^m(\d+)\s*,\s*([\d.]+)\s*,\s*([a-z]+)/i);
+    if (oldStyle) {
+      materials[Number(oldStyle[1])] = {
+        thickness: Number(oldStyle[2]),
+        color: oldStyle[3].toLowerCase()
+      };
+      nextIndex = Math.max(nextIndex, Number(oldStyle[1]) + 1);
+      continue;
+    }
+
+    const modernMaterialMatches = line.matchAll(/\b(?:m|mat)\.([\d.]+),([a-zäöüß_-]+)/gi);
+    for (const m of modernMaterialMatches) {
+      materials[nextIndex++] = {
+        thickness: Number(m[1]),
+        color: m[2].toLowerCase()
+      };
+    }
+
+    const materialMatches = line.matchAll(/\bm([\d.]+)([a-z]{1,2})([a-z])?[\d.,]*/gi);
+    for (const m of materialMatches) {
+      materials[nextIndex++] = {
+        thickness: Number(m[1]),
+        color: m[2].toLowerCase()
+      };
+    }
+  }
+
+  return materials;
+}
+
+function parseAssignments(inn) {
+
+  const out = [];
+  const lines = inn.split(/\r?\n/);
+
+  for (const line of lines) {
+    const propertyMatches = line.matchAll(/\b([a-z]+)\.(?:m|mat)[=.](\d+)/gi);
+    for (const m of propertyMatches) {
+      out.push({
+        part: m[1].toLowerCase(),
+        materialId: Number(m[2])
+      });
+    }
+
+    const matches = line.match(/m([a-z]+)(\d+)/gi);
+    if (!matches) continue;
+
+    for (const token of matches) {
+
+      const m = token.match(/^m([a-z]+)(\d+)$/i);
+      if (!m) continue;
+
+      out.push({
+        part: m[1].toLowerCase(),
+        materialId: Number(m[2])
+      });
+    }
+  }
+
+  return out;
+}
+
+function extractDims(inn) {
+
+  const m = inn.match(/\b(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\b/);
+  if (!m) return null;
+
+  return {
+    w: m[1],
+    d: m[2],
+    h: m[3]
+  };
+}
+
+function generateShortDescription(inn) {
+
+  if (!inn) return "";
+
+  const mats = parseMaterials(inn);
+  const assigns = parseAssignments(inn);
+  const dims = extractDims(inn);
+
+  let parts = [];
+  const name = extractProjectName(inn) || "projekt";
+
+  if (dims) {
+    parts.push(
+      `${name} ${dims.w}x${dims.d}x${dims.h} cm`
+    );
+  } else {
+    parts.push(name);
+  }
+
+  for (const a of assigns) {
+
+    const mat = mats[a.materialId];
+    if (!mat) continue;
+
+    const partName = PART_NAMES[a.part] || a.part;
+    const color = COLOR_NAMES[mat.color] || mat.color;
+
+    parts.push(
+      `${partName} ${mat.thickness} mm ${color}`
+    );
+  }
+
+  if (assigns.length === 0) {
+    Object.values(mats).slice(0, 3).forEach(mat => {
+      const color = COLOR_NAMES[mat.color] || mat.color;
+      parts.push(`${mat.thickness} mm ${color}`);
+    });
+  }
+
+  return parts.join(", ").slice(0, 200);
+}
+
+/* ==========================================
+   Init
+========================================== */
+
+ const inn = localStorage.getItem("pubinn") || "";
+  const url = localStorage.getItem("puburl") || "";
+const img = localStorage.getItem("pubimg");
+document.getElementById("preview").src = img || "";
+
+const projectName = extractProjectName(inn);
+const suggestion = generateShortDescription(inn);
+
+// Priorität: Projektname → sonst Beschreibung
+document.getElementById("desc").value =
+  projectName || suggestion;
+/* ==========================================
+   Publish
+========================================== */
+
+async function send() {
+
+  const btn = document.getElementById("publishBtn");
+  btn.disabled = true;
+
+  try {
+    const description =
+      document.getElementById("desc").value.trim();
+
+    if (!description) {
+      alert("Bitte Beschreibung eingeben.");
+      btn.disabled = false;
+      return;
+    }
+
+    let imageUrl = img || "";
+    if (imageUrl && imageUrl.startsWith("data:image")) {
+      const uploadRes = await fetch("/publish-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ img: imageUrl })
+      });
+
+      const uploadResult = await uploadRes.json().catch(() => ({}));
+      if (uploadRes.ok && uploadResult.ok) {
+        imageUrl = uploadResult.imageUrl || "";
+      } else {
+        console.warn("image upload failed", uploadResult);
+        imageUrl = "";
+      }
+    }
+
+    const res = await fetch("/publish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        img: imageUrl,
+        txt: description,
+        inn: inn,
+        url: url
+      })
+    });
+
+    const result = await res.json();
+
+    if (!result.ok) throw new Error("publish failed");
+
+    alert("Erfolgreich veröffentlicht.");
+
+    if (window.opener) {
+      window.opener.focus();
+      window.close();
+    } else {
+      window.location.href = "/";
+    }
+
+  } catch (err) {
+    alert("Fehler beim Veröffentlichen: " + (err?.message || err));
+    btn.disabled = false;
+  }
+}
+
+/* Enter-Taste */
+document
+  .getElementById("desc")
+  .addEventListener("keydown", e => {
+    if (e.key === "Enter") send();
+  });
+
+function goBack() {
+  if (window.opener) {
+    window.opener.focus();
+    window.close();
+  } else {
+    window.location.href = "/";
+  }
+}
+
+</script>
+
+</body>
+</html>

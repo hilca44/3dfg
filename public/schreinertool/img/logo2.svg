@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 170" role="img" aria-labelledby="t d">
+<title id="t">3DFG Logo</title><desc id="d">3DFG 3D Furniture Generator</desc>
+<defs>
+<linearGradient id="g" x1="0" x2="1"><stop stop-color="#22282a"/><stop offset="1" stop-color="#4a4f50"/></linearGradient>
+<linearGradient id="o" x1="0" x2="1"><stop stop-color="#ff9700"/><stop offset="1" stop-color="#f36f00"/></linearGradient>
+</defs>
+<g transform="scale(.62)">
+<path fill="url(#g)" d="M16 54 81 19c6-3 11-4 18-2l47 17c3 1 4 5 1 6L61 84c-6 3-9 8-9 15v26L17 107c-5-3-8-7-8-13V67c0-6 2-10 7-13Zm-7 79 61 25c7 3 13 5 20 5h24v-41H61c-6 0-10-2-15-4L9 103Z"/>
+<path fill="url(#o)" d="M59 87 157 38c4-2 7-2 12 0l49 17c8 3 12 9 12 17v26c0 16-8 29-23 38 15 5 22 15 22 31v24c0 9-4 15-12 20l-92 47c-4 2-8 0-8-5v-31l80-40c8-4 12-10 12-19v-6c0-11-8-17-19-12l-90 45c-4 2-8 0-8-5v-30l88-44c9-4 13-11 13-21v-8c0-10-8-15-17-11L59 127c-4 2-8 0-8-5V99c0-5 3-10 8-12Z"/>
+</g>
+<text x="190" y="80" fill="#3a3d3d" font-family="Arial Black,Arial,sans-serif" font-size="58" font-weight="900">3</text>
+<text x="267" y="80" fill="#f57c00" font-family="Arial Black,Arial,sans-serif" font-size="58" font-weight="900">DFG</text>
+<text x="190" y="120" fill="#4a4d4d" font-family="Arial,Helvetica,sans-serif" font-size="30" letter-spacing="8">3dfg.de</text>
+<text x="190" y="154" fill="#f57c00" font-family="Arial,Helvetica,sans-serif" font-size="20" letter-spacing="4">3D Furniture Generator</text>
+</svg>

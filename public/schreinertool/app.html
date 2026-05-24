@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
+
+  <title>schreinertool v20</title>
+  <link rel="shortcut icon" , href="logo.svg" , type="image/x-icon">
+  <link rel="stylesheet" href="c3cad.css?v=arrayparse34">
+  <script type="importmap">
+            {
+              "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+              }
+            }
+          </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js">
+
+  </script>
+<script src="shortfDescr.js"></script>  
+
+  <!-- <script type="module" src="./main.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="i18n.js"></script>
+</head>
+
+
+<body>
+  <div id="app">
+    <div id="topStatus" class="top-status"></div>
+    <!-- SLOT 0: Datei-Operationen -->
+    <div id="slot0" class="action-grid">
+    </div>
+    <div id="slot12">
+
+      <!-- SLOT 1 -->
+      <div id="slot1" class="slot">
+        <div id="blockEditor" class="view"></div>
+        <div id="canvas" class="view"></div>
+        <div id="templates" class="view"></div>
+        <div id="helpText" class="view"></div>
+        <div id="woodList" class="view"></div>
+        <div id="woodOverview" class="view"></div>
+        <div id="err" class="view"></div>
+        <!-- PROJECT EDITOR -->
+        <div id="projectEdit" class="view">
+
+          <!-- Projektname -->
+          <div class="row">
+            <input id="projName" type="text" placeholder="projektname" data-i18n-placeholder="ui.projectName" />
+          </div>
+          <div class="color-picker">
+
+            <!-- <button class="color-btn" type="button"></button> -->
+
+            <div class="color-menu hidden"></div>
+
+          </div>
+
+          <!-- Materialien -->
+          <div id="materialList"></div>
+
+          <!-- Buttons -->
+          <div class="row">
+            <button id="addMaterial" data-i18n="ui.addMaterial">+ material</button>
+          </div>
+
+        </div>
+        <div id="filepic" class="view">
+          <input type="file" id="c3cadFileInput" accept=".html">
+
+        </div>
+      </div>
+
+      <!-- SLOT 2 -->
+      <div id="slot2" class="slot">
+        <textarea id="inn" class="view"></textarea>
+        <div id="lineButtons" class="view"></div>
+        <div id="treeView" class="view"></div>
+
+
+        <div id="helpIndex" class="view"></div>
+      </div>
+    </div>
+
+    <!-- SLOT 3 -->
+    <div id="slot3" class="action-grid">
+    </div>
+
+
+  </div>
+  
+  <div id="helpMenu" class="menu">
+    <a href="/" data-i18n="nav.start">Start</a>
+    <a href="/example" data-i18n="nav.example">Beispiele</a>
+    <a href="/commands" data-i18n="nav.commands">Befehle</a>
+    <a href="/tut" data-i18n="nav.tut">Tutorial</a>
+    <a href="/spick" data-i18n="nav.spick">Spickzettel</a>
+    <a href="/docs/spickzettel-ultra-kompakt.pdf" target="_blank" rel="noopener">Spick PDF</a>
+    <a href="/videos" data-i18n="nav.videos">YouTube</a>
+    <a href="/gallery" data-i18n="nav.gallery">Galerie</a>
+    <a href="/login">Login / meine Galerie</a>
+    <a href="app.html" data-i18n-href="de" lang="de">DE</a>
+    <a href="app.html" data-i18n-href="en" lang="en">EN</a>
+    <a href="app.html" data-i18n-href="fr" lang="fr">FR</a>
+    <a href="app.html" data-i18n-href="nl" lang="nl">NL</a>
+    <a href="app.html" data-i18n-href="pl" lang="pl">PL</a>
+    <a href="app.html" data-i18n-href="it" lang="it">IT</a>
+  </div>
+  <div id="mdBox" class="menu">
+    <!-- buttons / content -->
+  </div>
+  </div>
+<div id="colorPicker"></div>
+<button id="centralReloadButton" type="button" title="reload">↑</button>
+<button id="randomStopButton" type="button" title="Auto stoppen">STOP</button>
+<!-- <button type="button" onclick="toggleRandomParams()">🎲 Random Furniture</button> -->
+<div id="randomParamHost"></div>
+
+
+  <script>
+// const imported =
+//   localStorage.getItem("c3_import");
+
+// if (imported) {
+//   localStorage.removeItem("c3_import");
+//   window.location.hash = "?t=" + encodeURIComponent(imported);
+// }
+
+    /* =========================================================
+       FARBEN
+    ========================================================= */
+    const DEFAULT_COLORS = {
+      white: { de: "White", css: "#ffffff" },
+      wheat: { de: "Wheat", css: "#f5deb3" },
+      cornflowerblue: { de: "Cornflower Blue", css: "#6495ed" },
+      gray: { de: "Gray", css: "#808080" },
+      anthracite: { de: "Anthracite", css: "#2b2b2b" },
+      burlywood: { de: "Burlywood", css: "#deb887" },
+      darkseagreen: { de: "Dark Sea Green", css: "#8fbc8f" },
+      indianred: { de: "Indian Red", css: "#cd5c5c" },
+      terracotta: { de: "Terracotta", css: "#b06040" },
+      maroon: { de: "Maroon", css: "#800000" }
+    };
+    var colors = { ...DEFAULT_COLORS };
+    window.colors = colors;
+    function applyColorLabels(messages) {
+      if (!messages?.colors) return;
+      Object.entries(messages.colors).forEach(([key, label]) => {
+        if (colors[key]) colors[key].de = label;
+      });
+    }
+    window.colorsReady = fetch("color.json")
+      .then(res => {
+        if (!res.ok) throw new Error(`color.json ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        Object.assign(colors, data || {});
+        applyColorLabels(window.ST_I18N);
+        return colors;
+      })
+      .catch(err => {
+        console.error("color.json konnte nicht geladen werden", err);
+        return colors;
+      });
+    window.ST_I18N_READY?.then(messages => window.colorsReady.then(() => applyColorLabels(messages)));
+
+    function initColorSelect(sel) {
+      sel.innerHTML = "";
+
+      Object.entries(colors).forEach(([key, val]) => {
+        const opt = document.createElement("option");
+        const di = document.createElement("div");
+        opt.value = key;
+        di.textContent = "col";
+        opt.textContent = `${key} – ${val.de}`;
+
+        // ✅ Farbe liegt im Eintrag → direkt benutzen
+        di.style.backgroundColor = "red";
+        // opt.style.background = val.css;
+        opt.style.color = isLightColor(val.css) ? "#000" : "#fff";
+
+        opt.appendChild(di);
+        sel.appendChild(opt);
+      });
+
+      // initial auch das Select einfärben
+      updateSelectColor(sel);
+    }
+
+    function updateSelectColor(sel) {
+      const c = colors[sel.value];
+      if (!c) return;
+
+      sel.style.backgroundColor = c.css;
+      sel.style.color = isLightColor(c.css) ? "#000" : "#fff";
+    }
+
+
+
+    function isLightColor(css) {
+      const hex = String(css || "").trim().match(/^#?([0-9a-f]{6})$/i)?.[1];
+      if (!hex) return false;
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+      return (r * 299 + g * 587 + b * 114) / 1000 > 175;
+    }
+
+    // Farbe abdunkeln/aufhellen
+    function applyLight(css, idx) {
+      const f = (12 - idx) * 6;
+      return `color-mix(in srgb, ${css}, black ${Math.max(0, f)}%)`;
+    }
+    /* =========================================================
+       STATE
+    ========================================================= */
+    const projectState = {
+      name: "",
+      materials: []
+    };
+  </script>
+  
+
+
+
+<script src="./config.js"></script>
+<script src="./inspector-aliases.js"></script>
+
+	<script type="module" src="./fu.js?v=arrayparse34"></script>
+	
+	<script type="module" src="./app.js?v=arrayparse34"></script>
+<script src="./random.js"></script>
+  <script type="module">
+	    import { magie } from "./main.js?v=arrayparse34";
+	    import { DEFAULT_CORPUS, normalizeCornerRefs, urlToInn } from "./fu.js?v=arrayparse34";
+	    import { expandAliases, materializeAliases } from "./alias.js?v=arrayparse34";
+	    import { convertLegacyToModern } from "./legacy-converter.js?v=arrayparse34";
+
+    // ---------------------------------------------
+    // Projekt vom Server laden (EINZIGE Quelle)
+    // ---------------------------------------------
+    async function loadProjFromServer(text) {
+        const engineText = expandAliases(text);
+	      const url = "/getProj?text=" + encodeURIComponent(engineText);
+	      const res = await fetch(url);
+	
+	      if (!res.ok) {
+	        const data = await res.clone().json().catch(() => null);
+          let message = data && data.error ? data.error : "";
+          if (!message) message = await res.text();
+          if (/Invalid or unexpected token/i.test(message)) {
+            message = "Projekt konnte nicht gelesen werden: Ein Wert oder Ausdruck ist syntaktisch ungültig.";
+          }
+	        const err = new Error(message);
+          if (data && data.code === "PROJECT_PART_LIMIT") err.name = "ProjectPartLimitError";
+          if (data && data.line) err.line = data.line;
+          if (data && data.token) err.token = data.token;
+	        throw err;
+	      }
+
+      const pr = normalizeCornerRefs(await res.json());
+      console.log("✅ Projekt vom Server geladen:", pr);
+      window.PR = pr;
+      return pr;
+    }
+
+    // ---------------------------------------------
+    // EINZIGER Startpunkt der App
+    // ---------------------------------------------
+	    (async () => { 
+        let startupText = "";
+	      try {
+      await window.colorsReady;
+      const parsed = urlToInn(window.location.href);
+      let text = convertLegacyToModern(materializeAliases(parsed || ""));
+      if (/^test\s+mat\.19,(?:bt,f|wheat),14,1\s+mat\.16,(?:bl,e|cornflowerblue),16(?:,0)?\s*\r?\na\s*$/i.test(text)) {
+        text = DEFAULT_CORPUS;
+      }
+      startupText = text;
+console.log("🚀 STARTING APP with text:", text)   ;
+      // optional: textarea synchron halten (nur Anzeige!)
+      const ta = document.getElementById("inn");
+      if (ta) ta.value = text;
+
+      // 🔑 Projekt kommt AUSSCHLIESSLICH vom Server
+      const PR = await loadProjFromServer(text);
+      window.PR = PR
+      if (text.trim()) PR.inn = text;
+      if (window.validateProjectPartLimit) await window.validateProjectPartLimit(PR);
+      if (ta) ta.value = PR?.inn || text;
+      window.syncInnEditorFromTextarea?.();
+	      // 🔥 Render
+	      await magie(PR);
+      window.syncEditHistoryToCurrent?.();
+      window.updateToolbarStatus?.();
+	
+	      } catch (err) {
+	        console.error("❌ APP START FAILED:", err);
+          window.showInnProjectError?.(startupText, err);
+      }
+	    })();
+  </script>
+<script type="module" src="./codemirror-editor.js?v=arrayparse34"></script>
+<script src="share-gate.js"></script>  
+
+</body>
+
+</html>

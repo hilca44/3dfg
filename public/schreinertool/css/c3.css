@@ -1,0 +1,697 @@
+/* =========================================================
+   THEME – Erdgrau / Braun + Orange Akzent
+   (Nur Farben per Variablen – Layout bleibt wie im Original)
+   ========================================================= */
+
+:root {
+  /* Grundflächen */
+  --bg-dark:        #2f2a26; /* App-Hintergrund */
+  --bg-darker:      #25211e; /* Editor-Overlay */
+  --bg-mid:         #3c3631; /* Bars */
+  --bg-mid-2:       #5a5047; /* Active / pressed */
+  --bg-mid-3:       #3c3631; /* ehem. grün → neutralisiert */
+
+  /* Karten / Panels */
+  --card:           #dad3c6; /* ehem. #f4f4ee */
+  --card-2:         #eef3f6;
+  --card-3:         cornsilk; /* ehem. #f6f4c4cd → vereinheitlicht */
+  --card-4:         #ededdf;
+  --card-5:         #e4e1d3;
+  --card-6:         #eeefeb;
+  --card-7:         #f1ede6; /* ehem. #f6f4c4cd → vereinheitlicht */
+
+  --panel:          #d7d1c8; /* ehem. #cecf9c */
+  --bar:            #3c3631; /* ehem. #d6d78d */
+  --panel-active:   #bfc087;
+
+  /* Text */
+  --text-main:      #1f1c19; /* ehem. #222 */
+  --text-strong:    #111111;
+  --white:          #ffffff;
+  --black:          #000000;
+
+  /* Akzent (Buttons/Interaktion) */
+  --accent:         #e67e22;
+  --accent-hover:   #ff8c00;
+  --accent-active:  #cc6e00;
+
+  /* Linien */
+  --border-soft:       #4a423b;
+  --border-light:      #c9c6b8;
+  --border-input:      #ccd6dd;
+  --border-midlight:   #aaaaaa;
+  --border-verylight:  #dddddd;
+  --border-dashed:     #9a948a;
+
+  /* Schatten */
+  --shadow-med:      rgba(0,0,0,.2);
+  --shadow-strong:   rgba(0,0,0,.25);
+  --shadow-stronger: rgba(0,0,0,.35);
+  --highlight:       rgba(255,255,255,0.4);
+}
+
+
+/* =========================
+   RESET / BASIS
+   ========================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: monospace;
+    font-size: 13pt;
+  color: var(--text-main);             /* hellgrau */
+  /* border: 1px solid red;
+  min-height: fit-content; */
+
+}
+
+html, body {
+    height: 100svh;
+  background-color: var(--bg-mid-2);
+    /* display: flex; */
+    /* overflow: hidden; */
+}
+
+
+#inn {
+    width: 100%;
+    height: 100%;
+
+    resize: none;
+
+    padding: 10px 12px;
+
+    line-height: 1.3;
+
+    background: var(--card);
+  font-size: 13pt;
+    border: none;
+    border-top: 1px solid var(--border-midlight);
+}
+
+#inn:focus {
+    outline: none;
+    background: var(--white);
+}
+
+#treeView {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 12px;
+    background: var(--card);
+}
+
+.tree-panel {
+    display: grid;
+    gap: 12px;
+}
+
+.tree-svg {
+    width: 100%;
+    min-height: 260px;
+    border: 1px solid var(--border-midlight);
+    background: var(--white);
+}
+
+.tree-lines line {
+    stroke: var(--border-midlight);
+    stroke-width: 2;
+}
+
+.tree-node circle {
+    fill: var(--card);
+    stroke: var(--text-main);
+    stroke-width: 2;
+}
+
+.tree-node text {
+    font: 700 15px monospace;
+    text-anchor: middle;
+    fill: var(--text-main);
+}
+
+.tree-node .tree-count {
+    font: 700 11px monospace;
+    fill: var(--text-main);
+}
+
+.tree-distance-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+}
+
+.tree-distance-table th,
+.tree-distance-table td {
+    border: 1px solid var(--border-midlight);
+    padding: 6px 8px;
+    text-align: left;
+}
+
+.tree-distance-table th {
+    background: var(--card);
+}
+
+.tree-empty {
+    padding: 12px;
+}
+
+.tree-render-cross {
+    width: 18px;
+    height: 18px;
+    position: relative;
+}
+
+.tree-render-cross::before,
+.tree-render-cross::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 2px;
+    height: 18px;
+    background: var(--text-main);
+    transform-origin: center;
+}
+
+.tree-render-cross::before {
+    transform: translateX(-50%) rotate(45deg);
+}
+
+.tree-render-cross::after {
+    transform: translateX(-50%) rotate(-45deg);
+}
+
+.tree-render-letter {
+    color: var(--text-main);
+    font: 700 14px monospace;
+    line-height: 1;
+    background: transparent;
+    text-shadow:
+        0 1px 0 var(--white),
+        1px 0 0 var(--white),
+        0 -1px 0 var(--white),
+        -1px 0 0 var(--white);
+}
+
+
+
+
+/* 🔽 Block-Editor scrollt */
+/* #blockEditor div {
+  font-size: 10pt;
+  display: block;
+  width: 90%;
+  overflow-y: auto;
+  padding: 12px;
+} */
+
+.editor-grid {
+  height: 100vh;   /* oder 100% wenn bodyh/tml korrekt gesetzt */
+}
+
+.menu {
+  position: absolute;
+  bottom: 56px;              /* bleibt über dem Button-Footer */
+  left: 8px;
+
+  display: none;
+  flex-direction: column;
+
+  min-width: 220px;
+  max-width: 280px;
+  max-height: 55vh;
+
+  background: var(--card);       /* passt zu inn / woodList */
+  border: 1px solid var(--border-soft); /* gleiche Linie wie action-grid */
+  border-radius: 10px;
+
+  box-shadow:
+    0 8px 20px var(--shadow-strong),
+    inset 0 1px 0 var(--highlight);
+
+  overflow-y: auto;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  z-index: 200000;
+}
+
+.menu {
+  display: none;
+}
+
+#helpMenu {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  min-width: min(420px, calc(100vw - 16px));
+  max-width: min(420px, calc(100vw - 16px));
+  max-height: min(70vh, 560px);
+  padding: 0;
+  gap: 0;
+}
+
+#helpMenu a {
+  min-height: 40px;
+  padding: 10px 12px;
+  text-decoration: none;
+
+  display: flex;
+  align-items: center;
+
+  border-bottom: 1px solid var(--border-light);
+
+  cursor: pointer;
+}
+
+/* letzter Eintrag ohne Linie */
+#helpMenu a:last-child {
+  border-bottom: none;
+}
+
+#helpMenu a:hover {
+  background: var(--panel);       /* wie woodOverview */
+}
+
+#helpMenu a:active {
+  background: var(--panel-active);
+}
+
+#helpMenu a {
+  min-height: 40px;
+}
+
+@media (max-width: 420px) {
+  #helpMenu {
+    grid-template-columns: 1fr;
+    min-width: min(280px, calc(100vw - 16px));
+    max-width: min(280px, calc(100vw - 16px));
+  }
+}
+
+.action-grid {
+  display: flex;
+  gap: 0px;
+  padding: 0px;
+}
+
+.action-grid > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.canvas-hidden {
+  visibility: hidden;
+}
+#woodOverview {
+  overflow-wrap:break-word;
+  overflow-y: auto;
+  /* font-size: 9pt; */
+}
+
+.mat-row input,
+.mat-row select {
+  font-size: 13px;
+  padding: 4px 6px;
+}
+
+.mat-s   { width: 60px; }
+.mat-p,
+.mat-pu  { 
+  display: flex; }
+
+.mat-l   { width: 70px; }
+.mat-co  { width: 130px; }
+.color-picker {
+  position: relative;
+  display: inline-block;
+}
+
+.color-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #666;
+  cursor: pointer;
+}
+
+.color-menu {
+  position: absolute;
+  background: white;
+  border: 1px solid #aaa;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 6px;
+  z-index: 1000;
+}
+
+.hidden {
+  display: none;
+}
+
+.color-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.color-swatch {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #333;
+}
+/* =========================================================
+   BASIS – MUSS SEIN
+   ========================================================= */
+
+/* =========================================================
+   APP BASIS
+   ========================================================= */
+
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================================
+   SLOT 12 – Container für Slot 1 + Slot 2
+   ========================================================= */
+
+#slot12 {
+  flex: 1 1 auto;
+  display: flex;
+  max-height: 100%;     /* 🔑 harte Höhenbegrenzung */
+  min-height: 0;
+  overflow: auto;
+}
+
+/* =========================================================
+   SLOT 1 & SLOT 2 – Grundlayout
+   ========================================================= */
+
+#slot1,
+#slot2 {
+  display: flex;
+  position: relative;
+  overflow: auto;
+}
+
+/* =========================================================
+   SLOT 1 – CANVAS
+   ========================================================= */
+
+/* =========================================================
+   SLOT 2 – LINE BARS
+   ========================================================= */
+
+#slot2 {
+  overflow: auto;
+  min-height: 0;
+}
+
+/* =========================================================
+   LANDSCAPE
+   ========================================================= */
+
+@media (orientation: landscape) {
+
+  #slot12 {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  #slot1 {
+    aspect-ratio: 1 / 1;
+    height: 100%;
+    max-height: 100%;        /* 🔑 darf Container nicht sprengen */
+    flex: 0 0 auto;
+    max-width: calc(100% - 164px);
+  }
+
+  #slot2 {
+    min-width: 164px;
+    flex: 1 1 auto;
+    height: 100%;
+    overflow: auto;
+  }
+}
+
+/* =========================================================
+   PORTRAIT
+   ========================================================= */
+
+@media (orientation: portrait) {
+
+  #slot12 {
+    flex-direction: column;
+  }
+
+  #slot1 {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    flex: 0 0 auto;
+    max-height: calc(100% - 96px); /* 🔒 Slot2 bleibt sichtbar */
+    align-self: center;
+  }
+
+  #slot2 {
+    flex: 1 1 96px;
+    min-height: 96px;
+    width: 100%;
+    overflow: auto;
+  }
+}
+
+/* =========================================================
+   OPTIONAL DEBUG (bei Bedarf kurz aktivieren)
+   ========================================================= */
+
+/*
+#slot12 { outline: 2px solid red; }
+#slot1  { outline: 2px solid lime; }
+#slot2  { outline: 2px solid cyan; }
+*/
+
+/* =========================
+   MATERIAL LIST
+   ========================= */
+
+#materialList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;              /* ✨ Abstand zwischen Materialien */
+  overflow-y: auto;
+}
+
+#projectEditor {
+  overflow-y: auto;
+}
+/* =========================
+   MATERIAL ROW
+   ========================= */
+   .mat-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  padding: 6px 8px;
+  background: var(--card-2);
+  border-radius: 8px;
+
+  align-items: center;
+}
+
+.mat-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.mat-btn {
+  width: 44px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--card);
+  padding: 0;
+  cursor: pointer;
+}
+/* Container wie deine Material-Zeilen (farbig, rund) */
+.newmat-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  padding: 8px;
+  background: var(--card-2);
+  border-radius: 10px;
+}
+
+/* obere Buttonleiste */
+.newmat-topbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Formularzeile: Elemente dürfen umbrechen, aber bleiben in einem Container */
+.newmat-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+
+  padding: 8px;
+  background: var(--card-3);
+  border-radius: 10px;
+  border: 1px solid var(--border-input);
+}
+
+/* Inputs */
+.newmat-row input,
+.newmat-row select {
+  flex: 1 1 160px;
+  min-width: 140px;
+}
+
+/* Vorschau-Gruppe bleibt zusammen */
+.newmat-previewgrp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+/* Vorschau-Button */
+.newmat-colorbtn {
+  width: 44px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--card);
+  padding: 0;
+  cursor: pointer;
+}
+
+/* kleine Buttons */
+.newmat-row button,
+.newmat-topbar button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Hinweistext */
+.newmat-hint {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.cmd-add-btn {
+  margin-top: 12px;
+  padding: 8px 12px;
+
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+
+  background: var(--card-4);
+  border: 1px dashed var(--border-dashed);
+  border-radius: 6px;
+
+  cursor: pointer;
+}
+
+.cmd-add-btn:hover {
+  background: var(--card-5);
+}
+
+button {
+  margin: 2px;
+  background: var(--card-7);
+  box-shadow:
+    0 2px 4px var(--shadow-strong),
+    0 1px 3px var(--shadow-stronger);
+}
+
+/* =========================================================
+   THEME OVERRIDES (nur Farben)
+   ========================================================= */
+
+
+
+.row,    button {
+  display: flex;
+  flex-direction: column;   /* Label oben */
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px var(--shadow-med);
+  background-color: var(--card-3);
+}
+.rowfl  {
+display: flex;;
+}
+
+.row {
+  background-color: var(--card-2);
+}
+
+.row label {
+  width: 100%;
+  font-size: 0.85rem;
+  font-weight: 600;
+   white-space: pre-wrap;  /* Zeilenumbrüche bleiben erhalten */
+}
+
+.field-wrap {
+  display: flex;            /* Input + Help nebeneinander */
+  align-items: center;
+  gap: 8px;
+}
+
+.field-wrap input {
+  flex: 1;                  /* Input nimmt restliche Breite */
+  padding: 6px 8px;
+}
+
+.field-wrap button {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+canvas {
+  width: calc(100vmin*0.8);
+  height: calc(100vmin*0.8);
+}
+.random-box{
+  position:fixed;
+  right:20px;
+  top:80px;
+  width:200px;
+  padding:12px;
+  background:#eee;
+  border-radius:6px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.random-box.hidden{
+  display:none;
+}
+
+
+.range{
+  display:flex;
+  gap:6px;
+}
+
+.range input{
+  width:70px;
+}

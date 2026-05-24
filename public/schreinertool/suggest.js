@@ -1,4 +1,14 @@
 export const baseCommands = [
+[ 
+[ 
+  ["sl.", "Seite links"],
+  ["sr.", "Seite rechts"],
+  ["bo.", "Boden"],
+  ["de.", "Deckel"],
+  ["fr.", "Front"],
+  ["rw.", "Rueckwand"],
+],"Teilebezeichnungen"
+],
   ["mat.", "Material definieren"],
   ["mat.19,cornflowerblue,16", "Material mit Farbnamen"],
   ["mat.1", "Material 1"],
@@ -6,7 +16,6 @@ export const baseCommands = [
   ["p.fr,rw,bo,de,sl,sr", "Teileliste"],
   ["breit.", "Breite"],
   ["tief.40", "Tiefe"],
-  ["hoch.72", "Hoehe"],
   ["rw.mat.1", "Rueckwand Material 1"],
   ["fr.mat.1", "Front Material 1"],
   ["x.4", "Position X absolut"],
@@ -14,7 +23,7 @@ export const baseCommands = [
   ["x.anz.4,g1", "Reihe in X-Richtung"],
   ["x.anz.4,55r", "Reihe mit 55 Rasterabstand"],
   ["dre.z.90", "um 90 Grad in Z drehen"],
-  ["sl.dre.z.9", "linke Seite um 9 Grad in Z drehen"],
+  ["hoch", "Höhe"],
   ["cur=,,", "aktueller Verbindungspunkt"],
   ["tar=,,", "Ziel-Verbindungspunkt"],
   ["fr.teilen.x.3,5", "Front in X-Richtung teilen"],
@@ -22,8 +31,6 @@ export const baseCommands = [
   ["fr.teilen.z.arr.20,30", "Front ungleich in Z-Richtung teilen"],
   ["sl,mw,sr.teilen.y.3,25", "Teilegruppe in Y-Richtung teilen"],
   ["teilen.", "teilen.[x|y|z]],[anzahl,[abstand:<zahl>a|raster:<zahl>r]"],
-  ["hoch", "Höhe"],
-  [".", "Objekt oder Wert"],
   ["z.anz.4,g20", "in Z-Richtung als Reihe"],
   ["copy.z.7", "in Z-Richtung kopieren"],
   ["dock.a,,0_b,,3", "an einen Zielpunkt andocken"]

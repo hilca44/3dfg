@@ -4,8 +4,6 @@ import { defaultKeymap, history, historyKeymap } from "https://esm.sh/@codemirro
 import { autocompletion, completionKeymap, completionStatus, startCompletion } from "https://esm.sh/@codemirror/autocomplete@6";
 import { baseCommands, materialSuggest } from "./suggest.js?v=arrayparse34";
 
-const COMMANDS_URL = "./views/pages/commands.md";
-
 let editorView = null;
 let textarea = null;
 let originalValue = null;
@@ -227,23 +225,6 @@ function patchTextareaValue() {
   });
 }
 
-function parseCommandMarkdown(md) {
-  const found = [];
-
-  for (const raw of md.split(/\r?\n/)) {
-    const line = raw.trim();
-    const match = line.match(/^`([^`]+)`\s*[-–]\s*(.+)$/);
-    if (!match) continue;
-
-    const token = match[1].trim();
-    const detail = match[2].trim();
-    found.push([token, detail]);
-    helpByToken.set(token, detail);
-  }
-
-  return found;
-}
-
 async function loadCommands() {
   baseCommands.forEach(([token, detail]) => helpByToken.set(token, detail));
 
@@ -263,15 +244,9 @@ async function loadCommands() {
     }
   });
 
-  try {
-    const res = await fetch(COMMANDS_URL, { cache: "no-store" });
-    const parsed = parseCommandMarkdown(await res.text());
-    commandOptions = [...baseCommands, ...parsed]
-      .filter(([label]) => isModernCompletionLabel(label))
-      .map(makeCommandOption);
-  } catch {
-    commandOptions = baseCommands.map(makeCommandOption);
-  }
+  commandOptions = baseCommands
+    .filter(([label]) => isModernCompletionLabel(label))
+    .map(makeCommandOption);
 }
 
 function partOptionsForContext(context) {

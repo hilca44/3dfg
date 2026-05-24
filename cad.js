@@ -20,6 +20,7 @@ const CHARS = "_.,@"
 const EUKANTE = 0.8
 const WASTE = 1.3
 const FAKTORPRICE = 6
+const DEFAULT_PART_LIMIT = (typeof window !== "undefined" && window.PROJECT_PART_LIMITS?.free) ? Number(window.PROJECT_PART_LIMITS.free) : 80;
 const WDHXYZ = {
     "w": "x",
     "d": "y",
@@ -242,8 +243,9 @@ export class Proj {
     constructor(inn, options = {}) {
         this.allpa = {}
         this.alljj = []
-        this.partLimit = Number(options.partLimit || 0) || 0
-        this.partLimitPlan = options.partLimitPlan || ""
+        const defaultLimit = options.partLimit !== undefined ? options.partLimit : DEFAULT_PART_LIMIT;
+        this.partLimit = Number(defaultLimit || 0)
+        this.partLimitPlan = options.partLimitPlan || "free"
         this.partLimitExceeded = null
 
         this.x

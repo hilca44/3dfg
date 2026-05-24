@@ -28,7 +28,7 @@ export const baseCommands = [
   ["dock.a,,0_b,,3", "an einen Zielpunkt andocken"]
 ];
 
-const parameterOptionsByProperty = {
+export const parameterOptionsByProperty = {
   hoch: [
     ["", "zahl"],
     ["2", "Material 2"],

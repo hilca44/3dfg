@@ -256,7 +256,22 @@ function partOptionsForContext(context) {
   const fromLine = partsFromPValue(line.text.match(/\bp[=.]([^\s]+)/i)?.[1] || "");
   const fromProject = partsFromPValue(window.PR?.oks?.[head]?.p || window.PR?.oks?.[head]?.j || "");
   const parts = fromLine.length ? fromLine : fromProject;
-  if (!parts.length) return modernPartOptions;
+  
+  // Wenn keine Teile aus Kontext/Zeile/Projekt gefunden, filtere nach verfügbaren Teilen
+  if (!parts.length) {
+    // Versuche, verfügbare Teile aus dem Korpus zu erhalten
+    const availablePartsFromCorpus = head && window.PR?.oks?.[head]
+      ? partsFromPValue(window.PR.oks[head].p || window.PR.oks[head].j || "")
+      : [];
+    
+    // Wenn Corpus Teile definiert, nutze nur diese; sonst alle möglich
+    if (availablePartsFromCorpus.length > 0) {
+      const details = new Map(modernPartOptions);
+      return availablePartsFromCorpus.map(part => [part, details.get(part) || part]);
+    }
+    
+    return modernPartOptions;
+  }
 
   const details = new Map(modernPartOptions);
   return parts.map(part => [part, details.get(part) || part]);

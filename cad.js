@@ -2050,14 +2050,25 @@ setTokenValue(obj, token){
 	        d: "y", y: "y",
 	        h: "z", z: "z"
 	    };
-	    const distanceAxis = o === obj ? distanceAxisByKey[key] : null;
-	    const distanceValue = distanceAxis
-	        ? this.resolvePointDistanceExpression(obj, rawValue, distanceAxis)
-	        : null;
-	    if (Number.isFinite(distanceValue)) {
-	        resolvedValue = distanceValue;
-	        v = String(distanceValue);
-	    }
+    const distanceAxis = o === obj ? distanceAxisByKey[key] : null;
+    const distanceValue = distanceAxis
+        ? this.resolvePointDistanceExpression(obj, rawValue, distanceAxis)
+        : null;
+    if (Number.isFinite(distanceValue)) {
+        resolvedValue = distanceValue;
+        v = String(distanceValue);
+    }
+
+    if (
+        o === obj &&
+        /^[wdhxyz]$/.test(key) &&
+        /^\+[+-]?\d+(?:\.\d+)?$/.test(rawValue)
+    ) {
+        obj.nn = Array.isArray(obj.nn) ? obj.nn : [];
+        const step = rawValue.slice(1);
+        const spec = key + step;
+        if (!obj.nn.includes(spec)) obj.nn.push(spec);
+    }
 
     if (o === obj && key === "i") {
         o[key] = this.parseIValue(rawValue, obj);
@@ -5146,6 +5157,7 @@ applyInteriorLayout(k) {
 
         // erstes Element als Parent
         let prevName = ob.nme;
+        const progressionValues = {};
 
         for (let j = 1; j < count; j++) {
 
@@ -5164,8 +5176,12 @@ applyInteriorLayout(k) {
                 if (!PMETER1.includes(key)) continue;
 
                 const val = Number(param.slice(1));
+                const prev = Number(progressionValues[key] ?? ob[key]);
 
-                kk[key] += j * val;
+                if (Number.isFinite(prev) && Number.isFinite(val)) {
+                    kk[key] = prev + val;
+                    progressionValues[key] = kk[key];
+                }
             }
 
             kk.bbw = kk.w;

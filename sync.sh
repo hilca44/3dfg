@@ -10,6 +10,6 @@ git push
 ssh ch@3dfg.de "
 cd /home/ch/3dfg &&
 git pull &&
-npm install &&
 pm2 restart all
 "
+#npm install &&

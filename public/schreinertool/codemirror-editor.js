@@ -39,7 +39,7 @@ const legacyPartToModern = {
 };
 
 const modernActionOptions = [
-  ["teilen.", "teilen"],
+  ["teilen.", "teilen.[x|y|z]],[anzahl,[abstand:<zahl>a|raster:<zahl>r]"],
   ["dre.", "drehen"],
   ["reihe.", "wiederholen als Reihe"],
   ["copy.", "kopieren"],

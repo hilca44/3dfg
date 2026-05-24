@@ -4173,13 +4173,13 @@ Object.assign(window, {
   // alles, was per onclick genutzt wird
 });
 
-function addMenuButton(label, action) {
+function addMenuButton(label, action, className = "") {
   const menu = document.getElementById("helpMenu");
   if (!menu) return;
 
   const btn = document.createElement("button");
   btn.type = "button";
-  btn.className = "menu-action";
+  btn.className = ["menu-action", className].filter(Boolean).join(" ");
   btn.textContent = label;
   btn.addEventListener("click", (ev) => {
     ev.stopPropagation();
@@ -4194,18 +4194,7 @@ function setupAppMenuActions() {
   if (!menu || menu.dataset.appActions === "1") return;
   menu.dataset.appActions = "1";
 
-  [
-    ["AUTO", () => window.toggleRandomFurniture?.()],
-    ["reset", resetToDefaultProject],
-    ["open", openProjectFromClipboardOrFile],
-    ["link", copyProjectLink],
-    ["vorlagen", () => window.location.href = "/gallery"],
-    ["Baum", () => setState("tree")],
-    ["publish", openPublish],
-    ["holz", () => setState("wood")],
-    ["Text / Ansicht", toggleInnMain],
-    ["Preis, Listen, Zuschnitt", downloadHolzlisteS]
-  ].reverse().forEach(([label, action]) => addMenuButton(label, action));
+  addMenuButton("Listen", downloadHolzlisteS, "menu-action-highlight");
 }
 
 function initEditToolbar() {
@@ -4245,6 +4234,7 @@ function setupCentralReload() {
   });
 }
 
+setupAppMenuActions();
 initEditToolbar();
 loadVisitorCounter();
 setupCentralReload();

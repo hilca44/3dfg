@@ -643,6 +643,16 @@ html, body {
   text-align: left;
 }
 
+#helpMenu .menu-action-highlight {
+  background: #fff2cf;
+  color: #5a3800;
+  font-weight: 700;
+}
+
+#helpMenu .menu-action-highlight:hover {
+  background: #ffe3a3;
+}
+
 /* letzter Eintrag ohne Linie */
 #helpMenu a:last-child {
   border-bottom: none;

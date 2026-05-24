@@ -22,11 +22,19 @@ export const baseCommands = [
   ["fr.teilen.z.arr.20,30", "Front ungleich in Z-Richtung teilen"],
   ["sl,mw,sr.teilen.y.3,25", "Teilegruppe in Y-Richtung teilen"],
   ["teilen.", "teilen.[x|y|z]],[anzahl,[abstand:<zahl>a|raster:<zahl>r]"],
-
+  ["hoch.", "Höhe 72 mm"],
   ["z.anz.4,g20", "in Z-Richtung als Reihe"],
   ["copy.z.7", "in Z-Richtung kopieren"],
   ["dock.a,,0_b,,3", "an einen Zielpunkt andocken"]
 ];
+
+const parameterOptionsByProperty = {
+  hoch: [
+    ["", "zahl"],
+    ["2", "Material 2"],
+    ["3", "Material 3"]
+  ],
+}
 
 export const materialSuggest = {
   thickness: [

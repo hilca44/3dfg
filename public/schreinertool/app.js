@@ -4245,7 +4245,6 @@ function setupCentralReload() {
   });
 }
 
-setupAppMenuActions();
 initEditToolbar();
 loadVisitorCounter();
 setupCentralReload();

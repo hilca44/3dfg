@@ -2,7 +2,8 @@ import { EditorState, RangeSetBuilder } from "https://esm.sh/@codemirror/state@6
 import { EditorView, Decoration, ViewPlugin, WidgetType, hoverTooltip, keymap } from "https://esm.sh/@codemirror/view@6";
 import { defaultKeymap, history, historyKeymap } from "https://esm.sh/@codemirror/commands@6";
 import { autocompletion, completionKeymap, completionStatus, startCompletion } from "https://esm.sh/@codemirror/autocomplete@6";
-import { baseCommands, materialSuggest } from "./suggest.js?v=arrayparse34";
+import { baseCommands, materialSuggest, 
+  parameterOptionsByProperty } from "./suggest.js?v=arrayparse34";
 
 let editorView = null;
 let textarea = null;

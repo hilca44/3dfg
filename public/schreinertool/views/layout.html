@@ -56,27 +56,6 @@
       flex: 0 0 auto;
     }
 
-    .nav-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .nav-links a {
-      color: var(--ink);
-      text-decoration: none;
-      font-size: 14px;
-      line-height: 1.2;
-      padding: 5px 7px;
-      border-radius: 4px;
-    }
-
-    .nav-links a:hover {
-      background: var(--soft);
-    }
-
     .menu-toggle {
       width: 36px;
       height: 36px;
@@ -231,8 +210,6 @@
     <button id="menuBtn" class="menu-toggle" type="button" aria-label="Menu" aria-controls="menuDropdown" aria-expanded="false">☰</button>
     <nav id="menuDropdown" class="menu-dropdown" aria-label="Menu"></nav>
   </div>
-
-  <nav id="layoutMenu" class="nav-links" aria-label="Navigation"></nav>
 
   <select id="jumpSelect" class="jump-select">
     <option value="">{{ui.jumpPlaceholder}}</option>

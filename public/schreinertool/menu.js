@@ -160,7 +160,6 @@
 
   window.renderSchreinertoolMenus = function renderSchreinertoolMenus() {
     const lang = currentLang();
-    renderMenu(document.getElementById("layoutMenu"), lang);
     renderMenu(document.getElementById("menuDropdown"), lang);
     renderMenu(document.getElementById("helpMenu"), lang);
   };

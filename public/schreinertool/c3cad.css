@@ -710,10 +710,15 @@ html, body {
   white-space: nowrap;
 }
 
-.top-status strong {
+.top-status strong,
+.top-status-home {
   margin-right: auto;
   color: var(--accent);
   font-weight: 700;
+}
+
+.top-status-home {
+  text-decoration: none;
 }
 
 .top-status span {

@@ -1738,7 +1738,7 @@ function updateToolbarStatus() {
 
   const topStatus = document.getElementById("topStatus");
   if (topStatus) {
-    topStatus.innerHTML = `<strong>3dfg</strong><span>${toolbarStatusText()}</span>`;
+    topStatus.innerHTML = `<a class="top-status-home" href="/">3dfg</a><span>${toolbarStatusText()}</span>`;
   }
 
   const undo = document.getElementById("toolbarUndo");

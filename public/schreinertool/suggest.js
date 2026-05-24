@@ -1,21 +1,18 @@
 export const baseCommands = [
-[ 
-[ 
+
   ["sl.", "Seite links"],
   ["sr.", "Seite rechts"],
   ["bo.", "Boden"],
   ["de.", "Deckel"],
   ["fr.", "Front"],
   ["rw.", "Rueckwand"],
-],"Teilebezeichnungen"
-],
+  
   ["mat.", "Material definieren"],
-  ["mat.19,cornflowerblue,16", "Material mit Farbnamen"],
-  ["mat.1", "Material 1"],
   ["p.sl,sr,bo,de", "Minimal: Seiten, Boden, Deckel"],
-  ["p.fr,rw,bo,de,sl,sr", "Teileliste"],
+  ["p.", "Teileliste (reihenfolge der Teile!)"],
   ["breit.", "Breite"],
-  ["tief.40", "Tiefe"],
+  ["tief.", "Tiefe"],
+  ["hoch", "Höhe"],
   ["rw.mat.1", "Rueckwand Material 1"],
   ["fr.mat.1", "Front Material 1"],
   ["x.4", "Position X absolut"],
@@ -23,17 +20,10 @@ export const baseCommands = [
   ["x.anz.4,g1", "Reihe in X-Richtung"],
   ["x.anz.4,55r", "Reihe mit 55 Rasterabstand"],
   ["dre.z.90", "um 90 Grad in Z drehen"],
-  ["hoch", "Höhe"],
-  ["cur=,,", "aktueller Verbindungspunkt"],
-  ["tar=,,", "Ziel-Verbindungspunkt"],
-  ["fr.teilen.x.3,5", "Front in X-Richtung teilen"],
-  ["fr.teilen.x.20,30,rest", "Front ungleich in X-Richtung teilen"],
-  ["fr.teilen.z.arr.20,30", "Front ungleich in Z-Richtung teilen"],
-  ["sl,mw,sr.teilen.y.3,25", "Teilegruppe in Y-Richtung teilen"],
   ["teilen.", "teilen.[x|y|z]],[anzahl,[abstand:<zahl>a|raster:<zahl>r]"],
   ["z.anz.4,g20", "in Z-Richtung als Reihe"],
   ["copy.z.7", "in Z-Richtung kopieren"],
-  ["dock.a,,0_b,,3", "an einen Zielpunkt andocken"]
+  ["dock.", "[r(auswahl)|l|o|u|v|h] an ein anderes Teil andocken"],
 ];
 
 export const parameterOptionsByProperty = {
@@ -41,6 +31,14 @@ export const parameterOptionsByProperty = {
     ["", "zahl"],
     ["2", "Material 2"],
     ["3", "Material 3"]
+  ],
+  dock: [
+    ["r", "rechts an"],
+    ["l", "links an"],
+    ["o", "oben an"],
+    ["u", "unten an"],
+    ["v", "vorne an"],
+    ["h", "hinten an"]
   ],
 }
 

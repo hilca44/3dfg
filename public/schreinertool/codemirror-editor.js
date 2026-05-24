@@ -76,7 +76,7 @@ const defaultParameterOptions = [
 ];
 
 const parameterOptionsByProperty = {
-  m: [
+  hoch: [
     ["1", "Material 1"],
     ["2", "Material 2"],
     ["3", "Material 3"]

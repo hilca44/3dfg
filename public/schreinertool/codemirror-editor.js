@@ -1151,15 +1151,18 @@ class StartOfLineHintPlugin {
     this.dom = document.createElement("div");
     this.dom.className = "cm-c3-start-hint";
     this.dom.style.position = "fixed";
-    this.dom.style.padding = "8px 12px";
-    this.dom.style.background = "rgba(0,0,0,0.9)";
+    this.dom.style.padding = "10px 16px";
+    this.dom.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
     this.dom.style.color = "#fff";
-    this.dom.style.borderRadius = "4px";
-    this.dom.style.fontSize = "13px";
-    this.dom.style.pointerEvents = "none";
+    this.dom.style.borderRadius = "6px";
+    this.dom.style.fontSize = "14px";
+    this.dom.style.fontWeight = "500";
+    this.dom.style.pointerEvents = "auto";
     this.dom.style.zIndex = "10000";
     this.dom.style.display = "none";
     this.dom.style.whiteSpace = "nowrap";
+    this.dom.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.1)";
+    this.dom.style.cursor = "default";
     document.body.appendChild(this.dom);
     this.updateScheduled = false;
   }
@@ -1182,9 +1185,10 @@ class StartOfLineHintPlugin {
       try {
         const coords = view.coordsAtPos(pos);
         if (coords) {
-          this.dom.textContent = "💡 Cursor am Zeilenanfang – Autocomplete verfügbar";
-          this.dom.style.left = `${coords.left}px`;
-          this.dom.style.top = `${coords.top - 40}px`;
+          this.dom.textContent = "💡 Cursor am Anfang – Enter zum Autocomplete";
+          // Position: rechts vom Cursor, ein wenig darunter
+          this.dom.style.left = `${Math.max(10, coords.left + 30)}px`;
+          this.dom.style.top = `${Math.max(10, coords.top + 25)}px`;
           this.dom.style.display = "block";
           return;
         }

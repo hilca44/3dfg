@@ -93,23 +93,7 @@
 
   </div>
   
-  <div id="helpMenu" class="menu">
-    <a href="/" data-i18n="nav.start">Start</a>
-    <a href="/example" data-i18n="nav.example">Beispiele</a>
-    <a href="/commands" data-i18n="nav.commands">Befehle</a>
-    <a href="/tut" data-i18n="nav.tut">Tutorial</a>
-    <a href="/spick" data-i18n="nav.spick">Spickzettel</a>
-    <a href="/docs/spickzettel-ultra-kompakt.pdf" target="_blank" rel="noopener">Spick PDF</a>
-    <a href="/videos" data-i18n="nav.videos">YouTube</a>
-    <a href="/gallery" data-i18n="nav.gallery">Galerie</a>
-    <a href="/login">Login / meine Galerie</a>
-    <a href="app.html" data-i18n-href="de" lang="de">DE</a>
-    <a href="app.html" data-i18n-href="en" lang="en">EN</a>
-    <a href="app.html" data-i18n-href="fr" lang="fr">FR</a>
-    <a href="app.html" data-i18n-href="nl" lang="nl">NL</a>
-    <a href="app.html" data-i18n-href="pl" lang="pl">PL</a>
-    <a href="app.html" data-i18n-href="it" lang="it">IT</a>
-  </div>
+  <div id="helpMenu" class="menu"></div>
   <div id="mdBox" class="menu">
     <!-- buttons / content -->
   </div>
@@ -231,6 +215,8 @@
 <script src="./config.js"></script>
 <script src="./inspector-aliases.js"></script>
 
+	<script src="./menu.js"></script>
+  <script>window.renderSchreinertoolMenus?.();</script>
 	<script type="module" src="./fu.js?v=arrayparse34"></script>
 	
 	<script type="module" src="./app.js?v=arrayparse36"></script>

@@ -140,6 +140,7 @@
       const link = document.createElement("a");
       link.href = item.keepLang === false ? item.path : withLang(item.path, lang);
       link.textContent = labelFor(item, lang);
+      link.dataset.siteMenuItem = "1";
 
       if (item.target) link.target = item.target;
       if (item.rel) link.rel = item.rel;
@@ -147,12 +148,20 @@
       fragment.appendChild(link);
     });
 
-    container.replaceChildren(fragment);
+    if (container.id === "helpMenu") {
+      container
+        .querySelectorAll("[data-site-menu-item]")
+        .forEach((item) => item.remove());
+      container.appendChild(fragment);
+    } else {
+      container.replaceChildren(fragment);
+    }
   }
 
   window.renderSchreinertoolMenus = function renderSchreinertoolMenus() {
     const lang = currentLang();
     renderMenu(document.getElementById("layoutMenu"), lang);
     renderMenu(document.getElementById("menuDropdown"), lang);
+    renderMenu(document.getElementById("helpMenu"), lang);
   };
 })();

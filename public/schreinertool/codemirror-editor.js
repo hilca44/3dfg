@@ -3,7 +3,7 @@ import { EditorView, Decoration, ViewPlugin, WidgetType, hoverTooltip, keymap } 
 import { defaultKeymap, history, historyKeymap } from "https://esm.sh/@codemirror/commands@6";
 import { autocompletion, completionKeymap, completionStatus, startCompletion } from "https://esm.sh/@codemirror/autocomplete@6";
 import { baseCommands, materialSuggest, 
-  parameterOptionsByProperty } from "./suggest.js?v=arrayparse34";
+  parameterOptionsByProperty } from "./suggest.js?v=arrayparse37";
 
 let editorView = null;
 let textarea = null;
@@ -43,15 +43,15 @@ const legacyPartToModern = {
 };
 
 const modernActionOptions = [
-  ["teilen.", "teilen.[[x|y|z]]"],
-  ["dre.", "drehen"],
-  ["reihe.", "wiederholen als Reihe"],
-  ["copy.", "kopieren"],
-  ["dock.", "andocken"],
+  ["teilen.", "teilen.[x|y|z].[anzahl,[abstand:<zahl>a|raster:<zahl>r]]"],
+  ["dre.", "dre.[x|y|z].[grad]"],
+  ["reihe.", "reihe.[x|y|z].[anzahl,[abstand]]"],
+  ["copy.", "copy.[x|y|z].[anzahl,[abstand]]"],
+  ["dock.", "dock.[ziel]"],
   // ["sta.", "stapeln"],
   // ["aus.", "ausrichten"],
   // ["zen.", "zentrieren"],
-  ["push.", "verschieben / einziehen"]
+  ["push.", "push.[wert]"]
 ];
 
 const axisOptions = [
@@ -61,18 +61,31 @@ const axisOptions = [
 ];
 
 const propertyOptions = [
-  ["mat.", "Material"],
-  ["push.", "Einzug / Ueberstand"],
-  ["x.", "Position X"],
-  ["y.", "Position Y"],
-  ["z.", "Position Z"],
-  ["breit.", "Breite"],
-  ["tief.", "Tiefe"],
-  ["hoch.", "Hoehe"],
-  ["stk=", "Staerke"]
+  ["mat.", "mat.[nummer]"],
+  ["push.", "push.[wert]"],
+  ["x.", "x.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
+  ["y.", "y.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
+  ["z.", "z.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
+  ["breit.", "breit.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
+  ["breite.", "breite.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
+  ["lang.", "lang.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
+  ["tief.", "tief.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
+  ["tiefe.", "tiefe.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
+  ["hoch.", "hoch.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
+  ["hoehe.", "hoehe.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
+  ["stk.", "stk.[zahl]"],
+  ["co.", "co.[farbe]"]
 ];
 
 const defaultParameterOptions = [
+  ["(", "mathematischer Ausdruck: (wert+wert)"],
+  ["+", "Rechenoperation addieren"],
+  ["-", "Rechenoperation subtrahieren"],
+  ["*", "Rechenoperation multiplizieren"],
+  ["/", "Rechenoperation dividieren"],
+  ["breit", "Eigenschaft dieses Korpus"],
+  ["Korpus.eigenschaft", "Eigenschaft eines anderen Korpus"],
+  ["GLOBALE_VAR", "globale Projektvariable: gross geschrieben"],
   ["1", "kleinster Standardwert"],
   ["2", "kleiner Standardwert"],
   ["5", "mittlerer Standardwert"],
@@ -370,27 +383,9 @@ function partListCompletionOptions(token) {
       }
     }));
 
-  const presets = [
-    ["sl,sr,bo,de", "Minimal: Seiten, Boden, Deckel"],
-    ["sl,sr,bo,de,rw,eb", "Standard ohne Front"],
-    ["fr,rw,bo,de,sl,sr", "mit Front"],
-    ["sl,sr,bo,de,rw,fr,eb,mw", "alle wichtigen Teile"]
-  ].map(([parts, detail], index) => ({
-    label: parts,
-    detail,
-    type: "keyword",
-    boost: 1000 - index,
-    apply(view, completion, from, to) {
-      view.dispatch({
-        changes: { from: token.from + valueStart, to, insert: completion.label },
-        selection: { anchor: token.from + valueStart + completion.label.length }
-      });
-    }
-  }));
-
   return {
     from: token.from + segmentStart,
-    options: prefix ? partOptions : [...presets, ...partOptions],
+    options: partOptions,
     validFor: /^[a-z,]*$/i
   };
 }
@@ -888,18 +883,11 @@ function corpusNameCompletionOptions(current) {
       },
       info: `Mit Punkt kann ein Name auf einen bestehenden Korpus/Default verweisen, z.B. b.${name}.`
     },
-    {
-      label: `${name} p.sl,sr,bo,de,rw,eb breit.80 tief.40 hoch.72`,
-      detail: "Default-Werte: Teile und Masse setzen",
-      type: "keyword",
-      apply: `${name} p.sl,sr,bo,de,rw,eb breit.80 tief.40 hoch.72`,
-      info: "Defaults stehen nach dem Korpusnamen. Spaetere Werte in derselben Zeile ueberschreiben diese Defaults."
-    }
   ];
 }
 
 function completionSource(context) {
-  const word = context.matchBefore(/[A-Za-zÄÖÜäöüß0-9_.=#,+-]*/);
+  const word = context.matchBefore(/[A-Za-zÄÖÜäöüß0-9_.=#,+\-*/()]*/);
   if (!word) return null;
 
   if (forcedCompletionMode === "parts") {
@@ -939,7 +927,7 @@ function completionSource(context) {
         from: token.from + valueSeparatorIndex + 1,
         to: token.to,
         options: parameterCompletionOptions(property),
-        validFor: /^[A-Za-z0-9.,+-]*$/
+        validFor: /^[A-Za-z0-9.,+\-*/()]*$/
       };
     }
   }
@@ -987,7 +975,7 @@ function completionSource(context) {
   return {
     from: word.from,
     options: commandOptions,
-    validFor: /^[A-Za-z0-9_.=#,+-]*$/
+    validFor: /^[A-Za-z0-9_.=#,+\-*/()]*$/
   };
 }
 

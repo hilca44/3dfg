@@ -102,11 +102,22 @@ function keepLastCommands(lbs) {
 
 
 
+function parseDecimalComma(value) {
+  const text = String(value ?? "").trim();
+  return /^-?\d+,\d+$/.test(text) ? Number(text.replace(",", ".")) : null;
+}
+
 function parseValue(v) {
   if (v == null) return v;
 
   v = String(v).trim();
   v = stripValueAnnotation(v);
+
+  // -------- DEZIMALKOMMA --------
+  const decimal = parseDecimalComma(v);
+  if (decimal !== null) {
+    return decimal;
+  }
 
   // -------- LISTE --------
   if (v.includes(",")) {
@@ -2351,6 +2362,8 @@ setTokenValue(obj, token){
     let val;
 
     const v = rawVal.trim();
+    const key = path.trim().split(".").pop();
+    const decimal = parseDecimalComma(v);
 
     // Ausdruck
     if (v.startsWith("(") && v.endsWith(")")) {
@@ -2364,7 +2377,11 @@ setTokenValue(obj, token){
 
     // Liste (z. B. tar)
     else if (v.includes(",")) {
-      val = v; // WICHTIG: als String speichern!
+      if (decimal !== null && ["w", "d", "h", "x", "y", "z"].includes(key)) {
+        val = decimal;
+      } else {
+        val = v; // WICHTIG: als String speichern!
+      }
     }
 
     // fallback
@@ -2405,7 +2422,12 @@ setTokenValue(obj, token){
 
   // -------- ARRAY (nur wenn NICHT tar) --------
   else if (rawVal.includes(",")) {
-    val = rawVal.split(",").map(v => parseValue(v, obj));
+    const decimal = parseDecimalComma(rawVal);
+    if (decimal !== null && ["w", "d", "h", "x", "y", "z"].includes(key)) {
+      val = decimal;
+    } else {
+      val = rawVal.split(",").map(v => parseValue(v, obj));
+    }
   }
 
   // -------- AUSDRUCK --------

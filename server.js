@@ -992,7 +992,7 @@ app.use("/ccc", ccc);
 /* -------------------------------------------------- */
 /* SERVER START                                       */
 /* -------------------------------------------------- */
-const IS_BETA_DEPLOY = path.basename(__dirname) === "c3-23";
+const IS_BETA_DEPLOY = path.basename(__dirname) === "3dfg";
 const PORT = Number(process.env.PORT) || (IS_BETA_DEPLOY ? 3000 : 3001);
 
 app.listen(PORT, () => {

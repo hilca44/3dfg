@@ -461,6 +461,67 @@ function normalizeProjectPartArrays(pr) {
     }
 }
 
+function renderablePartCount(pr) {
+    const names = pr?.jj?.length ? pr.jj : Object.keys(pr?.oks || {});
+    return names.reduce((sum, name) => {
+        const k = pr?.oks?.[name];
+        if (!k) return sum;
+        if (k.type === "part") return sum + 1;
+        if (isExpandedTextKorpus(k)) return sum + 1;
+        if (!Array.isArray(k.jj)) return sum;
+        return sum + k.jj.filter(partName => k[partName]).length;
+    }, 0);
+}
+
+function markLimitedRenderableParts(pr, limit) {
+    const max = Number(limit);
+    if (!pr?.oks || !Number.isFinite(max) || max <= 0) return pr;
+
+    const names = pr.jj?.length ? pr.jj : Object.keys(pr.oks || {});
+    let solidCount = 0;
+    let edgeOnlyCount = 0;
+
+    for (const name of names) {
+        const k = pr.oks[name];
+        if (!k) continue;
+
+        if (k.type === "part" || isExpandedTextKorpus(k)) {
+            if (solidCount < max) {
+                solidCount++;
+            } else if (edgeOnlyCount < LIMITED_EDGE_PREVIEW_COUNT) {
+                k.__edgeOnly = true;
+                edgeOnlyCount++;
+            } else {
+                k.__skipRender = true;
+            }
+            continue;
+        }
+
+        if (!Array.isArray(k.jj)) continue;
+
+        for (const partName of k.jj) {
+            if (!k[partName]) continue;
+            if (solidCount < max) {
+                solidCount++;
+            } else if (edgeOnlyCount < LIMITED_EDGE_PREVIEW_COUNT) {
+                k[partName].__edgeOnly = true;
+                edgeOnlyCount++;
+            } else {
+                k[partName].__skipRender = true;
+            }
+        }
+    }
+
+    pr.partLimitExceeded = {
+        ...(pr.partLimitExceeded || {}),
+        rendered: solidCount,
+        edgeOnly: edgeOnlyCount,
+        limit: max
+    };
+
+    return pr;
+}
+
 function resetBB() {
     bb.x = 0;
     bb.y = 0;
@@ -814,6 +875,8 @@ function createMaterialForPart(mat, viewSpec = "") {
 ========================================================= */
 
 let edgmat = new THREE.LineBasicMaterial({ color: 0x000000 });
+let limitedEdgeMat = new THREE.LineBasicMaterial({ color: 0x777777, transparent: true, opacity: 0.7 });
+const LIMITED_EDGE_PREVIEW_COUNT = 10;
 
 
 function makeL(k, ownerGroup = null) {
@@ -912,6 +975,7 @@ function applyPartRotation(mesh, part, w, d, h) {
 
 function makeM(k, e1, e) {
     e = normalizeRenderablePart(e);
+    if (e.__skipRender) return new THREE.Group();
     const g = new THREE.Group();
     const lay = (e1 === "b") ? 3 : (e1 === "f" ? 4 : 2);
 
@@ -922,6 +986,50 @@ function makeM(k, e1, e) {
     const geo = resTracker.track(
         new THREE.BoxGeometry(w, d, h)
     );
+
+    if (e.__edgeOnly) {
+        const edge = resTracker.track(new THREE.LineSegments(
+            resTracker.track(new THREE.EdgesGeometry(geo)),
+            limitedEdgeMat
+        ));
+        edge.name = e1;
+        edge.userData.type = "part";
+        edge.userData.korpusName = k.nme;
+        edge.userData.partName = e1;
+        edge.userData.partData = e;
+        edge.userData.partGroup = g;
+        edge.userData.edgeOnly = true;
+        edge.layers.set(lay);
+
+        applyPartRotation(edge, e, w, d, h);
+
+        const key = k.nme + e1;
+        meshMap[key] = edge;
+        state[key] = "edgeOnly";
+
+        const baseX = e1 == null ? 0 : cc(k.x);
+        const baseY = e1 == null ? 0 : cc(k.y);
+        const baseZ = e1 == null ? 0 : cc(k.z);
+
+        g.position.set(
+            (w * 0.5) + cc(e.x) - baseX,
+            (d * 0.5) + cc(e.y) - baseY,
+            (h * 0.5) + cc(e.z) - baseZ
+        );
+
+        g.add(edge);
+        g.userData.type = "partGroup";
+        g.userData.korpusName = k.nme;
+        g.userData.partName = e1;
+        g.userData.partData = e;
+        g.userData.mesh = edge;
+
+        bb.x = Math.max(bb.x, w + k.x);
+        bb.y = Math.max(bb.y, d + k.y);
+        bb.z = Math.max(bb.z, h + k.z);
+
+        return g;
+    }
 
     const material = createMaterialForPart(window.PR.lm[e.m], [k.vi, e.vi]);
     const mesh = resTracker.track(
@@ -1091,6 +1199,7 @@ function createExtrudedTextGlyphKorpus(k, ch) {
 
 function createK(k, nme) {
     const {cur, tar} = k;
+    if (k.__skipRender) return new THREE.Group();
 
     // ==================================================
     // 🔥 PART SHORTCUT (WICHTIG!)
@@ -1100,7 +1209,8 @@ function createK(k, nme) {
         const g = new THREE.Group();
 
         // direkt ein Mesh, kein Parts-System
-        g.add(makeM(k, null, k));
+        const part = k.__edgeOnly ? { ...k, __edgeOnly: true } : k;
+        g.add(makeM(k, null, part));
 
         return g;
     }
@@ -1129,6 +1239,7 @@ function createK(k, nme) {
 
     for (const e1 of k.jj) {
         if (!k[e1]) continue;
+        if (k[e1].__skipRender) continue;
         g.add(makeM(k, e1, k[e1]));
     }
 
@@ -2294,6 +2405,9 @@ async function renderMainWithDWGs(pr) {
     normalizeProjectPartArrays(pr);
     if (window.validateProjectPartLimit) {
         await window.validateProjectPartLimit(pr);
+    }
+    if (pr.partLimitExceeded?.limit) {
+        markLimitedRenderableParts(pr, pr.partLimitExceeded.limit);
     }
     window.PR = pr;
     window.updateToolbarStatus?.();

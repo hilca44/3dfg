@@ -40,10 +40,14 @@ class ProjectPartLimitError extends Error {
 
 function countProjectParts(PR) {
   if (!isReadyPR(PR)) return 0;
-  return (PR.alljj || []).reduce((sum, key) => {
-    const p = PR.allpa?.[key];
-    if (!p) return sum;
-    return sum + Math.max(1, Number(p.n) || 1);
+  const names = PR.jj?.length ? PR.jj : Object.keys(PR.oks || {});
+  return names.reduce((sum, name) => {
+    const k = PR.oks?.[name];
+    if (!k) return sum;
+    if (k.type === "part") return sum + 1;
+    if (/^(?:txt\d+_|.+_txt)\d+/i.test(String(k.nme || ""))) return sum + 1;
+    if (!Array.isArray(k.jj)) return sum;
+    return sum + k.jj.filter(partName => k[partName]).length;
   }, 0);
 }
 
@@ -93,7 +97,14 @@ async function validateProjectPartLimit(PR, options = {}) {
   const limit = PROJECT_PART_LIMITS[plan] || PROJECT_PART_LIMITS.free;
   const count = countProjectParts(PR);
   if (count > limit) {
-    throw new ProjectPartLimitError(projectPartLimitMessage(count, plan, limit), { count, limit, plan });
+    PR.partLimitExceeded = {
+      count,
+      limit,
+      plan,
+      rendered: limit,
+      message: projectPartLimitMessage(count, plan, limit)
+    };
+    notifyProjectPartLimit(PR);
   }
   return { count, limit, plan };
 }
@@ -1720,9 +1731,13 @@ function currentProjectPartsText() {
 
   const hit = pr.partLimitExceeded;
   if (hit) {
-    const count = Number(hit.count || pr.alljj?.length || 0);
+    const count = Number(hit.count || countProjectParts(pr) || 0);
     const limit = Number(hit.limit || count || 0);
-    return `${count}/${limit} Teile`;
+    const rendered = Number(hit.rendered || limit || 0);
+    const edgeOnly = Number(hit.edgeOnly || 0);
+    return edgeOnly > 0
+      ? `${rendered}+${edgeOnly} Kanten/${count} Teile`
+      : `${rendered}/${count} Teile`;
   }
 
   return `${countProjectParts(pr)} Teile`;

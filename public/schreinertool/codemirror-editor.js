@@ -1161,23 +1161,38 @@ class StartOfLineHintPlugin {
     this.dom.style.display = "none";
     this.dom.style.whiteSpace = "nowrap";
     document.body.appendChild(this.dom);
+    this.updateScheduled = false;
   }
 
   update(update) {
-    const pos = update.view.state.selection.main.head;
-    const line = update.view.state.doc.lineAt(pos);
+    if (update.selectionSet && !this.updateScheduled) {
+      this.updateScheduled = true;
+      requestAnimationFrame(() => {
+        this.updateScheduled = false;
+        this.showHintIfAtLineStart(update.view);
+      });
+    }
+  }
+
+  showHintIfAtLineStart(view) {
+    const pos = view.state.selection.main.head;
+    const line = view.state.doc.lineAt(pos);
 
     if (pos === line.from) {
-      const coords = update.view.coordsAtPos(pos);
-      if (coords) {
-        this.dom.textContent = "💡 Cursor am Zeilenanfang – Autocomplete verfügbar";
-        this.dom.style.left = `${coords.left}px`;
-        this.dom.style.top = `${coords.top - 40}px`;
-        this.dom.style.display = "block";
+      try {
+        const coords = view.coordsAtPos(pos);
+        if (coords) {
+          this.dom.textContent = "💡 Cursor am Zeilenanfang – Autocomplete verfügbar";
+          this.dom.style.left = `${coords.left}px`;
+          this.dom.style.top = `${coords.top - 40}px`;
+          this.dom.style.display = "block";
+          return;
+        }
+      } catch (e) {
+        // Layout not ready yet
       }
-    } else {
-      this.dom.style.display = "none";
     }
+    this.dom.style.display = "none";
   }
 
   destroy() {

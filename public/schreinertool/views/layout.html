@@ -51,6 +51,11 @@
       justify-content: center;
     }
 
+    .menu-wrap {
+      position: relative;
+      flex: 0 0 auto;
+    }
+
     .nav-links {
       display: flex;
       flex-wrap: wrap;
@@ -72,47 +77,57 @@
       background: var(--soft);
     }
 
-    /* 🔹 Hamburger */
     .menu-toggle {
-      font-size: 22px;
-      padding: 6px 10px;
-      border: 1px solid #bbb;
-      border-radius: 8px;
-      background: #f7f7f7;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+      line-height: 1;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--ink);
       cursor: pointer;
     }
 
-    /* 🔹 Dropdown Menu */
+    .menu-toggle:hover {
+      background: var(--soft);
+    }
+
     .menu-dropdown {
       position: absolute;
-      top: 50px;
-      left: 10px;
+      top: calc(100% + 8px);
+      left: 0;
       background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
       display: none;
       flex-direction: column;
-      min-width: 200px;
+      min-width: 170px;
       overflow: hidden;
+      z-index: 1000;
     }
 
     .menu-dropdown a {
       padding: 10px 14px;
       text-decoration: none;
-      color: #222;
+      color: var(--ink);
       border-bottom: 1px solid #eee;
+      font-size: 14px;
     }
 
     .menu-dropdown a:hover {
-      background: #f2f2f2;
+      background: var(--soft);
     }
 
     .menu-dropdown.show {
       display: flex;
     }
 
-    /* 🔹 Jump Dropdown */
     .jump-select {
       flex: 1;
       min-width: 220px;
@@ -133,7 +148,6 @@
       flex: 0 0 auto;
     }
 
-    /* 🔹 Scroll Offset */
     main h2, main h3 {
       scroll-margin-top: 78px;
     }
@@ -213,22 +227,12 @@
 
 <div class="top-bar">
 
-    <nav class="nav-links" aria-label="Navigation">
-      <a href="{{href.start}}">{{nav.start}}</a>
-      <a href="{{href.app}}">{{nav.app}}</a>
-      <a href="{{href.tut}}">{{nav.tut}}</a>
-      <a href="{{href.example}}">{{nav.example}}</a>
-      <a href="{{href.commands}}">{{nav.commands}}</a>
-      <a href="{{href.spick}}">{{nav.spick}}</a>
-      <a href="/docs/spickzettel-ultra-kompakt.pdf" target="_blank" rel="noopener">Spick PDF</a>
-      <a href="{{href.getstart}}">{{nav.getstart}}</a>
-      <a href="{{href.videos}}">{{nav.videos}}</a>
-      <a href="{{href.price}}">Preise</a>
-      <a href="{{href.ai}}">AI</a>
-      <a href="{{href.gallery}}">Galerie</a>
-      <a href="{{href.login}}">Login</a>
-      <a href="{{href.impressum}}">{{nav.impressum}}</a>
-    </nav>
+  <div class="menu-wrap">
+    <button id="menuBtn" class="menu-toggle" type="button" aria-label="Menu" aria-controls="menuDropdown" aria-expanded="false">☰</button>
+    <nav id="menuDropdown" class="menu-dropdown" aria-label="Menu"></nav>
+  </div>
+
+  <nav id="layoutMenu" class="nav-links" aria-label="Navigation"></nav>
 
   <select id="jumpSelect" class="jump-select">
     <option value="">{{ui.jumpPlaceholder}}</option>
@@ -262,26 +266,29 @@
   {{content}}
 </main>
 
+<script src="/menu.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  window.renderSchreinertoolMenus?.();
 
-  // 🔹 Hamburger Menü
   const btn = document.getElementById("menuBtn");
   const menu = document.getElementById("menuDropdown");
 
   if (btn && menu) {
-    btn.addEvsentListener("click", () => {
-      menu.clasList.toggle("show");
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = menu.classList.toggle("show");
+      btn.setAttribute("aria-expanded", String(isOpen));
     });
 
     document.addEventListener("click", (e) => {
       if (!btn.contains(e.target) && !menu.contains(e.target)) {
         menu.classList.remove("show");
+        btn.setAttribute("aria-expanded", "false");
       }
     });
   }
 
-  // 🔹 Language Switch
   const langSwitch = document.getElementById("langSwitch");
   if (langSwitch) {
     langSwitch.value = "{{href.current}}";
@@ -290,7 +297,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 🔹 Jump Navigation
   const select = document.getElementById("jumpSelect");
   const headings = document.querySelectorAll("main h2, main h3");
 

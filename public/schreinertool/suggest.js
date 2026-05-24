@@ -21,6 +21,8 @@ export const baseCommands = [
   ["fr.teilen.x.20,30,rest", "Front ungleich in X-Richtung teilen"],
   ["fr.teilen.z.arr.20,30", "Front ungleich in Z-Richtung teilen"],
   ["sl,mw,sr.teilen.y.3,25", "Teilegruppe in Y-Richtung teilen"],
+  ["teilen.", "teilen.[x|y|z]],[anzahl,[abstand:<zahl>a|raster:<zahl>r]"],
+
   ["z.anz.4,g20", "in Z-Richtung als Reihe"],
   ["copy.z.7", "in Z-Richtung kopieren"],
   ["dock.a,,0_b,,3", "an einen Zielpunkt andocken"]

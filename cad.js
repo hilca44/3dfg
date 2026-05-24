@@ -29,7 +29,7 @@ const WDHXYZ = {
     z: "h"
 }
 const XYZ = "xyz"
-const DWG_DIR = "/home/ch/c3-23/dwg";
+const DWG_DIR = "/home/ch/3dfg/dwg";
 
 const MATERIAL_COLOR_NAMES = {
     w: "white",

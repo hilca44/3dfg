@@ -1144,6 +1144,49 @@ const c3Hover = hoverTooltip((view, pos) => {
   };
 });
 
+// Plugin: show a small hint when the cursor is at the start (Spalte 1) of any line
+class StartOfLineHintPlugin {
+  constructor(view) {
+    this.view = view;
+    this.dom = document.createElement("div");
+    this.dom.className = "cm-c3-start-hint";
+    this.dom.style.position = "fixed";
+    this.dom.style.padding = "8px 12px";
+    this.dom.style.background = "rgba(0,0,0,0.9)";
+    this.dom.style.color = "#fff";
+    this.dom.style.borderRadius = "4px";
+    this.dom.style.fontSize = "13px";
+    this.dom.style.pointerEvents = "none";
+    this.dom.style.zIndex = "10000";
+    this.dom.style.display = "none";
+    this.dom.style.whiteSpace = "nowrap";
+    document.body.appendChild(this.dom);
+  }
+
+  update(update) {
+    const pos = update.view.state.selection.main.head;
+    const line = update.view.state.doc.lineAt(pos);
+
+    if (pos === line.from) {
+      const coords = update.view.coordsAtPos(pos);
+      if (coords) {
+        this.dom.textContent = "💡 Cursor am Zeilenanfang – Autocomplete verfügbar";
+        this.dom.style.left = `${coords.left}px`;
+        this.dom.style.top = `${coords.top - 40}px`;
+        this.dom.style.display = "block";
+      }
+    } else {
+      this.dom.style.display = "none";
+    }
+  }
+
+  destroy() {
+    this.dom.remove();
+  }
+}
+
+const startOfLineHintPlugin = ViewPlugin.fromClass(StartOfLineHintPlugin);
+
 function createEditorHost() {
   let host = document.getElementById("innEditor");
   if (host) return host;
@@ -1291,53 +1334,6 @@ function setupMobileKeyboardHandling() {
     }
   });
 
-  // Plugin: show a small hint when the cursor is at the start (Spalte 1) of any line
-  const startOfLineHintPlugin = ViewPlugin.fromClass(
-    class {
-      constructor(view) {
-        this.view = view;
-        this.dom = document.createElement("div");
-        this.dom.className = "cm-c3-start-hint";
-        this.dom.style.position = "absolute";
-        this.dom.style.padding = "4px 8px";
-        this.dom.style.background = "rgba(0,0,0,0.75)";
-        this.dom.style.color = "#fff";
-        this.dom.style.borderRadius = "4px";
-        this.dom.style.fontSize = "12px";
-        this.dom.style.pointerEvents = "none";
-        this.dom.style.zIndex = 1000;
-        this.dom.style.display = "none";
-        view.dom.appendChild(this.dom);
-        this.update(view);
-      }
-
-      update(update) {
-        const view = update.view || this.view;
-        const pos = view.state.selection.main.head;
-        const line = view.state.doc.lineAt(pos);
-
-        if (pos === line.from) {
-          const coords = view.coordsAtPos(pos);
-          if (coords) {
-            const hostRect = view.dom.getBoundingClientRect();
-            const left = coords.left - hostRect.left + view.scrollDOM.scrollLeft;
-            const top = coords.top - hostRect.top + view.scrollDOM.scrollTop;
-            this.dom.textContent = "Hinweis: Cursor in Spalte 1 — Vorschläge verfügbar";
-            this.dom.style.left = `${Math.max(6, left)}px`;
-            this.dom.style.top = `${Math.max(6, top - this.dom.offsetHeight - 6)}px`;
-            this.dom.style.display = "block";
-          }
-        } else {
-          this.dom.style.display = "none";
-        }
-        this.view = view;
-      }
-
-      destroy() {
-        this.dom.remove();
-      }
-    }
-  );
 }
 
 async function initCodeMirrorEditor() {

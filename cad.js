@@ -5184,6 +5184,15 @@ applyInteriorLayout(k) {
                 }
             }
 
+            if (!isPart) {
+                for (const partName of kk.jj || []) {
+                    if (!kk[partName]) continue;
+                    kk[partName].s = this.getMaterial(kk[partName].m).s;
+                    const nextPart = this.buildParts(kk)?.[partName] || {};
+                    kk[partName] = Object.assign(kk[partName], nextPart);
+                }
+            }
+
             kk.bbw = kk.w;
             kk.bbd = kk.d;
             kk.bbh = kk.h;

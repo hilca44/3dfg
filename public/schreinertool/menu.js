@@ -98,6 +98,16 @@
     }
   };
 
+  const SUPPORTED_LANGS = ["de", "en", "fr", "nl", "pl", "it"];
+  const LANGUAGE_LABELS = {
+    de: "Sprache",
+    en: "Language",
+    fr: "Langue",
+    nl: "Taal",
+    pl: "Jezyk",
+    it: "Lingua"
+  };
+
   const MENU_ITEMS = [
     { key: "start", path: "/" },
     { key: "app", path: "/app.html" },
@@ -117,12 +127,27 @@
 
   function currentLang() {
     const params = new URLSearchParams(window.location.search);
-    const lang = params.get("lang") || document.documentElement.lang || "de";
+    const cookieLang = document.cookie
+      .split(";")
+      .map((v) => v.trim())
+      .find((v) => v.startsWith("st_lang="))
+      ?.split("=")[1];
+    const lang = params.get("lang") || window.ST_LANG || cookieLang || document.documentElement.lang || "de";
     return LABELS[lang] ? lang : "de";
+  }
+
+  function setLangCookie(lang) {
+    document.cookie = `st_lang=${lang};path=/;max-age=31536000;samesite=lax`;
   }
 
   function withLang(path, lang) {
     const url = new URL(path, window.location.origin);
+    url.searchParams.set("lang", lang);
+    return url.pathname + url.search + url.hash;
+  }
+
+  function currentPageWithLang(lang) {
+    const url = new URL(window.location.href);
     url.searchParams.set("lang", lang);
     return url.pathname + url.search + url.hash;
   }
@@ -148,6 +173,8 @@
       fragment.appendChild(link);
     });
 
+    fragment.appendChild(renderLanguageMenu(lang));
+
     if (container.id === "helpMenu") {
       container
         .querySelectorAll("[data-site-menu-item]")
@@ -158,8 +185,32 @@
     }
   }
 
+  function renderLanguageMenu(lang) {
+    const wrap = document.createElement("div");
+    wrap.className = "menu-language";
+    wrap.dataset.siteMenuItem = "1";
+
+    const label = document.createElement("span");
+    label.className = "menu-language-label";
+    label.textContent = LANGUAGE_LABELS[lang] || LANGUAGE_LABELS.de;
+    wrap.appendChild(label);
+
+    SUPPORTED_LANGS.forEach((code) => {
+      const link = document.createElement("a");
+      link.href = currentPageWithLang(code);
+      link.textContent = code.toUpperCase();
+      link.lang = code;
+      link.className = code === lang ? "is-active" : "";
+      link.addEventListener("click", () => setLangCookie(code));
+      wrap.appendChild(link);
+    });
+
+    return wrap;
+  }
+
   window.renderSchreinertoolMenus = function renderSchreinertoolMenus() {
     const lang = currentLang();
+    setLangCookie(lang);
     renderMenu(document.getElementById("menuDropdown"), lang);
     renderMenu(document.getElementById("helpMenu"), lang);
   };

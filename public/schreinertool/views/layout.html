@@ -103,6 +103,38 @@
       background: var(--soft);
     }
 
+    .menu-language {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      padding: 10px;
+      border-top: 1px solid #eee;
+    }
+
+    .menu-language-label {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .menu-dropdown .menu-language a {
+      min-height: 32px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .menu-dropdown .menu-language a.is-active {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #fff;
+    }
+
     .menu-dropdown.show {
       display: flex;
     }
@@ -246,6 +278,11 @@
 <script src="/menu.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  function setLangCookie(lang) {
+    document.cookie = `st_lang=${lang};path=/;max-age=31536000;samesite=lax`;
+  }
+
+  setLangCookie("{{lang}}");
   window.renderSchreinertoolMenus?.();
 
   const btn = document.getElementById("menuBtn");
@@ -270,6 +307,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (langSwitch) {
     langSwitch.value = "{{href.current}}";
     langSwitch.addEventListener("change", () => {
+      const selected = langSwitch.selectedOptions[0]?.getAttribute("lang");
+      if (selected) setLangCookie(selected);
       window.location.href = langSwitch.value;
     });
   }

@@ -672,6 +672,35 @@ html, body {
   min-height: 40px;
 }
 
+#helpMenu .menu-language {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  padding: 10px;
+  border-top: 1px solid var(--border-light);
+}
+
+#helpMenu .menu-language-label {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+#helpMenu .menu-language a {
+  min-height: 32px;
+  padding: 0;
+  justify-content: center;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+}
+
+#helpMenu .menu-language a.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
 @media (max-width: 420px) {
   #helpMenu {
     grid-template-columns: 1fr;

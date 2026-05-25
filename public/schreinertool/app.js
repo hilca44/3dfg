@@ -2763,6 +2763,22 @@ function displayPartName(name) {
   });
 }
 
+function displayHolzlistePartName(PR, p, key) {
+  const fullName = String(p?.nme || key || "");
+  const rawName = fullName.includes("_") ? fullName.split("_").slice(1).join("_") : fullName;
+  const korpusNames = Object.keys(PR?.oks || {}).sort((a, b) => b.length - a.length);
+
+  for (const korpusName of korpusNames) {
+    if (!rawName.startsWith(korpusName)) continue;
+
+    const partName = rawName.slice(korpusName.length);
+    if (!partName) return displayPartName(rawName);
+    return `${korpusName}.${displayPartName(partName)}`;
+  }
+
+  return displayPartName(rawName);
+}
+
 function renderStueckliste(PR) {
   if (!isReadyPR(PR)) return "";
 
@@ -2775,7 +2791,7 @@ function renderStueckliste(PR) {
 
   
   out +=
-    pad("NME", 4) +
+    pad("NME", 10) +
     pad("ANZ", 6) +
     pad("W", 6) +
     pad("D", 6) +
@@ -2792,7 +2808,7 @@ function renderStueckliste(PR) {
 
 
 out +=
-  pad(displayPartName(p.nme.split("_")[1]), 4) +
+  pad(displayHolzlistePartName(PR, p, key), 10) +
   pad(p.n || 1, 6) +
   pad(A, 6) +
   pad(B, 6) +
@@ -3524,6 +3540,10 @@ function createCutplanHTML(byMaterial, options = {}) {
   const maxPlates = Number(options.maxPlates || 0);
   let renderedPlates = 0;
   let limited = false;
+  const escHtml = value => String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 
   function layout(parts) {
     const rest = parts.slice(), out = [];
@@ -3595,7 +3615,7 @@ function createCutplanHTML(byMaterial, options = {}) {
           font-size:10px;
           padding:2px;
         ">
-          <b>${p.key}</b><br>${p.label}
+          <b>${escHtml(p.key)}</b><br>${escHtml(p.label)}
         </div>`;
       });
 
@@ -3882,8 +3902,6 @@ function parseHolzliste(text) {
   const parts = [];
   const lines = text.split(/\r?\n/);
 
-  let keyCode = 65; // A, B, C ...
-
   let inTable = false;
 
   for (const raw of lines) {
@@ -3921,8 +3939,9 @@ function parseHolzliste(text) {
       "x" + d;
 
     for (let i = 0; i < qty; i++) {
+      const key = qty > 1 ? `${label}.${i + 1}` : label;
       parts.push({
-        key: String.fromCharCode(keyCode++),
+        key,
         label,
         w,
         h,

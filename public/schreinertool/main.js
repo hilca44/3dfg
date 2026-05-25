@@ -677,15 +677,24 @@ function initThree() {
     const q = getRenderSquareSize();
 
 
-    const amb = new THREE.AmbientLight(0xffffff, 1.35);
+    const amb = new THREE.AmbientLight(0xffffff, 0.85);
     scene.add(amb);
 
-    const hemi = new THREE.HemisphereLight(0xffffff, 0xffffff, 1.5);
+    const hemi = new THREE.HemisphereLight(0xffffff, 0xcfd4c8, 0.85);
     hemi.position.set(0, 0, 1);
     scene.add(hemi);
 
-    const dir = new THREE.DirectionalLight(0xffffff, 1.2);
-    dir.position.set(-1, -1, 2);
+    const dir = new THREE.DirectionalLight(0xffffff, 1.45);
+    dir.position.set(-450, -650, 900);
+    dir.castShadow = true;
+    dir.shadow.mapSize.set(2048, 2048);
+    dir.shadow.camera.left = -2200;
+    dir.shadow.camera.right = 2200;
+    dir.shadow.camera.top = 2200;
+    dir.shadow.camera.bottom = -2200;
+    dir.shadow.camera.near = 10;
+    dir.shadow.camera.far = 3500;
+    dir.shadow.bias = -0.00008;
     scene.add(dir);
 
     const axes = new THREE.AxesHelper(120);
@@ -704,10 +713,22 @@ function initThree() {
     }
     scene.add(grid);
 
+    const shadowFloor = new THREE.Mesh(
+        new THREE.PlaneGeometry(6000, 6000),
+        new THREE.ShadowMaterial({ color: 0x000000, opacity: 0.18 })
+    );
+    shadowFloor.name = "scene_shadow_floor";
+    shadowFloor.receiveShadow = true;
+    shadowFloor.rotation.x = 0;
+    shadowFloor.position.z = -0.2;
+    scene.add(shadowFloor);
+
     renderer = new THREE.WebGLRenderer({
         antialias: true,
         preserveDrawingBuffer: true
     });
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     console.log(
         renderer.getClearColor(new THREE.Color()).getHexString(),
         renderer.getClearAlpha()
@@ -1017,7 +1038,9 @@ function makeM(k, e1, e) {
     const mesh = resTracker.track(
         new THREE.Mesh(geo, material)
     );
-mesh.name = e1;   // 🔥 DAS IST ENTSCHEIDEND
+    mesh.name = e1;   // 🔥 DAS IST ENTSCHEIDEND
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
     mesh.userData.type = "part";
     mesh.userData.korpusName = k.nme;
     mesh.userData.partName = e1;
@@ -1144,6 +1167,8 @@ function createExtrudedTextGlyphKorpus(k, ch) {
     const material = createMaterialForPart(window.PR.lm[k.m], [k.vi]);
     const mesh = resTracker.track(new THREE.Mesh(geo, material));
     mesh.name = ch;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
     mesh.userData.type = "part";
     mesh.userData.korpusName = k.nme;
     mesh.userData.partName = ch;

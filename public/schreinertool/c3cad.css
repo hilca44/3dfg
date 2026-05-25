@@ -295,6 +295,54 @@ html, body {
   margin-top: 2px;
 }
 
+#woodOverview .wood-report {
+  white-space: normal;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.45;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+#woodOverview .wood-report h1,
+#woodOverview .wood-report h2,
+#woodOverview .wood-report h3,
+#woodOverview .wood-report p {
+  margin: 0 0 0.75rem;
+}
+
+#woodOverview .wood-report section {
+  margin-top: 1.5rem;
+}
+
+#woodOverview .wood-report pre {
+  white-space: pre-wrap;
+  overflow-x: auto;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--text-strong) 18%, transparent);
+  background: var(--card);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+#woodOverview .wood-report-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  border-bottom: 1px solid color-mix(in srgb, var(--text-strong) 18%, transparent);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+#woodOverview .wood-report-preview {
+  margin: 1rem 0;
+}
+
+#woodOverview .wood-report-preview img {
+  display: block;
+  width: min(320px, 100%);
+  border: 1px solid color-mix(in srgb, var(--text-strong) 18%, transparent);
+}
+
 @media print {
 
   /* Seitenränder */
@@ -1088,6 +1136,17 @@ body.keyboard-open.inn-editor-active #slot2 {
     height: 100%;
     overflow: auto;
   }
+
+  body[data-state="wood"] #slot1 {
+    aspect-ratio: auto;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: none;
+  }
+
+  body[data-state="wood"] #slot2 {
+    display: none;
+  }
 }
 
 /* =========================================================
@@ -1113,6 +1172,16 @@ body.keyboard-open.inn-editor-active #slot2 {
     min-height: 96px;
     width: 100%;
     overflow: auto;
+  }
+
+  body[data-state="wood"] #slot1 {
+    aspect-ratio: auto;
+    flex: 1 1 auto;
+    max-height: 100%;
+  }
+
+  body[data-state="wood"] #slot2 {
+    display: none;
   }
 }
 

@@ -1474,6 +1474,7 @@ function setState(name) {
   const prevState = window.CURRENT_STATE;
   CURRENT_STATE = name;
   window.CURRENT_STATE = name;
+  document.body.dataset.state = name;
 
   // ✅ merken
   // localStorage.setItem("c3cad_state", name);
@@ -1520,7 +1521,7 @@ if (cfg.slot2 === "inn") {
 }
 
   if (name === "wood") {
-  renderHolzliste(window.PR);
+  renderHolzlisteReport(window.PR);
 }
 
   if (name === "tree") {
@@ -2684,6 +2685,134 @@ function renderHolzliste(PR) {
 
   el2.textContent = txt2+txt;
   
+}
+
+function escapeHTML(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function buildHolzlisteReportHTML(activePR, options = {}) {
+  renderHolzlisteAll(activePR);
+
+  const currentInn = options.inn || document.getElementById("inn")?.value || activePR?.inn || "";
+  const holzText = window._holzliste_text || "";
+  const projectUrl = innToUrl(currentInn);
+  const projectName = activePR?.nme || "projekt";
+  const sumeur = activePR?.eur || "Preis nicht kalkuliert";
+  const img64 = makeCanvasScreenshot();
+
+  const now = new Date();
+  const pad2 = n => String(n).padStart(2, "0");
+  const dateHuman =
+    now.getFullYear() + "-" +
+    pad2(now.getMonth() + 1) + "-" +
+    pad2(now.getDate()) + " " +
+    pad2(now.getHours()) + ":" +
+    pad2(now.getMinutes());
+
+  const parts = parseHolzliste(holzText);
+  const byMaterial = groupByMaterial(parts);
+  const cutplanHTML = createCutplanHTML(byMaterial);
+
+  let beschlagText = "";
+  if (typeof cfg !== "undefined" && cfg?.beschlaege && cfg?.regeln) {
+    const beschlagListe = createBeschlagStuecklisteFromKorpus(parts, cfg);
+    beschlagText = createBeschlagText(beschlagListe);
+  }
+
+  let kalkulationText = "";
+  if (typeof window.CF === "number" && window.CF > 0) {
+    kalkulationText = createKalkulationText(window.CF, parts);
+  }
+
+  return `
+    <article class="wood-report">
+      <header class="wood-report-head">
+        <div>
+          <h1>Holzliste</h1>
+          <p><b>Projekt:</b> ${escapeHTML(projectName)}</p>
+          <p><b>Erstellt:</b> ${escapeHTML(dateHuman)}</p>
+        </div>
+        <a href="${escapeHTML(projectUrl)}">Projekt öffnen</a>
+      </header>
+
+      ${img64 ? `
+        <figure class="wood-report-preview">
+          <figcaption>Korpus-Vorschau</figcaption>
+          <img src="${img64}" alt="Korpus-Vorschau">
+        </figure>
+      ` : ""}
+
+      <p><b>Projektpreis netto:</b> ${escapeHTML(sumeur)} Euro</p>
+
+      <section>
+        <h2>Holzliste</h2>
+        <pre>${escapeHTML(holzText)}</pre>
+      </section>
+
+      <section>
+        <h2>Zuschnittplan (grob)</h2>
+        ${cutplanHTML}
+      </section>
+
+      ${beschlagText ? `
+        <section>
+          <h2>Beschläge</h2>
+          <pre>${escapeHTML(beschlagText)}</pre>
+        </section>
+      ` : ""}
+
+      ${kalkulationText ? `
+        <section>
+          <h2>Kalkulation</h2>
+          <pre>${escapeHTML(kalkulationText)}</pre>
+        </section>
+      ` : ""}
+    </article>
+  `;
+}
+
+function renderHolzlisteReport(PR) {
+  const el = document.getElementById("woodOverview");
+  if (!el) return;
+
+  if (isPRPromise(PR)) {
+    el.textContent = "Holzliste wird erstellt...";
+    PR.then(resolved => {
+      window.PR = resolved;
+      renderHolzlisteReport(resolved);
+    }).catch(err => {
+      console.error("renderHolzlisteReport failed:", err);
+      el.textContent = "Holzliste konnte nicht erstellt werden.";
+    });
+    return;
+  }
+
+  if (!isReadyPR(PR)) {
+    el.textContent = "";
+    return;
+  }
+
+  el.innerHTML = buildHolzlisteReportHTML(PR);
+}
+
+async function openListenState() {
+  const inn = document.getElementById("inn")?.value || window.PR?.inn || "";
+
+  try {
+    if (inn && inn !== window.PR?.inn) {
+      const nextPR = new Proj(inn);
+      window.PR = typeof nextPR.getall === "function" ? await nextPR.getall() : nextPR;
+    }
+  } catch (err) {
+    console.error("Holzliste konnte nicht aktualisiert werden:", err);
+  }
+
+  setState("wood");
 }
 
 function printHolzliste() {
@@ -4196,6 +4325,7 @@ Object.assign(window, {
   renderLineButtonsFromInn,
   newCorpus,
   setState,
+  openListenState,
   mm,
   pad,
   line,
@@ -4327,7 +4457,7 @@ function setupAppMenuActions() {
   if (!menu || menu.dataset.appActions === "1") return;
   menu.dataset.appActions = "1";
 
-  addMenuButton("Listen", downloadHolzlisteS, "menu-action-highlight");
+  addMenuButton("Listen", openListenState, "menu-action-highlight");
   addMenuButton("Aliase", toggleQuickHelpOverlay, "menu-action-alias");
   addMenuButton("Hilfe", toggleQuickHelpOverlay, "menu-action-help");
   addMenuButton("Teilen", shareProjectByMail, "menu-action-highlight");

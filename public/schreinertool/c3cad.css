@@ -644,13 +644,6 @@ html, body {
   gap: 0;
 }
 
-#helpMenu .app-menu-actions {
-  display: flex;
-  grid-column: 1 / -1;
-  border-bottom: 1px solid var(--border-light);
-  background: var(--card);
-}
-
 #helpMenu a,
 #helpMenu .menu-action {
   min-height: 40px;
@@ -666,20 +659,16 @@ html, body {
 }
 
 #helpMenu .menu-action {
-  flex: 1 1 0;
+  width: 100%;
   min-width: 0;
   background: var(--card);
   border: 0;
-  border-right: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
   box-shadow: none;
   border-radius: 0;
   margin: 0;
-  justify-content: center;
-  text-align: center;
-}
-
-#helpMenu .menu-action:last-child {
-  border-right: 0;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 #helpMenu .menu-action-highlight {
@@ -785,7 +774,7 @@ html, body {
 
 .quick-help-overlay.is-visible {
   display: block;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .quick-help-head {
@@ -803,6 +792,7 @@ html, body {
 }
 
 .quick-help-close {
+  pointer-events: auto;
   padding: 4px 8px;
   border: 1px solid var(--border-light);
   border-radius: 4px;

@@ -19,10 +19,10 @@ Der Text ist das Projekt.
 
 ## Korpus
 
-`a p.sl,sr,bo,de,rw,fr breit.60 tief.55 hoch.72`
+`a teil.sl,sr,bo,de,rw,fr breit.60 tief.55 hoch.72`
 
 - `a` ist der Name
-- `p.sl,sr,bo,de,rw,fr` sind die Teile
+- `teil.sl,sr,bo,de,rw,fr` sind die Teile
 - `breit`, `tief`, `hoch` sind die Maße
 
 ---
@@ -50,9 +50,9 @@ Der Text ist das Projekt.
 
 ## Wiederholen
 
-`x.anz.3,55r`
-`y.anz.2,5`
-`z.anz.4,20`
+`reihe.x.3,55r`
+`reihe.y.2,5`
+`reihe.z.4,20`
 
 ---
 
@@ -91,5 +91,5 @@ Der Text ist das Projekt.
 ## Komplettbeispiel
 
 `kueche mat.19,wh`
-`a p.sl,sr,bo,de,rw,fr breit.60 tief.55 hoch.72`
+`a teil.sl,sr,bo,de,rw,fr breit.60 tief.55 hoch.72`
 `b.a x.70 dock`

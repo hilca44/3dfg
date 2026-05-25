@@ -6,7 +6,7 @@ This page describes the properties of the drawing language. A project consists o
 
 `projectname mat.19,wh` - project line with name and material.
 
-`a p.sl,sr,bo,de,rw,eb breit.80 tief.40 hoch.72` - cabinet `a` with parts, width, depth and height.
+`a teil.sl,sr,bo,de,rw,eb breit.80 tief.40 hoch.72` - cabinet `a` with parts, width, depth and height.
 
 `b dock.a,,0_b,,3 breit.40 tief.40 hoch.72` - cabinet `b`, connected to cabinet `a`.
 
@@ -22,7 +22,7 @@ A cabinet can inherit from another cabinet. The new name is written before the d
 
 A cabinet can also be integrated permanently into another cabinet. In that case the parent is written before the dot.
 
-`a.handle p.fr breit.12 tief.2 hoch.2 x.40 y.-2 z.36` - `handle` belongs permanently to `a`.
+`a.handle teil.fr breit.12 tief.2 hoch.2 x.40 y.-2 z.36` - `handle` belongs permanently to `a`.
 
 When `a` is copied or repeated later, `a.handle` is copied with it automatically.
 
@@ -56,9 +56,9 @@ The first line contains:
 
 ## Parts
 
-`p` defines which parts a cabinet contains. `p` belongs only on the cabinet, not on individual parts. The order is important.
+`teil` defines which parts a cabinet contains. `teil` belongs only on the cabinet, not on individual parts. The order is important.
 
-`a p.sl,sr,bo,de,rw,eb` - cabinet `a` with sides, bottom, top, back and shelf.
+`a teil.sl,sr,bo,de,rw,eb` - cabinet `a` with sides, bottom, top, back and shelf.
 
 Part codes:
 
@@ -85,7 +85,7 @@ Part codes:
 
 ## Properties
 
-- `p` cabinet parts
+- `teil` cabinet parts
 - `breit` width
 - `tief` depth
 - `hoch` height
@@ -93,7 +93,7 @@ Part codes:
 - `y` position in y direction
 - `z` position in z direction
 - `mat` material
-- `x.anz`, `y.anz`, `z.anz` repetition
+- `reihe.x`, `reihe.y`, `reihe.z` repetition
 - `cut` splitting
 - `push` shrink or extend
 - `dock` connect
@@ -143,13 +143,13 @@ Material can be set on the cabinet or on a part.
 
 ## Repeat
 
-`x.anz`, `y.anz`, `z.anz` create repetitions.
+`reihe.x`, `reihe.y`, `reihe.z` create repetitions.
 
-`a x.anz.3,10` - three repetitions in x direction with spacing 10.
+`a reihe.x.3,10` - three repetitions in x direction with spacing 10.
 
-`a y.anz.2,5` - two repetitions in y direction with spacing 5.
+`a reihe.y.2,5` - two repetitions in y direction with spacing 5.
 
-`a z.anz.4,20` - four repetitions in z direction with spacing 20.
+`a reihe.z.4,20` - four repetitions in z direction with spacing 20.
 
 The first value is the count. The second value is the spacing.
 
@@ -246,6 +246,6 @@ Back: `4` bottom left, `5` top left, `6` top right, `7` bottom right.
 
 ## Comments And Disabling
 
-`-a p.sl,sr,bo,de,rw,eb breit.80 tief.40 hoch.72` - disabled line.
+`-a teil.sl,sr,bo,de,rw,eb breit.80 tief.40 hoch.72` - disabled line.
 
 Everything after `#` is a comment. It is best to write comments after the code. Lines or blocks with `-` are disabled.

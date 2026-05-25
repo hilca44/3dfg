@@ -118,7 +118,7 @@ function convertRepeat(axis, value) {
   const parts = String(value || "").split(",");
   const count = parts.shift() || "";
   const rest = parts.length ? `,${parts.join(",")}` : "";
-  return `${axis}.anz.${count}${rest}`;
+  return `reihe.${axis}.${count}${rest}`;
 }
 
 function convertPartToken(part, rest) {
@@ -173,7 +173,7 @@ function convertToken(token) {
   const parts = raw.match(/^p[=:](.+)$/i) || raw.match(/^p([lrgtbcfv]+)$/i);
   if (parts) {
     const modernParts = partList(parts[1]);
-    return modernParts ? `p.${modernParts}` : raw;
+    return modernParts ? `teil.${modernParts}` : raw;
   }
 
   const dims = raw.match(/^([mwdhsu])([=:])(.+)$/i);
@@ -192,7 +192,7 @@ function convertToken(token) {
   if (compactRepeat) {
     const axisName = (compactRepeat[1] || compactRepeat[4]).toLowerCase();
     const count = compactRepeat[2] || compactRepeat[3];
-    return `${axisName}.anz.${count}`;
+    return `reihe.${axisName}.${count}`;
   }
 
   const rotate = raw.match(/^o=([+-]?\d+(?:\.\d+)?)([xyz])$/i);

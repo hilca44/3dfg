@@ -6,7 +6,7 @@ Diese Seite beschreibt die Eigenschaften der Zeichnungssprache. Ein Projekt best
 
 `projektname mat.19,wh` - Projektzeile mit Name und Material.
 
-`a p.sl,sr,bo,de,rw,eb breit.80 tief.40 hoch.72` - Korpus `a` mit Teilen, Breite, Tiefe und Höhe.
+`a teil.sl,sr,bo,de,rw,eb breit.80 tief.40 hoch.72` - Korpus `a` mit Teilen, Breite, Tiefe und Höhe.
 
 `b dock.a,,0_b,,3 breit.40 tief.40 hoch.72` - Korpus `b`, verbunden mit Korpus `a`.
 
@@ -22,7 +22,7 @@ Ein Korpus kann von einem anderen Korpus erben. Dabei steht der neue Name vor de
 
 Ein Korpus kann auch fest in einen anderen Korpus integriert werden. Dafür steht der Parent vor dem Punkt.
 
-`a.griff p.fr breit.12 tief.2 hoch.2 x.40 y.-2 z.36` - `griff` gehört fest zu `a`.
+`a.griff teil.fr breit.12 tief.2 hoch.2 x.40 y.-2 z.36` - `griff` gehört fest zu `a`.
 
 Wird `a` später kopiert oder wiederholt, wird `a.griff` automatisch mitkopiert.
 
@@ -56,13 +56,13 @@ Die erste Zeile enthält:
 
 ## Teile
 
-`p` legt fest, welche Teile ein Korpus enthält. `p` gehört nur an den Korpus, nicht an einzelne Teile. Die Reihenfolge ist wichtig.
+`teil` legt fest, welche Teile ein Korpus enthält. `teil` gehört nur an den Korpus, nicht an einzelne Teile. Die Reihenfolge ist wichtig.
 
-`a p.sl,sr,bo,de,rw,eb` - Korpus `a` mit Seiten, Boden, Deckel, Rückwand und Einlegeboden.
+`a teil.sl,sr,bo,de,rw,eb` - Korpus `a` mit Seiten, Boden, Deckel, Rückwand und Einlegeboden.
 
 Neue Schreibweise:
 
-`a p.sl,sr,bo,de,rw,eb` - Teileliste mit 2-Zeichen-Teilkürzeln.
+`a teil.sl,sr,bo,de,rw,eb` - Teileliste mit 2-Zeichen-Teilkürzeln.
 
 Teilkürzel:
 
@@ -89,7 +89,7 @@ Teilkürzel:
 
 ## Eigenschaften
 
-- `p` Teile des Korpus
+- `teil` Teile des Korpus
 - `breit` Breite
 - `tief` Tiefe
 - `hoch` Höhe
@@ -97,7 +97,7 @@ Teilkürzel:
 - `y` Position in y-Richtung
 - `z` Position in z-Richtung
 - `mat` Material
-- `x.anz`, `y.anz`, `z.anz` Wiederholung
+- `reihe` Wiederholung
 - `cut` Teilung
 - `layout`, `cols` Innenaufteilung
 - `push` Verkleinern oder Erweitern
@@ -166,8 +166,8 @@ Punktwerte gehen vom Groben zum Feinen:
 - `x.4,16,44` mehrere absolute x-Positionen
 - `x.+4` relative x-Verschiebung
 - `x.+4,4,4,4` mehrere relative x-Schritte
-- `x.anz.4,g1` Reihe in x: Anzahl 4, Abstand 1
-- `x.anz.4,55r` Reihe in x: Anzahl 4, Rasterabstand 55
+- `reihe.x.4,g1` Reihe in x: Anzahl 4, Abstand 1
+- `reihe.x.4,55r` Reihe in x: Anzahl 4, Rasterabstand 55
 
 Dasselbe Prinzip gilt für `y`, `z`, `breit`, `tief` und `hoch`, auch an Teilen: `fr.x.4`, `fr.breit.40`, `sl.hoch.n2,g1`.
 
@@ -176,11 +176,11 @@ Dasselbe Prinzip gilt für `y`, `z`, `breit`, `tief` und `hoch`, auch an Teilen:
 
 Aliase sind Kurzbefehle fuer haeufige Korpusformen. Sie bleiben im Text sichtbar und werden nur intern vor dem Berechnen erweitert.
 
-`b sk=a,14,3` - erzeugt einen Schubkasten `b` in Korpus `a`, Hoehe 14 cm, `z.anz.3`.
+`b sk=a,14,3` - erzeugt einen Schubkasten `b` in Korpus `a`, Hoehe 14 cm, `reihe.z.3`.
 
 Das entspricht intern:
 
-`b p.sl,sr,fr,rw,bo breit.a.c.w tief.a.c.d hoch.14 dock.a,g,1 push.-2 mat.3 z.anz.3`
+`b teil.sl,sr,fr,rw,bo breit.a.c.w tief.a.c.d hoch.14 dock.a,g,1 push.-2 mat.3 reihe.z.3`
 
 Parameter:
 
@@ -236,13 +236,13 @@ Material kann am Korpus oder am Teil gesetzt werden.
 
 ## Wiederholen
 
-`x.anz`, `y.anz`, `z.anz` erzeugen Wiederholungen.
+`reihe.x`, `reihe.y`, `reihe.z` erzeugen Wiederholungen.
 
-`x.anz.3,10` - drei Wiederholungen in x-Richtung mit Abstand 10.
+`reihe.x.3,10` - drei Wiederholungen in x-Richtung mit Abstand 10.
 
-`y.anz.2,5` - zwei Wiederholungen in y-Richtung mit Abstand 5.
+`reihe.y.2,5` - zwei Wiederholungen in y-Richtung mit Abstand 5.
 
-`z.anz.4,20` - vier Wiederholungen in z-Richtung mit Abstand 20.
+`reihe.z.4,20` - vier Wiederholungen in z-Richtung mit Abstand 20.
 
 Der erste Wert ist die Anzahl. Der zweite Wert ist der Abstand.
 
@@ -365,6 +365,6 @@ Hinten: `4` unten links, `5` oben links, `6` oben rechts, `7` unten rechts.
 
 ## Kommentare und Deaktivieren
 
-`-a p.sl,sr,bo,de,rw,eb breit.80 tief.40 hoch.72` - deaktivierte Zeile.
+`-a teil.sl,sr,bo,de,rw,eb breit.80 tief.40 hoch.72` - deaktivierte Zeile.
 
 Alles hinter `#` ist Kommentar. Kommentare am besten hinter den Code schreiben. Zeilen oder Blöcke mit `-` werden deaktiviert.

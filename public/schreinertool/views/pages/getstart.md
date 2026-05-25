@@ -42,7 +42,7 @@ zweite zeile = dein erster korpus
 
 beispiel:
 
-a p.sl,sr,bo,de,rw,fr breit.60 tief.60 hoch.80
+a teil.sl,sr,bo,de,rw,fr breit.60 tief.60 hoch.80
 
 👉 sofort erscheint das möbel im 3d-modell
 
@@ -53,7 +53,7 @@ a p.sl,sr,bo,de,rw,fr breit.60 tief.60 hoch.80
 du kannst vorhandene möbel direkt übernehmen:
 
 kueche mat.19,wh
-a p.sl,sr,bo,de,rw,fr breit.60 tief.60 hoch.80
+a teil.sl,sr,bo,de,rw,fr breit.60 tief.60 hoch.80
 b.a x.70 dock
 
 👉 b übernimmt die werte von a
@@ -96,7 +96,7 @@ kein umschalten. kein modus.
 ## typische befehle
 
 - mat → material
-- p → teile
+- teil → teile
 - dock → verbinden
 - cut → teilen
 - push → anpassen
@@ -120,7 +120,7 @@ im chrome browser:
 ## beispiel komplett
 
 kueche mat.19,wh
-a p.sl,sr,bo,de,rw,fr breit.60 tief.60 hoch.80
+a teil.sl,sr,bo,de,rw,fr breit.60 tief.60 hoch.80
 b.a x.70 dock
 
 ---

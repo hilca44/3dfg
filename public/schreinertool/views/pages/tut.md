@@ -32,7 +32,7 @@ Das liegt daran, dass schreinertool(c3) für die meisten Aktionen
 *Standardwerte* parat hat.
 `a` ergibt also einen Küchenunterschrank mit einem Fachboden.  Im Hintergrund ist somit diese eine Zeile
 für den Schrank maßgeblich:
-`a p.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.70`
+`a teil.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.70`
 
 
 Das kannst du [hier](http://localhost:3000/c3-5/index.html)
@@ -40,8 +40,8 @@ ausprobieren.
 
 
 Mehrere Korpusse:
-`a p.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72 #schrank_1`
-`b p.sl,sr,bo,de,rw,eb breit.20 tief.50 hoch.72 x.60 #schrank_2`
+`a teil.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72 #schrank_1`
+`b teil.sl,sr,bo,de,rw,eb breit.20 tief.50 hoch.72 x.60 #schrank_2`
 
 Nach der Raute folgt ein Kommentar, der
 die Zeichnung lesbarer macht, aber nicht

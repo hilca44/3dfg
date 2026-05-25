@@ -9,7 +9,7 @@ export const baseCommands = [
   ["eb.", "Einlegeboden"],
   ["mw.", "Mittelwand"],
   
-  ["p.", "p.[teile]"],
+  ["teil.", "teil.[sl,sr,bo,de,rw,fr,eb,mw]"],
   ["mat.", "mat.[staerke],[farbe],[preis],[kantenpreis]"],
 
   ["breit.", "breit.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
@@ -30,9 +30,6 @@ export const baseCommands = [
   ["connect.", "connect.[ziel]"],
   ["verbinden.", "verbinden.[ziel]"],
 
-  ["x.anz.", "x.anz.[anzahl,[abstand]]"],
-  ["y.anz.", "y.anz.[anzahl,[abstand]]"],
-  ["z.anz.", "z.anz.[anzahl,[abstand]]"],
 ];
 
 const mathParameterOptions = [

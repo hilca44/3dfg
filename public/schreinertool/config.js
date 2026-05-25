@@ -129,7 +129,7 @@ const CMD = {
 
   p: [
     "Teile",
-    "z.B. p.sl,sr,bo,de,rw,fr",
+    "z.B. teil.sl,sr,bo,de,rw,fr",
     "Reihenfolge ist wichtig",
     "rw Rückwand",
     "sl linke Seite",
@@ -177,7 +177,7 @@ const CMD = {
 
   n: [
     "Reihe",
-    "z.B. x.anz.3",
+    "z.B. reihe.x.3",
     "Anzahl"
   ],
 

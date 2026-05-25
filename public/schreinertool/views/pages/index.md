@@ -117,6 +117,6 @@ chatgpt kann daraus direkt schreinertool-projekte erzeugen.
 erstelle einen schrank 120 breit 220 hoch mit zwei türen
 
 schrank mat.19,wh mat.16,bl
-a p.sl,sr,bo,de,rw,fr breit.120 tief.60 hoch.220 fr.cut.x.2,1 push.8leg4 fr.mat.2
+a teil.sl,sr,bo,de,rw,fr breit.120 tief.60 hoch.220 fr.cut.x.2,1 push.8leg4 fr.mat.2
 
-[https://3dfg.de/app.html?schrank=mat.19%2Cwh%7Emat.16%2Cbl--a%7Ep.sl%2Csr%2Cbo%2Cde%2Crw%2Cfr%7Ebreit.120%7Etief.60%7Ehoch.220%7Efr.cut.x.2%2C1%7Epush.8leg4%7Efr.mat.2](https://3dfg.de/app.html?schrank=mat.19%2Cwh%7Emat.16%2Cbl--a%7Ep.sl%2Csr%2Cbo%2Cde%2Crw%2Cfr%7Ebreit.120%7Etief.60%7Ehoch.220%7Efr.cut.x.2%2C1%7Epush.8leg4%7Efr.mat.2)
+[https://3dfg.de/app.html?schrank=mat.19%2Cwh%7Emat.16%2Cbl--a%7Eteil.sl%2Csr%2Cbo%2Cde%2Crw%2Cfr%7Ebreit.120%7Etief.60%7Ehoch.220%7Efr.cut.x.2%2C1%7Epush.8leg4%7Efr.mat.2](https://3dfg.de/app.html?schrank=mat.19%2Cwh%7Emat.16%2Cbl--a%7Eteil.sl%2Csr%2Cbo%2Cde%2Crw%2Cfr%7Ebreit.120%7Etief.60%7Ehoch.220%7Efr.cut.x.2%2C1%7Epush.8leg4%7Efr.mat.2)

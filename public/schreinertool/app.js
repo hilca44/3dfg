@@ -4192,10 +4192,11 @@ function addMenuButton(label, action, className = "") {
 const QUICK_HELP_KEY = "c3cad.quickHelp.visible";
 
 const QUICK_HELP_COMMANDS = [
-  ["p.sl,sr", "Teile setzen, z.B. p.sl,sr,fr,rw,bo"],
+  ["teil", "Teile setzen, z.B. teil.sl,sr,fr,rw,bo"],
   ["breit tief hoch", "Masse setzen, z.B. breit.80 tief.40 hoch.72"],
   ["mat", "Material setzen, z.B. mat.19,wh,f,14"],
-  ["x y z", "Position oder Reihe, z.B. x.20 / x.anz.3"],
+  ["x y z", "Position setzen, z.B. x.20"],
+  ["reihe", "Wiederholen, z.B. reihe.x.3,55r"],
   ["cut", "Teile schneiden, z.B. fr.cut.x.2"],
   ["push", "Schieben, Abstand, Fugen und Sockel"],
   ["dock", "Verbinden/Andocken"],

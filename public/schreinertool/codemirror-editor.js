@@ -270,7 +270,7 @@ function partOptionsForContext(context) {
   const line = context.state.doc.lineAt(context.pos);
   const textBeforeCursor = line.text.slice(0, context.pos - line.from);
   const head = textBeforeCursor.trim().split(/\s+/)[0]?.split(".")[0] || "";
-  const fromLine = partsFromPValue(line.text.match(/\bp[=.]([^\s]+)/i)?.[1] || "");
+  const fromLine = partsFromPValue(line.text.match(/\b(?:teil|p)[=.]([^\s]+)/i)?.[1] || "");
   const fromProject = partsFromPValue(window.PR?.oks?.[head]?.p || window.PR?.oks?.[head]?.j || "");
   const parts = fromLine.length ? fromLine : fromProject;
   
@@ -353,7 +353,7 @@ function axisCompletionOptions() {
 
 function partListCompletionOptions(token) {
   const text = token.text || "";
-  const separatorIndex = /^p[=.]/i.test(text) ? 1 : text.indexOf("=");
+  const separatorIndex = /^(?:teil|p)[=.]/i.test(text) ? text.search(/[=.]/) : text.indexOf("=");
   const valueStart = separatorIndex + 1;
   const valueBeforeCursor = text.slice(valueStart, token.cursor);
   const lastComma = valueBeforeCursor.lastIndexOf(",");
@@ -912,7 +912,7 @@ function completionSource(context) {
   const materialStep = materialStepCompletion(token);
   if (materialStep) return materialStep;
 
-  if (/^p[=.]/i.test(token.text) && token.cursor > 1) {
+  if (/^(?:teil|p)[=.]/i.test(token.text) && token.cursor > token.text.search(/[=.]/)) {
     return partListCompletionOptions(token);
   }
 
@@ -985,7 +985,7 @@ function classForToken(token, index) {
   if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(?:cut|teilen|tei|dre|reihe|wid|copy|kop|dock|verbinden|vbn|connect|con|sta|aus|zen|push)(?:[.=]|$)/i.test(token)) return "cm-c3-command";
   if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(?:mat|breit|breite|lang|tief|tiefe|hoch|hoehe|anz|stk)(?:[=.])/i.test(token)) return "cm-c3-command";
   if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(?:x|y|z|breit|breite|tief|tiefe|hoch|hoehe|anz|stk)\./i.test(token)) return "cm-c3-command";
-  if (/^p\./i.test(token)) return "cm-c3-parts";
+  if (/^(?:teil|p)\./i.test(token)) return "cm-c3-parts";
   if (/^mat\.\d/i.test(token)) return "cm-c3-material";
   if (/^\d+([,.]\d+)*$/.test(token)) return "cm-c3-number";
   if (/^(cur|tar)=/i.test(token)) return "cm-c3-link";

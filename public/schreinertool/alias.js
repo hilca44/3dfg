@@ -34,14 +34,14 @@ const ALIASES = {
     const nz = args[2] || "3";
 
     return [
-      "p.sl,sr,fr,rw,bo",
+      "teil.sl,sr,fr,rw,bo",
       `breit.${base}.eb.breit`,
       `tief.${base}.bo.tief`,
       `hoch.${height}`,
       `dock.${base},bo,1`,
       "push.-2",
       "mat.3",
-      `z.anz.${nz}`
+      `reihe.z.${nz}`
     ];
   },
 
@@ -153,7 +153,7 @@ function parseDslToken(token, fallbackHead = "") {
   const material = materialToken(raw);
   if (material) return material;
 
-  const partsToken = raw.match(/^p\.(.+)$/i);
+  const partsToken = raw.match(/^(?:teil|p)\.(.+)$/i);
   if (partsToken) {
     const legacy = partListToLegacy(partsToken[1]);
     return legacy ? `p=${legacy}` : raw;

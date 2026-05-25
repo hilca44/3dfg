@@ -20,11 +20,13 @@ const PROPS = {
   tiefe: "d",
   hoch: "h",
   hoehe: "h",
+  anz: "s",
   stk: "s",
   push: "u"
 };
 
 const ACTIONS = new Set([
+  "cut",
   "teilen",
   "dre",
   "reihe",
@@ -198,7 +200,7 @@ function parseDslToken(token, fallbackHead = "") {
     return `n${action}=${valueList(value)}`;
   }
 
-  if (action === "teilen" && part && /^[xyz]$/.test(axis) && value) {
+  if ((action === "cut" || action === "teilen") && part && /^[xyz]$/.test(axis) && value) {
     return legacyPartPath(part, `s${axis}=${valueList(value)}`, fallbackHead, body[0]);
   }
 

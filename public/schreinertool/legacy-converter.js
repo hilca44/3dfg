@@ -14,7 +14,7 @@ const LEGACY_PROPS = {
   w: "breit",
   d: "tief",
   h: "hoch",
-  s: "stk",
+  s: "anz",
   u: "push"
 };
 
@@ -126,7 +126,7 @@ function convertPartToken(part, rest) {
   if (!modernPart) return "";
 
   const split = rest.match(/^s([xyz])=(.+)$/i);
-  if (split) return `${modernPart}.teilen.${split[1].toLowerCase()}.${split[2]}`;
+  if (split) return `${modernPart}.cut.${split[1].toLowerCase()}.${split[2]}`;
 
   const rotate = rest.match(/^o=([+-]?\d+(?:\.\d+)?)([xyz])$/i);
   if (rotate) return `${modernPart}.dre.${rotate[2].toLowerCase()}.${rotate[1]}`;

@@ -85,7 +85,7 @@ beispiel:
 
 ---
 
-### teilen
+### cut
 
 `sc3`  
 `sf2`  

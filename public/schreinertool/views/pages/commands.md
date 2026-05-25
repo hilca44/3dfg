@@ -135,14 +135,14 @@ Wichtige Schlagwörter:
 - `breit` Breite
 - `tief` Tiefe
 - `hoch` Höhe
-- `stk` Stärke
+- `anz` Stärke
 - `reihe` wiederholen als Reihe
 - `sta` stapeln
 - `dock` andocken
 - `aus` ausrichten
 - `zen` zentrieren
 - `dre` drehen
-- `teilen` teilen
+- `cut` schneiden / teilen
 - `copy` kopieren
 - `push` Einzug / Überstand
 
@@ -156,21 +156,21 @@ Beispiele im neuen Raster:
 
 `a.copy.z.7`
 
-`a.fr.teilen.y.3,25`
+`a.fr.cut.y.3,25`
 
 Das liest sich wie eine kleine CAD-Maschinensprache: erst Objekt, dann Aktion, dann Richtung oder Wert.
 
 Mehrere Teile können vor einem Befehl als Gruppe stehen:
 
-`sl,mw,sr.teilen.y.3,25` - linke Seite, Mittelwand und rechte Seite in y teilen.
+`sl,mw,sr.cut.y.3,25` - linke Seite, Mittelwand und rechte Seite in y schneiden.
 
 Ungleiche Teilung geht mit einer Werte-Liste:
 
-`fr.teilen.x.20,30,rest` - Front in x in 20, 30 und Rest teilen.
+`fr.cut.x.20,30,rest` - Front in x in 20, 30 und Rest schneiden.
 
-`fr.teilen.x.20,g2,30,rest` - wie oben, mit 2 Abstand zwischen den Stücken.
+`fr.cut.x.20,g2,30,rest` - wie oben, mit 2 Abstand zwischen den Stücken.
 
-Optional kann es explizit als Array markiert werden: `fr.teilen.x.arr.20,30,rest`. Mit `arr` gehen auch nur zwei Werte: `fr.teilen.z.arr.20,30`. Stückmaße ab 10 werden bei zwei Werten ebenfalls als ungleiche Teilung gelesen: `fr.teilen.z.20,30`.
+Optional kann es explizit als Array markiert werden: `fr.cut.x.arr.20,30,rest`. Mit `arr` gehen auch nur zwei Werte: `fr.cut.z.arr.20,30`. Stückmaße ab 10 werden bei zwei Werten ebenfalls als ungleiche Teilung gelesen: `fr.cut.z.20,30`.
 
 Punktwerte gehen vom Groben zum Feinen:
 
@@ -195,10 +195,10 @@ Sichere Umwandlungen:
 - `p=fbgtlr` wird `p.fr,rw,bo,de,sl,sr`
 - `w=120 d=80 h=180` wird `breit.120 tief.80 hoch.180`
 - `rw.m=2 rw.w=40` wird `rw.mat.2 rw.breit.40`
-- `f.sx=3,5` wird `fr.teilen.x.3,5`
-- `f.sy=2,1` wird `fr.teilen.y.2,1`
-- `f.sz=4,2` wird `fr.teilen.z.4,2`
-- `b,f.sx=2,1` wird `rw.teilen.x.2,1 fr.teilen.x.2,1`
+- `f.sx=3,5` wird `fr.cut.x.3,5`
+- `f.sy=2,1` wird `fr.cut.y.2,1`
+- `f.sz=4,2` wird `fr.cut.z.4,2`
+- `b,f.sx=2,1` wird `rw.cut.x.2,1 fr.cut.x.2,1`
 - `f,b.u=-1` wird `fr.push.-1 rw.push.-1`
 - `o=90z` wird `dre.z.90`
 - `l.o=9z` wird `sl.dre.z.9`
@@ -292,23 +292,23 @@ Material kann am Korpus oder am Teil gesetzt werden.
 
 Der erste Wert ist die Anzahl. Der zweite Wert ist der Abstand.
 
-## Teilen
+## Cut
 
-`teilen.x`, `teilen.y`, `teilen.z` teilen ein Teil in mehrere kleinere Teile.
+`cut.x`, `cut.y`, `cut.z` schneidet ein Teil in mehrere kleinere Teile.
 
-`fr.teilen.x.3,5` - Front in x-Richtung in drei Teile teilen, Abstand 5.
+`fr.cut.x.3,5` - Front in x-Richtung in drei Teile schneiden, Abstand 5.
 
-`fr.teilen.y.2,1` - Front in y-Richtung in zwei Teile teilen, Abstand 1.
+`fr.cut.y.2,1` - Front in y-Richtung in zwei Teile schneiden, Abstand 1.
 
-`fr.teilen.z.4,2` - Front in z-Richtung in vier Teile teilen, Abstand 2.
+`fr.cut.z.4,2` - Front in z-Richtung in vier Teile schneiden, Abstand 2.
 
 Der erste Wert ist die Anzahl der Teile. Der zweite Wert ist der Abstand zwischen den Teilen.
 
 Kombinationen erzeugen ein Gitter:
 
-`fr.teilen.x.3,5 fr.teilen.z.2,4` - Gitter aus x- und z-Teilung.
+`fr.cut.x.3,5 fr.cut.z.2,4` - Gitter aus x- und z-Teilung.
 
-`fr.teilen.x.2,5 fr.teilen.y.3,2 fr.teilen.z.2,4` - erzeugt `2 x 3 x 2` Teile.
+`fr.cut.x.2,5 fr.cut.y.3,2 fr.cut.z.2,4` - erzeugt `2 x 3 x 2` Teile.
 
 Ungleiche Werte können direkt an Maß oder Position stehen:
 
@@ -342,7 +342,7 @@ Das erzeugt 3 gleich breite Spalten mit jeweils 4 Fächern.
 
 Eigene Stärken sind möglich:
 
-`a breit.100 tief.50 hoch.100 cols.2:3 mw.stk.3 eb.stk.2`
+`a breit.100 tief.50 hoch.100 cols.2:3 mw.anz.3 eb.anz.2`
 
 Das erzeugt zwei Spalten mit drei Fächern, Mittelseiten mit 3 cm Stärke und Fachböden mit 2 cm Stärke.
 

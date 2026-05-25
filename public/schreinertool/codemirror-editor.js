@@ -43,7 +43,7 @@ const legacyPartToModern = {
 };
 
 const modernActionOptions = [
-  ["teilen.", "teilen.[x|y|z].[anzahl,[abstand:<zahl>a|raster:<zahl>r]]"],
+  ["cut.", "cut.[x|y|z].[anzahl,[abstand:<zahl>a|raster:<zahl>r]]"],
   ["dre.", "dre.[x|y|z].[grad]"],
   ["reihe.", "reihe.[x|y|z].[anzahl,[abstand]]"],
   ["copy.", "copy.[x|y|z].[anzahl,[abstand]]"],
@@ -73,7 +73,7 @@ const propertyOptions = [
   ["tiefe.", "tiefe.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
   ["hoch.", "hoch.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
   ["hoehe.", "hoehe.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
-  ["stk.", "stk.[zahl]"],
+  ["anz.", "anz.[zahl]"],
   ["co.", "co.[farbe]"]
 ];
 
@@ -952,7 +952,7 @@ function completionSource(context) {
     };
   }
 
-  const modernAxisMatch = word.text.match(/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(teilen|tei|dre|reihe|wid|copy|kop|sta|aus|zen)\.([xyz]?)$/i);
+  const modernAxisMatch = word.text.match(/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(cut|teilen|tei|dre|reihe|wid|copy|kop|sta|aus|zen)\.([xyz]?)$/i);
   if (modernAxisMatch) {
     return {
       from: word.from + word.text.lastIndexOf(".") + 1,
@@ -982,9 +982,9 @@ function completionSource(context) {
 function classForToken(token, index) {
   if (index === 0) return "cm-c3-name";
   if (/^-/.test(token)) return "cm-c3-disabled";
-  if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(?:teilen|tei|dre|reihe|wid|copy|kop|dock|verbinden|vbn|connect|con|sta|aus|zen|push)(?:[.=]|$)/i.test(token)) return "cm-c3-command";
-  if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(?:mat|breit|breite|lang|tief|tiefe|hoch|hoehe|stk)(?:[=.])/i.test(token)) return "cm-c3-command";
-  if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(?:x|y|z|breit|breite|tief|tiefe|hoch|hoehe|stk)\./i.test(token)) return "cm-c3-command";
+  if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(?:cut|teilen|tei|dre|reihe|wid|copy|kop|dock|verbinden|vbn|connect|con|sta|aus|zen|push)(?:[.=]|$)/i.test(token)) return "cm-c3-command";
+  if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(?:mat|breit|breite|lang|tief|tiefe|hoch|hoehe|anz|stk)(?:[=.])/i.test(token)) return "cm-c3-command";
+  if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(?:x|y|z|breit|breite|tief|tiefe|hoch|hoehe|anz|stk)\./i.test(token)) return "cm-c3-command";
   if (/^p\./i.test(token)) return "cm-c3-parts";
   if (/^mat\.\d/i.test(token)) return "cm-c3-material";
   if (/^\d+([,.]\d+)*$/.test(token)) return "cm-c3-number";
@@ -1086,7 +1086,7 @@ function tokenAt(state, pos) {
 function helpForToken(token) {
   if (helpByToken.has(token)) return helpByToken.get(token);
 
-  if (/^(sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.(?:teilen|tei)\.[xyz]\./i.test(token)) return "Teil in Richtung teilen";
+  if (/^(sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.(?:cut|teilen|tei)\.[xyz]\./i.test(token)) return "Teil in Richtung schneiden";
   if (/^(sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.dre\.[xyz]\./i.test(token)) return "Teil um Achse drehen";
   if (/^(?:reihe|wid)\.[xyz]\./i.test(token)) return "Korpus in Richtung als Reihe wiederholen";
   if (/^(?:copy|kop)\.[xyz]\./i.test(token)) return "Korpus in Richtung kopieren";
@@ -1097,7 +1097,7 @@ function helpForToken(token) {
   if (/^(?:breit|breite|lang|(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.(?:breit|breite|lang))[=.]/i.test(token)) return "Breite setzen";
   if (/^(?:tief|tiefe|(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.(?:tief|tiefe))[=.]/i.test(token)) return "Tiefe setzen";
   if (/^(?:hoch|hoehe|(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.(?:hoch|hoehe))[=.]/i.test(token)) return "Hoehe setzen";
-  if (/^(?:stk|(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.stk)[=.]/i.test(token)) return "Staerke setzen";
+  if (/^(?:anz|stk|(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.(?:anz|stk))[=.]/i.test(token)) return "Staerke setzen";
 
   const normalized = token
     .replace(/\d+([,.]\d+)*/g, "9")
@@ -1342,7 +1342,7 @@ function tokenHasCompletionContext() {
   if (valueSeparator >= 0 && token.cursor > valueSeparator) return true;
   if (/^(?:m|mat)\.[^ \t]*$/i.test(token.text.slice(0, token.cursor))) return true;
   if (/^(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.[a-z]*$/i.test(token.text.slice(0, token.cursor))) return true;
-  if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.)?(?:teilen|tei|dre|reihe|wid|copy|kop|sta|aus|zen)\.[xyz]*$/i.test(token.text.slice(0, token.cursor))) return true;
+  if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.)?(?:cut|teilen|tei|dre|reihe|wid|copy|kop|sta|aus|zen)\.[xyz]*$/i.test(token.text.slice(0, token.cursor))) return true;
 
   const before = editorView.state.sliceDoc(Math.max(0, pos - 1), pos);
   return /\s/.test(before);

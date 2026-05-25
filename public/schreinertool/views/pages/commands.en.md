@@ -175,21 +175,21 @@ The first value is the count. The second value is the spacing.
 
 ## Split
 
-`teilen.x`, `teilen.y`, `teilen.z` split a part into several smaller parts.
+`cut.x`, `cut.y`, `cut.z` split a part into several smaller parts.
 
-`a fr.teilen.x.3,5` - split the front in x direction into three parts, spacing 5.
+`a fr.cut.x.3,5` - split the front in x direction into three parts, spacing 5.
 
-`a fr.teilen.y.2,1` - split the front in y direction into two parts, spacing 1.
+`a fr.cut.y.2,1` - split the front in y direction into two parts, spacing 1.
 
-`a fr.teilen.z.4,2` - split the front in z direction into four parts, spacing 2.
+`a fr.cut.z.4,2` - split the front in z direction into four parts, spacing 2.
 
 The first value is the number of parts. The second value is the spacing between the parts.
 
 Combinations create a grid:
 
-`a fr.teilen.x.3,5 fr.teilen.z.2,4` - grid from x and z splitting.
+`a fr.cut.x.3,5 fr.cut.z.2,4` - grid from x and z splitting.
 
-`a fr.teilen.x.2,5 fr.teilen.y.3,2 fr.teilen.z.2,4` - creates `2 x 3 x 2` parts.
+`a fr.cut.x.2,5 fr.cut.y.3,2 fr.cut.z.2,4` - creates `2 x 3 x 2` parts.
 
 Unequal values can be written directly on dimensions or positions:
 

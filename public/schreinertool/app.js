@@ -1365,10 +1365,10 @@ function firstLikelySyntaxLine(inn, err, ta) {
   const lines = String(inn || "").split(/\r?\n/);
   const suspicious = [
     /\.[a-z]{3}\.$/i,
-    /(?:^|\s)(?:teilen|tei|dre|reihe|wid|copy|kop|dock|verbinden|vbn|connect|con|sta|aus|zen|push)\.$/i,
+    /(?:^|\s)(?:cut|teilen|tei|dre|reihe|wid|copy|kop|dock|verbinden|vbn|connect|con|sta|aus|zen|push)\.$/i,
     /(?:^|\s)(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.$/i,
     /(?:^|\s)(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.[a-z]{3}\.$/i,
-    /(?:^|\s)(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.(?:teilen|tei|dre)\.[^xyz\s]/i,
+    /(?:^|\s)(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.(?:cut|teilen|tei|dre)\.[^xyz\s]/i,
     /(?:^|\s)(?:reihe|wid|copy|kop|dre)\.[^xyz\s]/i
   ];
 
@@ -4196,7 +4196,7 @@ const QUICK_HELP_COMMANDS = [
   ["w d h", "Breite, Tiefe, Hoehe"],
   ["m / mat", "Material setzen, z.B. mat.19,wh,f,14"],
   ["x y z", "Position oder Reihe, z.B. x.20 / x.anz.3"],
-  ["sx sy sz", "Teilen, z.B. fr.teilen.x.2"],
+  ["sx sy sz", "Cut, z.B. fr.cut.x.2"],
   ["u / push", "Schieben, Abstand, Fugen und Sockel"],
   ["i / dock", "Verbinden/Andocken"],
   ["o / dre", "Drehen um x, y oder z"]

@@ -185,9 +185,9 @@ const CMD = {
   ],
 
   s: [
-    "teilen",
+    "cut",
     "z.B. sf2,0.6",
-    "in gleiche Teile teilen"
+    "in gleiche Teile schneiden"
   ],
 
   w: [

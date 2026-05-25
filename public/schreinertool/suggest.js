@@ -26,6 +26,7 @@ export const baseCommands = [
   ["dre.", "dre.[x|y|z].[grad]"],
   ["reihe.", "reihe.[x|y|z].[anzahl,[abstand]]"],
   ["copy.", "copy.[x|y|z].[anzahl,[abstand]]"],
+  ["fit=", "fit=[korpus,teil,ecke]_[korpus,teil,ecke]"],
   ["dock.", "dock.[ziel]"],
   ["connect.", "connect.[ziel]"],
   ["verbinden.", "verbinden.[ziel]"],

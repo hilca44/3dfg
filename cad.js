@@ -4174,12 +4174,14 @@ applyInteriorLayout(k) {
 	            }
 	            return [
 	                parts[0] || fallbackKorpus,
-	                parts[1] || null,
+	                parts[1] ? normalizePartKey(parts[1]) : null,
 	                parts[2] ?? "0"
 	            ];
 	        }
 
-	        return this.getKorParCor([fallbackKorpus, null, "0"], text);
+	        const parsed = this.getKorParCor([fallbackKorpus, null, "0"], text);
+	        if (parsed?.[1]) parsed[1] = normalizePartKey(parsed[1]);
+	        return parsed;
 	    }
 
 	    resolvePointDistanceExpression(ko, raw, axis = "x") {
@@ -4318,13 +4320,25 @@ applyInteriorLayout(k) {
 	                if (!k?.lbs?.length) continue;
 
 	                let needsRebuild = false;
+	                let fitChanged = false;
 
 	                for (const token of k.lbs.slice(1)) {
 	                    const m = String(token || "").match(/^([^=:]+)[=:](.+)$/);
-	                    if (!m || !hasDistanceExpr(m[2])) continue;
+	                    if (!m) continue;
 
 	                    const path = m[1].trim().split(".");
 	                    const key = path[path.length - 1];
+	                    if (path.length === 1 && key === "fit") {
+	                        if (this.applyFitSpec(k, m[2])) {
+	                            needsRebuild = true;
+	                            fitChanged = true;
+	                            changed = true;
+	                        }
+	                        continue;
+	                    }
+
+	                    if (!hasDistanceExpr(m[2])) continue;
+
 	                    const axis = dimAxis[key];
 	                    if (!axis) continue;
 
@@ -4350,9 +4364,11 @@ applyInteriorLayout(k) {
 	                this.lastko = savedTar?.[0] || savedI?.[2] || "";
 	                const rebuilt = this.new__Korp(k.lbs.join(" "));
 	                rebuilt.comment = k.comment || rebuilt.comment || "";
-	                rebuilt.i = savedI;
-	                rebuilt.cur = savedCur;
-	                rebuilt.tar = savedTar;
+	                if (!fitChanged) {
+	                    rebuilt.i = savedI;
+	                    rebuilt.cur = savedCur;
+	                    rebuilt.tar = savedTar;
+	                }
 	                rebuilt.parent = savedParent;
 	                this.oks[name] = rebuilt;
 	                this.lastko = previousLastKo;
@@ -4364,19 +4380,33 @@ applyInteriorLayout(k) {
 
 	    applyFitSpec(ko, spec) {
 	        const refs = String(spec || "").split("_").map(s => s.trim()).filter(Boolean);
-	        if (refs.length < 2) return;
+	        if (refs.length < 2) return false;
 
 	        const p1 = this.parsePointRef(refs[0], ko?.nme);
 	        const p2 = this.parsePointRef(refs[1], p1?.[0] || ko?.nme);
-	        if (!p1 || !p2) return;
+	        if (!p1 || !p2) return false;
+	        const hasPoint = ref => {
+	            const obj = ref?.[0] === ko?.nme ? ko : this.oks[ref?.[0]];
+	            if (!obj) return false;
+	            return !ref?.[1] || Boolean(obj[ref[1]]);
+	        };
+	        if (!hasPoint(p1) || !hasPoint(p2)) return false;
 
 	        const a = this.corners(p1);
 	        const b = this.corners(p2);
-	        if (!a || !b) return;
+	        if (!a || !b) return false;
 
 	        const w = Math.abs(Number(b[0]) - Number(a[0]));
 	        const d = Math.abs(Number(b[1]) - Number(a[1]));
 	        const h = Math.abs(Number(b[2]) - Number(a[2]));
+	        const before = JSON.stringify({
+	            w: ko.w,
+	            d: ko.d,
+	            h: ko.h,
+	            cur: ko.cur,
+	            tar: ko.tar,
+	            i: ko.i
+	        });
 
 	        if (Number.isFinite(w)) ko.w = w;
 	        if (Number.isFinite(d)) ko.d = d;
@@ -4386,6 +4416,14 @@ applyInteriorLayout(k) {
 	        ko.cur = [ko.nme, null, "0"];
 	        this.syncIFromConnection(ko, "tar");
 	        this.syncConnectionFromI(ko);
+	        return before !== JSON.stringify({
+	            w: ko.w,
+	            d: ko.d,
+	            h: ko.h,
+	            cur: ko.cur,
+	            tar: ko.tar,
+	            i: ko.i
+	        });
 	    }
 
 	    getKorParCor1(def, aa = null) {

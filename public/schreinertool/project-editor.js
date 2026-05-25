@@ -109,7 +109,7 @@ function parseProjectLine(line) {
     });
   }
 
-  const re = /[mM]([\d.]+)([a-z]{1,2})([a-z])?([\d.,]*)/g;
+  const re = /[mM]([\d.]+)([a-zäöüß_-]+)([\d.,]*)/gi;
 
   while ((m = re.exec(line)) !== null) {
     const s = Number(m[1]);
@@ -118,8 +118,8 @@ function parseProjectLine(line) {
     let p = 0;
     let pu = 0;
 
-    if (m[4]) {
-      const priceText = m[4];
+    if (m[3]) {
+      const priceText = m[3];
       const [pp, puu] = String(priceText).split(",");
       p = Number(pp || 0);
       pu = Number(puu || 0);

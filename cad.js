@@ -1146,17 +1146,12 @@ export class Proj {
             const s = Number(thickStr) / 10;
             rest = rest.slice(thickStr.length);
 
-            // 3) Farbe (alte Kurzform, Helligkeit wird nicht mehr gespeichert)
-            m = rest.match(/^([a-z]{1,2})/i);
+            // 3) Farbe: kompakte Schreibweise nutzt Web-Farbnamen bis zum Preis, z.B. m19wheat14,1
+            m = rest.match(/^([a-zäöüß_-]+)/i);
             let co = m ? materialColorKey(m[1]) : "white";
             if (m) rest = rest.slice(m[1].length);
 
-            // 4) Alte Helligkeit (optional, 1 Buchstabe) ignorieren
-            if (/^[a-z]$/.test(rest[0])) {
-                rest = rest.slice(1);
-            }
-
-            // 5) Preise
+            // 4) Preise
             let p = 0;
             let pu = 0;
 
@@ -1174,7 +1169,7 @@ export class Proj {
                 }
             }
 
-            // 6) Materialobjekt
+            // 5) Materialobjekt
             dict[key] = {
                 nme,
                 s,
@@ -1276,7 +1271,7 @@ export class Proj {
 	    };
 
 	    const dimTokenRe = /^-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?$/;
-	    const materialTokenRe = /^(?:[mM][\d.]+[a-z]{1,2}[a-z]?[\d.,]*|[mM],[^ ]+|(?:m|mat)\.[^ ]+)$/i;
+	    const materialTokenRe = /^(?:[mM][\d.]+[a-zäöüß_-]+[\d.,]*|[mM],[^ ]+|(?:m|mat)\.[^ ]+)$/i;
 	    const explosionTokenRe = /^x[xyz](?:\s*[=:])?\s*-?\d+(?:\.\d+)?$/i;
 	    const projectValueTokenRe = /^(?:[A-ZÄÖÜ][A-Za-z0-9_ÄÖÜäöüß]*|[WDHSwdhs])\s*[=:]\s*[^\s]+$/;
 
@@ -1314,7 +1309,7 @@ export class Proj {
         });
     }
 
-    const re = /[mM]([\d.]+)([a-z]{1,2})([a-z])?([\d.,]*)/g;
+    const re = /[mM]([\d.]+)([a-zäöüß_-]+)([\d.,]*)/gi;
 
     while ((m = re.exec(line)) !== null) {
 
@@ -1322,8 +1317,8 @@ export class Proj {
         const co = materialColorKey(m[2]);
 
         let p = 0, pu = 0;
-        if (m[4]) {
-            const priceText = m[4];
+        if (m[3]) {
+            const priceText = m[3];
             const nums = priceText.split(",");
             p = Number(nums[0] || 10);
             pu = Number(nums[1] || 0);

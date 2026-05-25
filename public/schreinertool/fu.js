@@ -262,8 +262,8 @@ function urlToInn(url) {
 
   const value = safeDecode(valueParam);
 
-  // 🔵 Neue Mini-DSL (-- und ~)
-  if (value.includes("--") && value.includes("~")) {
+  // 🔵 Neue Mini-DSL (-- trennt Zeilen, ~ trennt Tokens)
+  if (value.includes("--") || value.includes("~")) {
     return decodeTNew(name, value);
     // const lines = value
     //   .split("--")

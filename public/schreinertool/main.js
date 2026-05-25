@@ -5,10 +5,7 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer
 import { OBJExporter } from 'three/addons/exporters/OBJExporter.js';
 import { Proj } from "./proj-client.js";
 import {
-    makeFullUrlFromInn,
-    makeInnFromFullUrl,
-    encodeT,
-    decodeT,
+    urlToInn,
     urlToInnCurrent,
     innToUrl,
     setUrlNoReload,
@@ -123,7 +120,7 @@ export async function openDWGInline(dwgKey) {
 
     const url = await loadURLfromDWG(dwgKey);
     // const txt = await fetch(url).then(r => r.text());
-    editor.value = makeInnFromFullUrl(url).inn
+    editor.value = urlToInn(url)
     // updateURL()
     // await magie()
     // window.location.href=url
@@ -160,7 +157,11 @@ function getInn() {
 }
 
 function loadFromQueryOrDefault() {
-    return makeInnFromFullUrl(window.location.href);
+    const inn = urlToInnCurrent();
+    return {
+        name: extractProjectNameFromInn(inn),
+        inn
+    };
 }
 
 
@@ -168,14 +169,14 @@ function loadFromQueryOrDefault() {
 function updateURL() {
     let inn = window.document.getElementById("inn").value
 
-    history.replaceState(null, "", makeFullUrlFromInn(inn));
+    history.replaceState(null, "", innToUrl(inn));
 
 }
 
 function updateAndReloadURL() {
     let inn = window.document.getElementById("inn").value
 
-    let urlFromInn = makeFullUrlFromInn(inn)
+    let urlFromInn = innToUrl(inn)
     if (window.location.href != urlFromInn) {
         window.location.href = urlFromInn
 
@@ -555,7 +556,7 @@ async function loadInputFromDWGName(name) {
     const url = (await res.text()).trim();
     if (!url) return "";
 
-    return loadFromURL(url);
+    return urlToInn(url);
 }
 
 
@@ -585,35 +586,16 @@ async function loadURLfromDWG(dwgName) {
 
 
 function loadFromURL(url) {
-    const qs = url.split("?")[1];
-    if (!qs) return "";
-
-    const params = new URLSearchParams(qs);
-    let t = params.get("test");
-    if (!t) return "";
-
-    t = decodeURIComponent(t)
-        .replace(/_N_/g, "\n")
-        .replace(/_S_/g, " ")
-        .replace(/_P_/g, "+");
-
-    return t;
+    if (!url) return "";
+    const text = String(url).trim();
+    const fullUrl = text.includes("?")
+        ? text
+        : `${window.location.origin}${window.location.pathname}?${text.replace(/^\?/, "")}`;
+    return urlToInn(fullUrl);
 }
 
 function loadFromURL_anyKey(url) {
-    const qs = url.split("?")[1];
-    if (!qs) return "";
-
-    const params = new URLSearchParams(qs);
-    const it = params.entries().next();
-
-    if (it.done) return "";
-
-    const [, raw] = it.value;   // key egal, nur value
-    return decodeURIComponent(raw)
-        .replace(/_N_/g, "\n")
-        .replace(/_S_/g, " ")
-        .replace(/_P_/g, "+");
+    return loadFromURL(url);
 }
 
 
@@ -2297,7 +2279,7 @@ async function loadLinkedProjects() {
         const url = await resolveDwgKeyToUrl(keyOrUrl); // ← deine Methode
         if (!url) continue;
 
-        const text = loadFromURL(url.split("?")[1]);
+        const text = urlToInn(url);
         const pr = new Proj(text).getall();
 
         projects.push(pr);
@@ -2312,10 +2294,13 @@ function getAllQueryParams() {
     const params = {};
     const qs = new URLSearchParams(window.location.search);
 
-    for (const [key, val] of qs.entries()) {
-        // alert(key)
-        if (!val) continue;
-        params[key] = decodeT(val);
+    for (const [key] of qs.entries()) {
+        const url = new URL(window.location.href);
+        const value = url.searchParams.get(key);
+        if (!value) continue;
+        url.search = "";
+        url.searchParams.set(key, value);
+        params[key] = urlToInn(url.toString());
     }
     return params;
 }

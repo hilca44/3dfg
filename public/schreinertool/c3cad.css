@@ -723,23 +723,25 @@ html, body {
 
 .quick-help-overlay {
   position: fixed;
-  top: 64px;
-  left: 8px;
-  width: min(50vw, 520px);
-  max-height: calc(100svh - 128px);
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  max-height: none;
   padding: 10px;
   display: none;
   overflow: hidden;
   pointer-events: none;
   z-index: 150000;
   color: var(--text-main);
-  background: rgba(241, 237, 230, .88);
-  border: 1px solid rgba(74, 66, 59, .32);
+  background: rgba(241, 237, 230, .34);
+  border: 1px solid rgba(74, 66, 59, .16);
   border-radius: 8px;
-  box-shadow: 0 8px 20px var(--shadow-strong);
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 11px;
   line-height: 1.35;
+  backdrop-filter: blur(1px);
 }
 
 .quick-help-overlay.is-visible {
@@ -755,6 +757,7 @@ html, body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
+  max-width: 560px;
 }
 
 .quick-help-section {
@@ -801,9 +804,6 @@ html, body {
 
 @media (max-width: 720px) {
   .quick-help-overlay {
-    top: 56px;
-    width: calc(100vw - 16px);
-    max-height: 42svh;
     font-size: 10px;
   }
 }

@@ -1542,6 +1542,8 @@ if (cfg.slot2 === "inn") {
   renderHolzliste(window.PR);
 }
 
+  requestAnimationFrame(positionQuickHelpOverlay);
+
 
 
   window.currentState = name;
@@ -4243,11 +4245,26 @@ function renderQuickHelpOverlay() {
   `;
 }
 
+function positionQuickHelpOverlay() {
+  const overlay = document.getElementById("quickHelpOverlay");
+  const canvas = document.getElementById("canvas");
+  if (!overlay || !canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  overlay.style.left = `${rect.left}px`;
+  overlay.style.top = `${rect.top}px`;
+  overlay.style.width = `${rect.width}px`;
+  overlay.style.height = `${rect.height}px`;
+}
+
 function setQuickHelpVisible(visible) {
   const overlay = document.getElementById("quickHelpOverlay");
   if (!overlay) return;
 
   renderQuickHelpOverlay();
+  positionQuickHelpOverlay();
   overlay.classList.toggle("is-visible", Boolean(visible));
   overlay.setAttribute("aria-hidden", visible ? "false" : "true");
   localStorage.setItem(QUICK_HELP_KEY, visible ? "1" : "0");
@@ -4262,6 +4279,8 @@ function toggleQuickHelpOverlay() {
 function initQuickHelpOverlay() {
   renderQuickHelpOverlay();
   setQuickHelpVisible(localStorage.getItem(QUICK_HELP_KEY) === "1");
+  window.addEventListener("resize", positionQuickHelpOverlay);
+  window.addEventListener("orientationchange", () => setTimeout(positionQuickHelpOverlay, 80));
 }
 
 function setupAppMenuActions() {

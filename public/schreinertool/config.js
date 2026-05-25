@@ -129,15 +129,15 @@ const CMD = {
 
   p: [
     "Teile",
-    "z.B. plrgtbc",
+    "z.B. p.sl,sr,bo,de,rw,fr",
     "Reihenfolge ist wichtig",
-    "b back  Rückwand",
-    "l left  linke Seite",
-    "r right rechte Seite",
-    "c cupboard  Einlegeboden",
-    "f front Front",
-    "g ground Boden",
-    "v vertical Mittelwand"
+    "rw Rückwand",
+    "sl linke Seite",
+    "sr rechte Seite",
+    "eb Einlegeboden",
+    "fr Front",
+    "bo Boden",
+    "mw Mittelwand"
   ],
 
   a: [
@@ -147,62 +147,59 @@ const CMD = {
   ],
 
   c: [
-    "connect",
+    "dock",
     "- standardziel = letzter korpus",
     "ecken vorne: unten-links = 0, dann im uhrzeigersinn 1,2,3",
     "ecken hinten: unten-links = 4, dann im uhrzeigersinn 5,6,7",
-    "- example : c",
-    "- example : c1  c0_prev1",
-    "- example : c0_a2",
-    "- example : ct2_ag3"
+    "- beispiel: dock",
+    "- beispiel: dock.a,,0_b,,3"
   ],
 
   m: [
     "material",
-    "m2 mf3",
-    "m0=dummy Material, wird nicht berechnet"
+    "mat.1",
+    "mat.19,wh"
   ],
 
   u: [
-    "pushPull",
-    "z.B. uf0.3",
+    "push",
+    "z.B. fr.push.0.3",
     "*z.B.:*",
-    "uf0.4 verkleinere die Front 4mm an allen Seiten",
-    "u8 (ua8) verkürze den Korpus unten um 8cm + Sockelleiste",
-    "uc2f verkürze den Fachboden vorne um 2cm",
-    "ucg2f dito Fachboden und Boden"
+    "fr.push.0.4 verkleinert die Front 4mm an allen Seiten",
+    "push.8 verkürzt den Korpus unten um 8cm",
+    "eb.push.2f verkürzt den Fachboden vorne um 2cm"
   ],
 
   o: [
     "drehen",
-    "z.B. o45z oder l.o=9z"
+    "z.B. dre.z.45 oder sl.dre.z.9"
   ],
 
   n: [
     "Reihe",
-    "z.B. n3",
+    "z.B. x.anz.3",
     "Anzahl"
   ],
 
   s: [
     "cut",
-    "z.B. sf2,0.6",
+    "z.B. fr.cut.x.2,0.6",
     "in gleiche Teile schneiden"
   ],
 
   w: [
     "Breite",
-    "w40"
+    "breit.40"
   ],
 
   d: [
     "Tiefe",
-    "d23"
+    "tief.23"
   ],
 
   h: [
     "Höhe",
-    "h90"
+    "hoch.90"
   ]
 
 };

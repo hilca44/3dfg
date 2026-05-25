@@ -2,7 +2,7 @@
 
 ## in 30 sekunden zum ersten möbel
 
-schreinertool ist einfach:  
+schreinertool ist einfach:
 du schreibst – und dein möbel entsteht sofort.
 
 ---
@@ -27,10 +27,10 @@ die erste zeile enthält projektname und material.
 
 beispiel:
 
-küche m19wh
+kueche mat.19,wh
 
-- küche = projektname  
-- m19wh = material (19 mm, weiß)
+- kueche = projektname
+- mat.19,wh = material (19 mm, weiß)
 
 mehr ist nicht nötig.
 
@@ -42,7 +42,7 @@ zweite zeile = dein erster korpus
 
 beispiel:
 
-a pflrgtbc 60,60,80
+a p.sl,sr,bo,de,rw,fr breit.60 tief.60 hoch.80
 
 👉 sofort erscheint das möbel im 3d-modell
 
@@ -52,12 +52,12 @@ a pflrgtbc 60,60,80
 
 du kannst vorhandene möbel direkt übernehmen:
 
-küche m19wh  
-a pflrgtbc 60,60,80  
-b a c  
+kueche mat.19,wh
+a p.sl,sr,bo,de,rw,fr breit.60 tief.60 hoch.80
+b.a x.70 dock
 
-👉 b übernimmt die werte von a  
-👉 c verbindet
+👉 b übernimmt die werte von a
+👉 dock verbindet
 
 das spart zeit und tipparbeit.
 
@@ -67,9 +67,9 @@ das spart zeit und tipparbeit.
 
 einfach weiterschreiben:
 
-- neue möbel hinzufügen  
-- bestehende ändern  
-- befehle ergänzen  
+- neue möbel hinzufügen
+- bestehende ändern
+- befehle ergänzen
 
 kein umschalten. kein modus.
 
@@ -77,9 +77,9 @@ kein umschalten. kein modus.
 
 ## speichern
 
-- als link speichern  
-- als text sichern  
-- direkt teilen  
+- als link speichern
+- als text sichern
+- direkt teilen
 
 👉 ein link reicht
 
@@ -87,19 +87,19 @@ kein umschalten. kein modus.
 
 ## wichtige regeln
 
-- alles ist kleingeschrieben  
-- jede zeile = ein objekt oder befehl  
-- der text ist dein projekt  
+- alles ist kleingeschrieben
+- jede zeile = ein objekt oder befehl
+- der text ist dein projekt
 
 ---
 
 ## typische befehle
 
-- m → material  
-- p → teile  
-- c → verbinden  
-- s → teilen  
-- u → anpassen  
+- mat → material
+- p → teile
+- dock → verbinden
+- cut → teilen
+- push → anpassen
 
 ---
 
@@ -109,9 +109,9 @@ du kannst schreinertool wie eine app installieren.
 
 im chrome browser:
 
-1. seite öffnen  
-2. oben rechts auf die drei punkte klicken  
-3. „installieren“ auswählen  
+1. seite öffnen
+2. oben rechts auf die drei punkte klicken
+3. „installieren“ auswählen
 
 👉 danach startet schreinertool wie eine app – ohne browserleiste
 
@@ -119,9 +119,9 @@ im chrome browser:
 
 ## beispiel komplett
 
-küche m19wh  
-a pflrgtbc 60,60,80  
-ba c  
+kueche mat.19,wh
+a p.sl,sr,bo,de,rw,fr breit.60 tief.60 hoch.80
+b.a x.70 dock
 
 ---
 

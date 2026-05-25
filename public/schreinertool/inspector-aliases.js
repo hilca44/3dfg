@@ -9,7 +9,7 @@ window.C3_INSPECTOR_ALIASES = {
   },
   p: {
     label: "Teile",
-    help: "Buchstaben der Korpusteile, z.B. l r g t b f c."
+    help: "Korpusteile, z.B. sl sr bo de rw fr eb mw."
   },
   w: {
     label: "Breite",
@@ -73,7 +73,7 @@ window.C3_INSPECTOR_ALIASES = {
   },
   o: {
     label: "Rotation",
-    help: "Rotation mit Achse, z.B. o=9z oder o=15x."
+    help: "Rotation mit Achse, z.B. dre.z.9 oder dre.x.15."
   },
   nx: {
     label: "Kopien X",

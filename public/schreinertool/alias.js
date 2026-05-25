@@ -1,8 +1,6 @@
 const PARTS = {
   sl: "l",
-  ls: "l",
   sr: "r",
-  rs: "r",
   bo: "g",
   de: "t",
   rw: "b",
@@ -14,26 +12,19 @@ const PARTS = {
 const PROPS = {
   mat: "m",
   breit: "w",
-  breite: "w",
-  lang: "w",
   tief: "d",
-  tiefe: "d",
   hoch: "h",
-  hoehe: "h",
   anz: "s",
-  stk: "s",
   push: "u"
 };
 
 const ACTIONS = new Set([
   "cut",
-  "teilen",
   "dre",
   "reihe",
   "copy",
   "dock",
-  "connect",
-  "verbinden"
+  "teil"
 ]);
 
 const ALIASES = {
@@ -66,11 +57,7 @@ const ALIASES = {
     return [`leg.${height}${count}`];
   },
 
-  legs(args) {
-    const height = args[0] || "8";
-    const count = args[1] || "4";
-    return [`leg.${height},${count}`];
-  }
+
 };
 
 function splitLineComment(line) {

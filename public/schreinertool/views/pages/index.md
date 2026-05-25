@@ -12,7 +12,7 @@ keine installation · keine einarbeitung · sofort loslegen
 
 ## Was macht schreinertool?
 
-schreinertool ist kein klassisches cad-programm.  
+schreinertool ist kein klassisches cad-programm.
 du schreibst dein möbel – und bekommst sofort das fertige ergebnis.
 
 ---
@@ -31,7 +31,7 @@ alles gleichzeitig. ohne umwege.
 ## So funktioniert es
 
 ### 1. beschreiben
-du gibst dein möbel als einfachen text ein  
+du gibst dein möbel als einfachen text ein
 (z. b. breite, höhe, teile)
 
 ### 2. automatisch berechnen
@@ -45,24 +45,24 @@ dein möbel erscheint direkt als modell
 ## Warum das besser ist
 
 ### klassisches cad:
-- klicken  
-- suchen  
-- einstellen  
-- warten  
+- klicken
+- suchen
+- einstellen
+- warten
 
 ### schreinertool:
-- schreiben  
-- sehen  
-- fertig  
+- schreiben
+- sehen
+- fertig
 
 ---
 
 ## Für wen ist das gemacht?
 
-- schreiner  
-- möbelbauer  
-- planer  
-- alle, die schneller zum ergebnis wollen  
+- schreiner
+- möbelbauer
+- planer
+- alle, die schneller zum ergebnis wollen
 
 für menschen, die arbeiten wollen – nicht klicken
 
@@ -70,9 +70,9 @@ für menschen, die arbeiten wollen – nicht klicken
 
 ## Überall nutzbar
 
-- läuft im browser  
-- funktioniert auf desktop & mobil  
-- keine installation  
+- läuft im browser
+- funktioniert auf desktop & mobil
+- keine installation
 
 link öffnen – loslegen
 
@@ -114,9 +114,9 @@ chatgpt kann daraus direkt schreinertool-projekte erzeugen.
 
 ## beispiel
 
-erstelle einen schrank 120 breit 220 hoch mit zwei türen  
+erstelle einen schrank 120 breit 220 hoch mit zwei türen
 
-schrank m19wh  
-a p=lrgtbf w=120 d=60 h=220 f.sx=2,1 u=8leg4
+schrank mat.19,wh mat.16,bl
+a p.sl,sr,bo,de,rw,fr breit.120 tief.60 hoch.220 fr.cut.x.2,1 push.8leg4 fr.mat.2
 
-[https://3dfg.de/app.html?schrank=m19wh%7Em19oc--a%7Ep%3Dlrgtbf%7Ew%3D120%7Ed%3D60%7Eh%3D220%7Ef.sx%3D2%2C1%7Eu%3D8leg4%7Ef.m%3D2](https://3dfg.de/app.html?schrank=m19wh%7Em19oc--a%7Ep%3Dlrgtbf%7Ew%3D120%7Ed%3D60%7Eh%3D220%7Ef.sx%3D2%2C1%7Eu%3D8leg4%7Ef.m%3D2)
+[https://3dfg.de/app.html?schrank=mat.19%2Cwh%7Emat.16%2Cbl--a%7Ep.sl%2Csr%2Cbo%2Cde%2Crw%2Cfr%7Ebreit.120%7Etief.60%7Ehoch.220%7Efr.cut.x.2%2C1%7Epush.8leg4%7Efr.mat.2](https://3dfg.de/app.html?schrank=mat.19%2Cwh%7Emat.16%2Cbl--a%7Ep.sl%2Csr%2Cbo%2Cde%2Crw%2Cfr%7Ebreit.120%7Etief.60%7Ehoch.220%7Efr.cut.x.2%2C1%7Epush.8leg4%7Efr.mat.2)

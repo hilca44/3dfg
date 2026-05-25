@@ -19,35 +19,35 @@ Beispiel:
 tutorialdemo
 
 Optional können hier auch globale Parameter stehen:
-tutorialdemo w60 d55 h72
+tutorialdemo breit.60 tief.55 hoch.72
 
 ---
 
 ## Korpuszeilen
 
-Jede weitere Zeile beschreibt genau einen Korpus.  
+Jede weitere Zeile beschreibt genau einen Korpus.
 Der Minimalkorpus wird mit einem Buchstaben `a`
-beschrieben.  
+beschrieben.
 Das liegt daran, dass schreinertool(c3) für die meisten Aktionen
-*Standardwerte* parat hat.  
+*Standardwerte* parat hat.
 `a` ergibt also einen Küchenunterschrank mit einem Fachboden.  Im Hintergrund ist somit diese eine Zeile
-für den Schrank maßgeblich:  
-`a plrgtbc 60,55,70`  
+für den Schrank maßgeblich:
+`a p.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.70`
 
 
 Das kannst du [hier](http://localhost:3000/c3-5/index.html)
 ausprobieren.
 
 
-Mehrere Korpusse:  
-`a plrgtbc 60,55,72 #schrank_1`  
-`b plrgtbc 20,50,72 x60 #schrank_2`  
+Mehrere Korpusse:
+`a p.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72 #schrank_1`
+`b p.sl,sr,bo,de,rw,eb breit.20 tief.50 hoch.72 x.60 #schrank_2`
 
-Nach der Raute folgt ein Kommentar, der  
-die Zeichnung lesbarer macht, aber nicht  
-notwendig ist.  
-Der Befehl `x60` versetzt Schrank `b` um 60cm  
-nach rechts. Er steht nun neben Schrank `a`.  
+Nach der Raute folgt ein Kommentar, der
+die Zeichnung lesbarer macht, aber nicht
+notwendig ist.
+Der Befehl `x.60` versetzt Schrank `b` um 60cm
+nach rechts. Er steht nun neben Schrank `a`.
 
 Der erste Block ist immer der Korpusname.
 
@@ -62,9 +62,7 @@ Der erste Block ist immer der Korpusname.
 ## Maße
 
 Schrankaußenmaße werden so eingegeben:
-60,45,72 = Breite,Tiefe,Höhe
-oder
-w60 d45 h72 = Breite Tiefe Höhe
+breit.60 tief.45 hoch.72 = Breite Tiefe Höhe
 
 Maße können fest gesetzt oder aus Systemwerten bzw. verlinkten Projekten übernommen werden.
 
@@ -83,21 +81,18 @@ Diese werden über Buchstaben aktiviert.
 
 Mit Split-Kommandos werden Bereiche unterteilt.
 
-Allgemeines Muster:
-s<bauteil><richtung><anzahl>,<abstand>
-
 Beispiel:
-sfz3,1
+fr.cut.z.3,1
 
 Bedeutung:
-- s = split
-- f = Fach-/Frontbereich
+- fr = Front
+- cut = schneiden / teilen
 - z = Höhe
 - 3 = Anzahl
 - 1 = Abstand
 
 Im Kontext:
-a w60 d55 h72 sfz3,1
+a breit.60 tief.55 hoch.72 fr.cut.z.3,1
 
 ---
 
@@ -111,7 +106,7 @@ Grundidee:
 - aktuellen Korpus verschieben
 
 Beispiel:
-b w40 d55 h72 tarnme=a curcor=0 tarcor=1
+b breit.40 tief.55 hoch.72 dock.a,,0_b,,1
 
 Der Korpus b wird an den Korpus a angedockt.
 
@@ -128,7 +123,7 @@ Ablauf:
 - Maße aus der aktuellen Zeile überschreiben den Projektkopf des Links
 
 Beispiel:
-a innurl=drawerblock w60 d55 h72
+a innurl.drawerblock breit.60 tief.55 hoch.72
 
 So lassen sich Modulbibliotheken aufbauen.
 
@@ -138,16 +133,16 @@ So lassen sich Modulbibliotheken aufbauen.
 
 Ein einzelner Korpus:
 demo
-a w60 d55 h72
+a breit.60 tief.55 hoch.72
 
 Zwei Korpusse:
 demo
-a w60 d55 h72
-b w40 d55 h72 tarnme=a curcor=0 tarcor=1
+a breit.60 tief.55 hoch.72
+b breit.40 tief.55 hoch.72 dock.a,,0_b,,1
 
 Korpus mit Unterteilungen:
 demo
-a w60 d55 h72 g b sfz3,1
+a breit.60 tief.55 hoch.72 fr.cut.z.3,1
 
 ---
 
@@ -173,5 +168,5 @@ Wenn ein Link nicht lädt:
 ## Komplettes Beispiel
 
 tutorialdemo
-a w60 d55 h72 g b sfz3,1
-b w40 d55 h72 g b tarnme=a curcor=0 tarcor=1
+a breit.60 tief.55 hoch.72 fr.cut.z.3,1
+b breit.40 tief.55 hoch.72 dock.a,,0_b,,1

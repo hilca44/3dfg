@@ -14,12 +14,6 @@ Eine Zeile beginnt mit dem Namen, danach folgen Eigenschaften.
 
 `a breit.80 tief.40 hoch.72` - Korpus `a` mit expliziten Maßen.
 
-Viele Eigenschaften haben Kurzformen. Diese beiden Zeilen sind gleich gemeint:
-
-`a breit.80 tief.40 hoch.72` - ausgeschriebene Maße.
-
-`a 80,40,72` - kurze Schreibweise für dieselben Maße.
-
 ## Vererbung und integrierte Korpusse
 
 Ein Korpus kann von einem anderen Korpus erben. Dabei steht der neue Name vor dem Punkt, der vorhandene Korpus nach dem Punkt.
@@ -32,15 +26,9 @@ Ein Korpus kann auch fest in einen anderen Korpus integriert werden. Dafür steh
 
 Wird `a` später kopiert oder wiederholt, wird `a.griff` automatisch mitkopiert.
 
-`a n2y` - erzeugt `a` und `a1y`.
-
-`a.griff ...` - erzeugt zusätzlich `a.griff` und `a1y.griff`.
-
 Auch geerbte Korpusse nehmen integrierte Kinder mit:
 
 `b.a x.100` - erzeugt neben `b` auch `b.griff`, wenn `a.griff` existiert.
-
-Die alte Gruppen-Schreibweise mit `+`, zum Beispiel `b.a+`, `ba+` oder `b+a`, wird nicht mehr verwendet.
 
 ## Zahlen
 
@@ -102,20 +90,20 @@ Teilkürzel:
 ## Eigenschaften
 
 - `p` Teile des Korpus
-- `w` Breite
-- `d` Tiefe
-- `h` Höhe
+- `breit` Breite
+- `tief` Tiefe
+- `hoch` Höhe
 - `x` Position in x-Richtung
 - `y` Position in y-Richtung
 - `z` Position in z-Richtung
-- `m` Material
-- `nx`, `ny`, `nz` Wiederholung
-- `sx`, `sy`, `sz` Teilung
+- `mat` Material
+- `x.anz`, `y.anz`, `z.anz` Wiederholung
+- `cut` Teilung
 - `layout`, `cols` Innenaufteilung
-- `u` Verkleinern oder Erweitern
-- `i` Verbinden
+- `push` Verkleinern oder Erweitern
+- `dock` Verbinden
 - `fit` an zwei Punkte anpassen
-- `o` Drehen
+- `dre` Drehen
 - `vi` Darstellung
 - `#` Kommentar
 - `-` Zeile oder Eigenschaft deaktivieren
@@ -183,28 +171,6 @@ Punktwerte gehen vom Groben zum Feinen:
 
 Dasselbe Prinzip gilt für `y`, `z`, `breit`, `tief` und `hoch`, auch an Teilen: `fr.x.4`, `fr.breit.40`, `sl.hoch.n2,g1`.
 
-## Autokonvertierung
-
-Alter Code wird beim Laden und beim Anwenden im Textmodus automatisch in das neue Raster umgewandelt.
-
-Sichere Umwandlungen:
-
-- `nx=3,10` wird `x.anz.3,g10`
-- `ny=2,5` wird `y.anz.2,g5`
-- `nz=4,20` wird `z.anz.4,g20`
-- `p=fbgtlr` wird `p.fr,rw,bo,de,sl,sr`
-- `w=120 d=80 h=180` wird `breit.120 tief.80 hoch.180`
-- `rw.m=2 rw.w=40` wird `rw.mat.2 rw.breit.40`
-- `f.sx=3,5` wird `fr.cut.x.3,5`
-- `f.sy=2,1` wird `fr.cut.y.2,1`
-- `f.sz=4,2` wird `fr.cut.z.4,2`
-- `b,f.sx=2,1` wird `rw.cut.x.2,1 fr.cut.x.2,1`
-- `f,b.u=-1` wird `fr.push.-1 rw.push.-1`
-- `o=90z` wird `dre.z.90`
-- `l.o=9z` wird `sl.dre.z.9`
-- `i=a,,0_b,,3` wird `dock.a,,0_b,,3`
-
-Neue Kürzel werden vor dem Berechnen intern wieder auf die stabile alte Form abgebildet. Alte Projekte bleiben dadurch lauffähig, während der Text Schritt für Schritt moderner werden kann.
 
 ## Aliase
 
@@ -238,10 +204,6 @@ Das entspricht intern:
 
 `breit.80 tief.40 hoch.72` - Breite, Tiefe und Höhe ausgeschrieben.
 
-`80,40,72` - kurze Schreibweise für Breite, Tiefe und Höhe.
-
-`breit`, `tief`, `hoch` stehen für Breite, Tiefe und Höhe.
-
 ## Position
 
 `x.20` - Position in x-Richtung.
@@ -249,12 +211,6 @@ Das entspricht intern:
 `y.10` - Position in y-Richtung.
 
 `z.5` - Position in z-Richtung.
-
-`x20` - alte kurze Schreibweise für `x.20`.
-
-`y10` - alte kurze Schreibweise für `y.10`.
-
-`z5` - alte kurze Schreibweise für `z.5`.
 
 ## Material
 
@@ -267,8 +223,6 @@ Material kann am Korpus oder am Teil gesetzt werden.
 `fr.mat.1` - Material an der Front.
 
 ## Verkleinern und Erweitern
-
-`u` verändert Teile an bestimmten Seiten.
 
 `push.8` - kann für Sockel- oder Korpusverkürzungen verwendet werden.
 
@@ -348,45 +302,41 @@ Das erzeugt zwei Spalten mit drei Fächern, Mittelseiten mit 3 cm Stärke und Fa
 
 ## Verbinden
 
-`i` dockt einen Punkt des aktuellen Korpus an einen Zielpunkt an.
+`dock` dockt einen Punkt des aktuellen Korpus an einen Zielpunkt an.
 
-`b i` - verbindet den aktuellen Korpus mit dem vorherigen Korpus.
+`b dock` - verbindet den aktuellen Korpus mit dem vorherigen Korpus.
 
-`b i=a,,0_b,,3` - verbindet Punkt 0 des aktuellen Korpus mit Punkt 3 von Korpus `a`.
+`b dock.a,,0_b,,3` - verbindet Punkt 0 des aktuellen Korpus mit Punkt 3 von Korpus `a`.
 
-`b i=f,0,a,g,3` - verbindet Teil `f`, Ecke 0, mit Korpus `a`, Teil `g`, Ecke 3.
+`b dock.fr,0,a,bo,3` - verbindet Front, Ecke 0, mit Korpus `a`, Boden, Ecke 3.
 
-`b i1` - verbindet den aktuellen Korpus mit Ecke 1.
+Format: `dock.aktuelles_teil,aktuelle_ecke,ziel_korpus,ziel_teil,ziel_ecke`.
 
-Format: `i=aktuelles_teil,aktuelle_ecke,ziel_korpus,ziel_teil,ziel_ecke`.
-
-Wenn nur `i` geschrieben wird, wird der aktuelle Korpus mit dem vorherigen Korpus verbunden.
+Wenn nur `dock` geschrieben wird, wird der aktuelle Korpus mit dem vorherigen Korpus verbunden.
 
 ## An zwei Punkte anpassen
 
-`fit` berechnet `w`, `d`, `h` aus zwei Punkten. Punkt 1 wird als Zielpunkt gesetzt.
+`fit` berechnet Breite, Tiefe und Höhe aus zwei Punkten. Punkt 1 wird als Zielpunkt gesetzt.
 
 `b fit=a,g,1_a,c,7` - berechnet die Maße von `b` aus den Punkten `a,g,1` und `a,c,7`.
-
-`b fit=ag1_ac7` - kurze Schreibweise für dieselbe Anpassung.
 
 Das bedeutet:
 
 - Punkt 1 ist `a,g,1`
 - Punkt 2 ist `a,c,7`
-- `b.w`, `b.d`, `b.h` werden aus dem Abstand der beiden Punkte berechnet
+- Breite, Tiefe und Höhe werden aus dem Abstand der beiden Punkte berechnet
 - `b.tar` wird auf Punkt 1 gesetzt
 - `b.cur` bleibt Ecke 0 des neuen Korpus
 
 ## Drehen
 
-`o` dreht mit Achsensuffix.
+`dre` dreht mit Achse und Winkel.
 
-`o=45z` - dreht den Korpus um 45 Grad um die z-Achse.
+`dre.z.45` - dreht den Korpus um 45 Grad um die z-Achse.
 
-`l.o=9z` - dreht Teil `l` um 9 Grad um die z-Achse.
+`sl.dre.z.9` - dreht die linke Seite um 9 Grad um die z-Achse.
 
-`o=15x,9z0` - dreht um x und z; bei `9z0` ist `0` die Ecke, um die gedreht wird.
+`dre.x.15` - dreht um die x-Achse.
 
 ## Darstellung
 
@@ -394,15 +344,13 @@ Das bedeutet:
 
 `vi=wf` - Drahtmodell.
 
-`f.vi=t4` - Transparenzstufe für die Front.
+`fr.vi=t4` - Transparenzstufe für die Front.
 
 ## Punkte
 
 Ein Punkt besteht aus Korpus, Teil und Ecke.
 
-`al1` - Korpus `a`, Teil `l`, Ecke `1`.
-
-`a,l,1` - dieselbe Angabe mit Kommas.
+`a,sl,1` - Korpus `a`, linke Seite, Ecke `1`.
 
 ## Ecken
 
@@ -416,8 +364,6 @@ Vorne: `0` unten links, `1` oben links, `2` oben rechts, `3` unten rechts.
 Hinten: `4` unten links, `5` oben links, `6` oben rechts, `7` unten rechts.
 
 ## Kommentare und Deaktivieren
-
-`i1` - verbindet den aktuellen Korpus mit Ecke 1.
 
 `-a p.sl,sr,bo,de,rw,eb breit.80 tief.40 hoch.72` - deaktivierte Zeile.
 

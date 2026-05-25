@@ -5,8 +5,8 @@ const LIB={
 }
 
 const DEFAULT_CORPUS =
-`test m19btf14,1 m16ble16 
-a plrgtbc 60,55,72 mb`;
+`test mat.19,snow,14,1 mat.16,cornflowerblue,16 
+a teil.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72 eb.mat.2 #regal_1`;
 
 const DEFAULT_CORPUS_url =
 `test=(0(test,m19w,m16b,-t,-o,-e),1(a,plrgtbc,(60,55,72),mb))`;

@@ -957,8 +957,131 @@ stt.get(/^\/(de|en|fr|nl|pl|it)\/impressum$/, sendSchreinerPage("impressum", "Im
 /* -------------------------------------------------- */
 /* Domains                                            */
 /* -------------------------------------------------- */
+const schreinertoolMoved = express();
+
+function movedTargetUrl(req) {
+  return `https://3dfg.de${req.originalUrl || "/"}`;
+}
+
+function htmlAttr(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function renderSchreinertoolMovedPage(targetUrl) {
+  const escapedTargetUrl = htmlAttr(targetUrl);
+
+  return `<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, follow">
+  <title>schreinertool ist umgezogen</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8f4;
+      --text: #252b2c;
+      --muted: #5d6868;
+      --line: #d9ded8;
+      --accent: #d96f22;
+      --accent-dark: #9f4813;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    main {
+      width: min(100%, 680px);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: clamp(28px, 6vw, 54px);
+      background: #fff;
+    }
+
+    .mark {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent-dark);
+    }
+
+    h1 {
+      margin: 12px 0 14px;
+      font-size: clamp(34px, 8vw, 62px);
+      line-height: .96;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    a.button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 46px;
+      padding: 0 20px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    a.button:focus,
+    a.button:hover {
+      background: var(--accent-dark);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="mark">schreinertool.de</div>
+    <h1>Die Seite ist umgezogen.</h1>
+    <p>schreinertool laeuft jetzt unter dem Namen 3dfg. Es gibt keine automatische Weiterleitung; du kannst selbst entscheiden, ob du zur neuen Seite wechseln moechtest.</p>
+    <a class="button" href="${escapedTargetUrl}">Zu 3dfg.de</a>
+  </main>
+</body>
+</html>`;
+}
+
+schreinertoolMoved.use((req, res) => {
+  const targetUrl = movedTargetUrl(req);
+  res.set("Cache-Control", "no-store");
+  res.set("X-Robots-Tag", "noindex, follow");
+
+  if (req.method === "HEAD") {
+    return res.status(200).end();
+  }
+
+  return res.status(200).send(renderSchreinertoolMovedPage(targetUrl));
+});
+
 app.use(vhost("beta.schreinertool.de", stt));
 app.use(vhost("www.beta.schreinertool.de", stt));
+app.use(vhost("schreinertool.de", schreinertoolMoved));
+app.use(vhost("www.schreinertool.de", schreinertoolMoved));
 app.use(vhost("3dfg.de", stt));
 app.use(vhost("www.3dfg.de", stt));
 

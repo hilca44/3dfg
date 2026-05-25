@@ -4189,12 +4189,88 @@ function addMenuButton(label, action, className = "") {
   menu.insertBefore(btn, menu.firstChild);
 }
 
+const QUICK_HELP_KEY = "c3cad.quickHelp.visible";
+
+const QUICK_HELP_COMMANDS = [
+  ["p", "Teile: l r g t b f c, modern: p.sl,sr,fr,rw,bo"],
+  ["w d h", "Breite, Tiefe, Hoehe"],
+  ["m / mat", "Material setzen, z.B. mat.19,wh,f,14"],
+  ["x y z", "Position oder Reihe, z.B. x.20 / x.anz.3"],
+  ["sx sy sz", "Teilen, z.B. fr.teilen.x.2"],
+  ["u / push", "Schieben, Abstand, Fugen und Sockel"],
+  ["i / dock", "Verbinden/Andocken"],
+  ["o / dre", "Drehen um x, y oder z"]
+];
+
+const QUICK_HELP_ALIASES = [
+  ["sk=base,14,3", "Sockel-Korpus am Boden andocken"],
+  ["soc=8", "Sockel/Push 8"],
+  ["leg=8", "ein Beinsatz"],
+  ["legs=8,4", "vier Beine"]
+];
+
+function quickHelpRows(rows, className = "") {
+  return rows
+    .map(([key, text]) => `<div class="${className}"><dt>${htmlText(key)}</dt> <dd>${htmlText(text)}</dd></div>`)
+    .join("");
+}
+
+function htmlText(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function renderQuickHelpOverlay() {
+  const overlay = document.getElementById("quickHelpOverlay");
+  if (!overlay) return;
+
+  overlay.innerHTML = `
+    <h2>Kurzhilfe</h2>
+    <div class="quick-help-grid">
+      <section class="quick-help-section">
+        <h3>Befehle</h3>
+        <dl>${quickHelpRows(QUICK_HELP_COMMANDS)}</dl>
+      </section>
+      <section class="quick-help-section">
+        <h3>Aliase</h3>
+        <dl>${quickHelpRows(QUICK_HELP_ALIASES, "alias")}</dl>
+      </section>
+    </div>
+  `;
+}
+
+function setQuickHelpVisible(visible) {
+  const overlay = document.getElementById("quickHelpOverlay");
+  if (!overlay) return;
+
+  renderQuickHelpOverlay();
+  overlay.classList.toggle("is-visible", Boolean(visible));
+  overlay.setAttribute("aria-hidden", visible ? "false" : "true");
+  localStorage.setItem(QUICK_HELP_KEY, visible ? "1" : "0");
+}
+
+function toggleQuickHelpOverlay() {
+  const overlay = document.getElementById("quickHelpOverlay");
+  const visible = !overlay?.classList.contains("is-visible");
+  setQuickHelpVisible(visible);
+}
+
+function initQuickHelpOverlay() {
+  renderQuickHelpOverlay();
+  setQuickHelpVisible(localStorage.getItem(QUICK_HELP_KEY) === "1");
+}
+
 function setupAppMenuActions() {
   const menu = document.getElementById("helpMenu");
   if (!menu || menu.dataset.appActions === "1") return;
   menu.dataset.appActions = "1";
 
   addMenuButton("Listen", downloadHolzlisteS, "menu-action-highlight");
+  addMenuButton("Aliase", toggleQuickHelpOverlay, "menu-action-alias");
+  addMenuButton("Hilfe", toggleQuickHelpOverlay, "menu-action-help");
 }
 
 function initEditToolbar() {
@@ -4235,6 +4311,7 @@ function setupCentralReload() {
 }
 
 setupAppMenuActions();
+initQuickHelpOverlay();
 initEditToolbar();
 loadVisitorCounter();
 setupCentralReload();

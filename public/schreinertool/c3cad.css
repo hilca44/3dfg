@@ -653,6 +653,26 @@ html, body {
   background: #ffe3a3;
 }
 
+#helpMenu .menu-action-help {
+  background: #e9f7ff;
+  color: #0f4963;
+  font-weight: 700;
+}
+
+#helpMenu .menu-action-help:hover {
+  background: #cfedfb;
+}
+
+#helpMenu .menu-action-alias {
+  background: #eef8dd;
+  color: #35530f;
+  font-weight: 700;
+}
+
+#helpMenu .menu-action-alias:hover {
+  background: #dff0bb;
+}
+
 /* letzter Eintrag ohne Linie */
 #helpMenu a:last-child {
   border-bottom: none;
@@ -699,6 +719,93 @@ html, body {
 #helpMenu .menu-language a.is-active {
   background: var(--accent);
   color: #fff;
+}
+
+.quick-help-overlay {
+  position: fixed;
+  top: 64px;
+  left: 8px;
+  width: min(50vw, 520px);
+  max-height: calc(100svh - 128px);
+  padding: 10px;
+  display: none;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 150000;
+  color: var(--text-main);
+  background: rgba(241, 237, 230, .88);
+  border: 1px solid rgba(74, 66, 59, .32);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px var(--shadow-strong);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.quick-help-overlay.is-visible {
+  display: block;
+}
+
+.quick-help-overlay h2 {
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+
+.quick-help-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.quick-help-section {
+  min-width: 0;
+}
+
+.quick-help-section h3 {
+  margin: 0 0 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.quick-help-overlay dl {
+  margin: 0;
+}
+
+.quick-help-overlay div {
+  margin: 0 0 3px;
+}
+
+.quick-help-overlay dt {
+  display: inline;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: #fff2cf;
+  color: #5a3800;
+  font-weight: 700;
+}
+
+.quick-help-overlay dd {
+  display: inline;
+  margin: 0;
+}
+
+.quick-help-overlay dd::after {
+  content: "";
+  display: block;
+}
+
+.quick-help-overlay .alias dt {
+  background: #eef8dd;
+  color: #35530f;
+}
+
+@media (max-width: 720px) {
+  .quick-help-overlay {
+    top: 56px;
+    width: calc(100vw - 16px);
+    max-height: 42svh;
+    font-size: 10px;
+  }
 }
 
 @media (max-width: 420px) {

@@ -5,8 +5,8 @@
 }
 
 export const DEFAULT_CORPUS =
-`test mat.19,wheat,14,1 mat.16,cornflowerblue,16,0
-a p.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72 rw.mat.2`;
+`test mat.19,snow,14,1 mat.16,cornflowerblue,16 
+a teil.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72 eb.mat.2 #regal_1`;
 
 const DEFAULT_CORPUS_url =
 `test=(0(test,mat.19,white,mat.16,cornflowerblue,-t,-o,-e),1(a,plrgtbc,(60,55,72),mb))`;

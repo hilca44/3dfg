@@ -154,6 +154,42 @@
       });
     window.ST_I18N_READY?.then(messages => window.colorsReady.then(() => applyColorLabels(messages)));
 
+    window.FREE_LIMITS = {
+      projectParts: { free: 100, pro: 600 },
+      holzliste: { freeLines: 100 },
+      cutplan: { freePlates: 1 }
+    };
+    window.freeLimitsReady = fetch("free-limits.json")
+      .then(res => {
+        if (!res.ok) throw new Error(`free-limits.json ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        window.FREE_LIMITS = {
+          ...window.FREE_LIMITS,
+          ...(data || {}),
+          projectParts: {
+            ...window.FREE_LIMITS.projectParts,
+            ...(data?.projectParts || {})
+          },
+          holzliste: {
+            ...window.FREE_LIMITS.holzliste,
+            ...(data?.holzliste || {})
+          },
+          cutplan: {
+            ...window.FREE_LIMITS.cutplan,
+            ...(data?.cutplan || {})
+          }
+        };
+        window.PROJECT_PART_LIMITS = window.FREE_LIMITS.projectParts;
+        return window.FREE_LIMITS;
+      })
+      .catch(err => {
+        console.error("free-limits.json konnte nicht geladen werden", err);
+        window.PROJECT_PART_LIMITS = window.FREE_LIMITS.projectParts;
+        return window.FREE_LIMITS;
+      });
+
     function initColorSelect(sel) {
       sel.innerHTML = "";
 
@@ -261,8 +297,9 @@
     // ---------------------------------------------
 	    (async () => { 
         let startupText = "";
-	      try {
+      try {
       await window.colorsReady;
+      await window.freeLimitsReady;
       const parsed = urlToInn(window.location.href);
       let text = convertLegacyToModern(materializeAliases(parsed || ""));
       if (/^test\s+mat\.19,(?:bt,f|wheat),14,1\s+mat\.16,(?:bl,e|cornflowerblue),16(?:,0)?\s*\r?\na\s*$/i.test(text)) {

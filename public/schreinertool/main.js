@@ -882,7 +882,7 @@ let limitedEdgeMat = new THREE.LineBasicMaterial({ color: 0x777777, transparent:
 const LIMITED_EDGE_PREVIEW_COUNT = 10;
 
 
-function makeL(k, ownerGroup = null) {
+function makeL(k, ownerGroup = null, options = {}) {
     const g = new THREE.Group();
     const geo = new THREE.SphereGeometry(.1, 16, 16); // größer
     const mat = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
@@ -893,11 +893,24 @@ function makeL(k, ownerGroup = null) {
 
     const el = document.createElement("div");
     el.className = "korpus-label";
-    el.textContent = k.comment || k.ali || k.nme;
+    el.textContent = "";
+    const nameEl = document.createElement("span");
+    nameEl.textContent = k.comment || k.ali || k.nme;
+    el.appendChild(nameEl);
+    if (options.notice) {
+        const noticeEl = document.createElement("small");
+        noticeEl.textContent = options.notice;
+        noticeEl.style.display = "block";
+        noticeEl.style.marginTop = "2px";
+        noticeEl.style.color = "#7a4d00";
+        noticeEl.style.fontSize = "10pt";
+        noticeEl.style.lineHeight = "1.2";
+        el.appendChild(noticeEl);
+    }
     el.title = k.w+","+k.d+","+k.h
     el.style.padding = "2px 6px";
-    el.style.background = "transparent";
-    el.style.border = "1px solid #444";
+    el.style.background = options.notice ? "#fff7e6" : "transparent";
+    el.style.border = options.notice ? "1px solid #c98a00" : "1px solid #444";
     el.style.borderRadius = "4px";
     el.style.fontSize = "12pt";
     el.style.whiteSpace = "nowrap";
@@ -1677,6 +1690,11 @@ function proj(pr) {
     const root = new THREE.Group();
     const meshMap = {};
     const state = {};
+    const hit = pr.partLimitExceeded;
+    const limitNotice = hit
+        ? `Hinweis: Free zeigt nur die ersten ${hit.limit || hit.rendered || 0} Teile.`
+        : "";
+    let limitNoticeShown = false;
 
     // ----------------------------------------
     // parse helpers
@@ -1783,7 +1801,10 @@ function proj(pr) {
         const inner = createK(k, name);
         g.add(inner);
         if (!isExpandedTextKorpus(k)) {
-            g.add(makeL(k, g));
+            g.add(makeL(k, g, {
+                notice: !limitNoticeShown ? limitNotice : ""
+            }));
+            if (limitNotice) limitNoticeShown = true;
         }
 
         g.updateMatrixWorld(true);
@@ -2954,6 +2975,9 @@ function updateProjectLabel(pr) {
     const label = ensureProjectLabel();
     const title = pr?.nme || "Projekt";
     label.textContent = title;
+    label.style.borderColor = "#8f9690";
+    label.style.background = "#ffffff";
+    label.removeAttribute("title");
     document.title = title;
 }
 

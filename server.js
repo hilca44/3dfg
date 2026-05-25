@@ -25,12 +25,15 @@ const USER_GALLERY_DIR = path.join(GALLERY_DIR, "users");
 const USER_DB_PATH = path.join(GALLERY_DIR, "users.json");
 const PAID_EMAILS_PATH = path.join(GALLERY_DIR, "paid-emails.json");
 const Q_PATH = path.join(GALLERY_DIR, ".q.json");
+const FREE_LIMITS_PATH = path.join(__dirname, "public", "schreinertool", "free-limits.json");
 const DEFAULT_LANG = "de";
 const SUPPORTED_LANGS = ["de", "en", "fr", "nl", "pl", "it"];
-const PROJECT_PART_LIMITS = {
-  free: 80,
-  pro: 600
-};
+const FREE_LIMITS = readJSON(FREE_LIMITS_PATH, {
+  projectParts: { free: 100, pro: 600 },
+  holzliste: { freeLines: 100 },
+  cutplan: { freePlates: 1 }
+});
+const PROJECT_PART_LIMITS = FREE_LIMITS.projectParts || { free: 100, pro: 600 };
 
 /* -------------------------------------------------- */
 /* App                                                */

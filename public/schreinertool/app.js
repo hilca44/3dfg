@@ -10,13 +10,16 @@ let CURRENT_STATE = null;
 const colors = window.colors || {};
 
 const ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const PROJECT_PART_LIMITS = {
-  free: 80,
-  pro: 600
+if (window.freeLimitsReady) await window.freeLimitsReady;
+const FREE_LIMITS = window.FREE_LIMITS || {
+  projectParts: { free: 100, pro: 600 },
+  holzliste: { freeLines: 100 },
+  cutplan: { freePlates: 1 }
 };
+const PROJECT_PART_LIMITS = FREE_LIMITS.projectParts || { free: 100, pro: 600 };
+window.PROJECT_PART_LIMITS = PROJECT_PART_LIMITS;
 let projectAccessPromise = null;
 let projectAccessPlan = null;
-let lastProjectLimitWarning = "";
 var temp0
 function stt(key, fallback = "") {
   const value = key.split(".").reduce((obj, part) => obj?.[part], window.ST_I18N);
@@ -74,13 +77,6 @@ function projectPartLimitMessage(count, plan, limit) {
 function notifyProjectPartLimit(PR) {
   const hit = PR?.partLimitExceeded;
   if (!hit) return false;
-
-  const message = hit.message ||
-    `Teilelimit erreicht: Es werden nur die ersten ${hit.limit || hit.count} Teile gerendert.`;
-  if (message !== lastProjectLimitWarning) {
-    lastProjectLimitWarning = message;
-    alert(message);
-  }
   return true;
 }
 
@@ -1428,7 +1424,7 @@ async function applyInnTextChanges() {
   } catch (err) {
     console.error("Textmodus konnte nicht angewendet werden:", err);
     if (err?.name === "ProjectPartLimitError") {
-      alert(err.message);
+      showInnProjectError(inn, err);
       setState("inn");
       return false;
     }
@@ -3521,10 +3517,13 @@ openShareGate({
 
 
 
-function createCutplanHTML(byMaterial) {
+function createCutplanHTML(byMaterial, options = {}) {
 
   const SCALE = 0.2;
   const sheet = { w: 2800, h: 2070 };
+  const maxPlates = Number(options.maxPlates || 0);
+  let renderedPlates = 0;
+  let limited = false;
 
   function layout(parts) {
     const rest = parts.slice(), out = [];
@@ -3567,6 +3566,11 @@ function createCutplanHTML(byMaterial) {
     const plates = layout(byMaterial[mat]);
 
     plates.forEach((pl, i) => {
+      if (maxPlates && renderedPlates >= maxPlates) {
+        limited = true;
+        return;
+      }
+      renderedPlates++;
 
       html += `<b>Platte ${i+1}</b>`;
 
@@ -3599,6 +3603,11 @@ function createCutplanHTML(byMaterial) {
     });
   });
 
+  if (limited) {
+    const label = maxPlates === 1 ? "eine Platte" : `${maxPlates} Platten`;
+    html += `<p>Free-Version: Der Zuschnittplan ist auf ${label} begrenzt.</p>`;
+  }
+
   return html;
 }
 
@@ -3606,11 +3615,12 @@ function createCutplanHTML(byMaterial) {
 function freeHolzlisteText(text) {
   const lines = String(text || "").split(/\r?\n/);
   const firstLines = [];
+  const maxLines = Number(FREE_LIMITS.holzliste?.freeLines || 100);
 
   for (const line of lines) {
     if (!line.trim()) continue;
     firstLines.push(line);
-    if (firstLines.length >= 10) break;
+    if (firstLines.length >= maxLines) break;
   }
 
   return [
@@ -3676,7 +3686,7 @@ async function downloadHolzliste(options = {}) {
     await validateProjectPartLimit(activePR, { plan: isFreeDownload ? "free" : undefined });
   } catch (err) {
     if (err?.name === "ProjectPartLimitError") {
-      alert(err.message);
+      console.warn("Free-Limit erreicht:", err.message);
       return;
     }
     throw err;
@@ -3717,7 +3727,10 @@ async function downloadHolzliste(options = {}) {
 
   const parts = parseHolzliste(holzText);
   const byMaterial = groupByMaterial(parts);
-  const cutplanHTML = createCutplanHTML(byMaterial);
+  const cutplanHTML = createCutplanHTML(byMaterial, isFreeDownload
+    ? { maxPlates: FREE_LIMITS.cutplan?.freePlates || 1 }
+    : {}
+  );
   const beschlagListe = createBeschlagStuecklisteFromKorpus(parts, cfg);
   const beschlagText = createBeschlagText(beschlagListe);
 
@@ -3770,7 +3783,12 @@ body{font-family:system-ui}
 <pre>${esc(downloadHolzText)}</pre>
 `;
 
-  if (!isFreeDownload) {
+  if (isFreeDownload) {
+    out += `
+<h2>Zuschnittplan (grob)</h2>
+${cutplanHTML}
+`;
+  } else {
     out += `
 <h2>Zuschnittplan (grob)</h2>
 ${cutplanHTML}

@@ -1,0 +1,12 @@
+{
+  "projectParts": {
+    "free": 100,
+    "pro": 600
+  },
+  "holzliste": {
+    "freeLines": 100
+  },
+  "cutplan": {
+    "freePlates": 1
+  }
+}

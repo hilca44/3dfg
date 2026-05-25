@@ -13,9 +13,23 @@ const publishLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 30
 });
-const PROJECT_PART_LIMITS = {
-  free: 80
-};
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
+
+function readJSON(file, fallback = {}) {
+  try {
+    return JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch {
+    return fallback;
+  }
+}
+
+const FREE_LIMITS = readJSON(
+  path.join(__dirname, "public", "schreinertool", "free-limits.json"),
+  { projectParts: { free: 100 } }
+);
+const PROJECT_PART_LIMITS = FREE_LIMITS.projectParts || { free: 100 };
 
 function countProjectParts(pr) {
   return (pr?.alljj || []).reduce((sum, key) => {
@@ -43,11 +57,6 @@ function projectLimitOptions() {
     partLimitPlan: "free"
   };
 }
-/* -------------------------------------------------- */
-/* __dirname Ersatz (ESM)                             */
-/* -------------------------------------------------- */
-const __filename = fileURLToPath(import.meta.url);
-const __dirname  = path.dirname(__filename);
 const dbPath = path.join(
   __dirname,
   "public",

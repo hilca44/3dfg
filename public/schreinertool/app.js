@@ -1753,26 +1753,19 @@ function updateToolbarStatus() {
 
   const undo = document.getElementById("toolbarUndo");
   if (undo) {
-    undo.textContent = `↶ ${undoStepCount()}`;
+    undo.textContent = `< ${undoStepCount()}`;
     undo.disabled = editHistoryRendering || undoStepCount() <= 0;
   }
 
   const redo = document.getElementById("toolbarRedo");
   if (redo) {
-    redo.textContent = `${redoStepCount()} ↷`;
+    redo.textContent = `${redoStepCount()} >`;
     redo.disabled = editHistoryRendering || redoStepCount() <= 0;
   }
 }
 
 function topToolbarButtons() {
-  const textToggleLabel = window.CURRENT_STATE === "inn" ? "buttons" : "text";
-  return [
-    { label: "☰", action: () => toggleHelpMenu() },
-    { label: "↶", id: "toolbarUndo", action: undoProjectText },
-    { label: "teilen", action: shareProjectByMail },
-    { label: textToggleLabel, action: toggleInnMain },
-    { label: "↷", id: "toolbarRedo", action: redoProjectText }
-  ];
+  return [];
 }
 
 function setButtons(defs, nuu="slot3") {
@@ -3088,6 +3081,8 @@ function toggleHelpMenu(e) {
   const menu = document.getElementById("helpMenu");
   if (!menu) return;
 
+  e?.stopPropagation();
+
   const isOpen = menu.style.display !== "none" && menu.style.display !== "";
   menu.style.display = isOpen ? "none" : "grid";
   if (!isOpen) menu.scrollTop = 0;
@@ -4335,9 +4330,17 @@ function setupAppMenuActions() {
   addMenuButton("Listen", downloadHolzlisteS, "menu-action-highlight");
   addMenuButton("Aliase", toggleQuickHelpOverlay, "menu-action-alias");
   addMenuButton("Hilfe", toggleQuickHelpOverlay, "menu-action-help");
+  addMenuButton("Teilen", shareProjectByMail, "menu-action-highlight");
 }
 
 function initEditToolbar() {
+  document.getElementById("cornerMenuButton")
+    ?.addEventListener("click", toggleHelpMenu);
+  document.getElementById("toolbarUndo")
+    ?.addEventListener("click", undoProjectText);
+  document.getElementById("toolbarRedo")
+    ?.addEventListener("click", redoProjectText);
+
   restoreEditHistory();
   updateToolbarStatus();
 }

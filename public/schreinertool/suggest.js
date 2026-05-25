@@ -25,11 +25,8 @@ export const baseCommands = [
   ["cut.", "cut.[x|y|z].[anzahl,[abstand:<zahl>a|raster:<zahl>r]]"],
   ["dre.", "dre.[x|y|z].[grad]"],
   ["reihe.", "reihe.[x|y|z].[anzahl,[abstand]]"],
-  ["copy.", "copy.[x|y|z].[anzahl,[abstand]]"],
   ["fit=", "fit=[korpus,teil,ecke]_[korpus,teil,ecke]"],
   ["dock.", "dock.[ziel]"],
-  ["connect.", "connect.[ziel]"],
-  ["verbinden.", "verbinden.[ziel]"],
 
 ];
 
@@ -46,10 +43,8 @@ const mathParameterOptions = [
 
 export const parameterOptionsByProperty = {
   breit: mathParameterOptions,
-  breite: mathParameterOptions,
   lang: mathParameterOptions,
   tief: mathParameterOptions,
-  tiefe: mathParameterOptions,
   hoch: mathParameterOptions,
   hoehe: mathParameterOptions,
   x: mathParameterOptions,

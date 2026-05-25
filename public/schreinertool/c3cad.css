@@ -584,6 +584,9 @@ html, body {
 }
 
 #helpMenu {
+  position: fixed;
+  left: 18px;
+  bottom: calc(env(safe-area-inset-bottom) + var(--keyboard-inset) + 120px);
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-content: start;
   min-width: min(420px, calc(100vw - 16px));
@@ -857,10 +860,9 @@ html, body {
   opacity: .45;
 }
 
+.corner-action-button,
 #centralReloadButton {
   position: fixed;
-  right: 18px;
-  bottom: calc(env(safe-area-inset-bottom) + var(--keyboard-inset) + 48px);
   z-index: 20000;
   width: 62px;
   height: 62px;
@@ -877,11 +879,47 @@ html, body {
   line-height: 1;
 }
 
+#centralReloadButton {
+  right: 18px;
+  bottom: calc(env(safe-area-inset-bottom) + var(--keyboard-inset) + 48px);
+}
+
+.corner-action-button {
+  font-size: 17pt;
+}
+
+#cornerMenuButton {
+  left: 18px;
+  bottom: calc(env(safe-area-inset-bottom) + var(--keyboard-inset) + 48px);
+}
+
+#toolbarUndo {
+  left: 18px;
+  top: calc(env(safe-area-inset-top) + 44px);
+}
+
+#toolbarRedo {
+  right: 18px;
+  top: calc(env(safe-area-inset-top) + 44px);
+}
+
+#cornerMenuButton {
+  font-size: 24pt;
+}
+
 #centralReloadButton:hover {
   background: var(--accent-hover);
 }
 
 #centralReloadButton:active {
+  background: var(--accent-active);
+}
+
+.corner-action-button:hover {
+  background: var(--accent-hover);
+}
+
+.corner-action-button:active {
   background: var(--accent-active);
 }
 

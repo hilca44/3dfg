@@ -721,93 +721,6 @@ html, body {
   color: #fff;
 }
 
-.quick-help-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 0;
-  max-height: none;
-  padding: 10px;
-  display: none;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 150000;
-  color: var(--text-main);
-  background: rgba(241, 237, 230, .34);
-  border: 1px solid rgba(74, 66, 59, .16);
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0,0,0,.08);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11px;
-  line-height: 1.35;
-  backdrop-filter: blur(1px);
-}
-
-.quick-help-overlay.is-visible {
-  display: block;
-}
-
-.quick-help-overlay h2 {
-  margin: 0 0 6px;
-  font-size: 13px;
-}
-
-.quick-help-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 8px;
-  max-width: 720px;
-}
-
-.quick-help-section {
-  min-width: 0;
-}
-
-.quick-help-section h3 {
-  margin: 0 0 4px;
-  font-size: 11px;
-  text-transform: uppercase;
-}
-
-.quick-help-overlay dl {
-  margin: 0;
-}
-
-.quick-help-overlay div {
-  margin: 0 0 3px;
-}
-
-.quick-help-overlay dt {
-  display: inline;
-  padding: 1px 4px;
-  border-radius: 4px;
-  background: #fff2cf;
-  color: #5a3800;
-  font-weight: 700;
-}
-
-.quick-help-overlay dd {
-  display: inline;
-  margin: 0;
-}
-
-.quick-help-overlay dd::after {
-  content: "";
-  display: block;
-}
-
-.quick-help-overlay .alias dt {
-  background: #eef8dd;
-  color: #35530f;
-}
-
-@media (max-width: 720px) {
-  .quick-help-overlay {
-    font-size: 10px;
-  }
-}
-
 @media (max-width: 420px) {
   #helpMenu {
     grid-template-columns: 1fr;
@@ -870,16 +783,6 @@ html, body {
 .top-status span {
   color: var(--white);
   flex: 1 1 auto;
-}
-
-#toolbarUndo,
-#toolbarRedo {
-  white-space: nowrap;
-}
-
-#toolbarUndo:disabled,
-#toolbarRedo:disabled {
-  opacity: .45;
 }
 
 #centralReloadButton {

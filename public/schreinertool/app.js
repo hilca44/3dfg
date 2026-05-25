@@ -4334,9 +4334,10 @@ Object.assign(window, {
   // alles, was per onclick genutzt wird
 });
 
-function addMenuButton(label, action, className = "") {
+function addMenuButton(label, action, className = "", parent = null) {
   const menu = document.getElementById("helpMenu");
   if (!menu) return;
+  const target = parent || menu;
 
   const btn = document.createElement("button");
   btn.type = "button";
@@ -4347,7 +4348,12 @@ function addMenuButton(label, action, className = "") {
     menu.style.display = "none";
     action?.();
   });
-  menu.insertBefore(btn, menu.firstChild);
+
+  if (parent) {
+    target.appendChild(btn);
+  } else {
+    target.insertBefore(btn, target.firstChild);
+  }
 }
 
 const QUICK_HELP_KEY = "c3cad.quickHelp.visible";
@@ -4457,10 +4463,14 @@ function setupAppMenuActions() {
   if (!menu || menu.dataset.appActions === "1") return;
   menu.dataset.appActions = "1";
 
-  addMenuButton("Listen", openListenState, "menu-action-highlight");
-  addMenuButton("Aliase", toggleQuickHelpOverlay, "menu-action-alias");
-  addMenuButton("Hilfe", toggleQuickHelpOverlay, "menu-action-help");
-  addMenuButton("Teilen", shareProjectByMail, "menu-action-highlight");
+  const actionBar = document.createElement("div");
+  actionBar.className = "app-menu-actions";
+  menu.insertBefore(actionBar, menu.firstChild);
+
+  addMenuButton("Listen", openListenState, "menu-action-highlight", actionBar);
+  addMenuButton("Aliase", toggleQuickHelpOverlay, "menu-action-alias", actionBar);
+  addMenuButton("Hilfe", toggleQuickHelpOverlay, "menu-action-help", actionBar);
+  addMenuButton("Teilen", shareProjectByMail, "menu-action-highlight", actionBar);
 }
 
 function initEditToolbar() {

@@ -1296,21 +1296,17 @@ function openBlockEditornnnnnooode(corpus) {
 
 function openBlockEditor(idx) {
   const ta = document.getElementById("inn");
-  const editor = document.getElementById("blockEditor");
-
-  const lines = ta.value.split(/\r?\n/);
   activeLineIndex = idx;
 
-  setState("blockedi");
-  editor.style.display = "block";
-
-//   openBlockEditor(lines[idx]);
-  renderBlockEditor(lines[idx]);
-
-  // Fokus auf erstes Feld
+  setState("inn");
   setTimeout(() => {
-    const first = editor.querySelector("input");
-    if (first) first.focus();
+    if (!ta) return;
+    const lines = ta.value.split(/\r?\n/);
+    const start = lines.slice(0, idx).reduce((sum, line) => sum + line.length + 1, 0);
+    const end = start + (lines[idx] || "").length;
+    ta.focus();
+    ta.setSelectionRange(start, end);
+    window.syncInnEditorFromTextarea?.();
   }, 50);
 }
 
@@ -1326,8 +1322,9 @@ function bootState() {
     return;
   }
 
-  // ✅ Sonst zuletzt gespeicherten State holen
-  const cur = localStorage.getItem("c3cad_state") || "main";
+  // ✅ Sonst zuletzt gespeicherten State holen, Texteditor ist Standard
+  const saved = localStorage.getItem("c3cad_state");
+  const cur = saved && saved !== "main" && saved !== "blockedi" ? saved : "inn";
   setState(cur);
 }
 
@@ -1457,7 +1454,7 @@ async function convertInnTextToModern() {
 async function toggleInnMain() {
 
   // aktuellen State aus localStorage lesen
-  const cur = window.CURRENT_STATE || localStorage.getItem("c3cad_state") || "main";
+  const cur = window.CURRENT_STATE || localStorage.getItem("c3cad_state") || "inn";
 
   const next = (cur === "inn") ? "main" : "inn";
 
@@ -4208,8 +4205,14 @@ const QUICK_HELP_COMMANDS = [
 const QUICK_HELP_ALIASES = [
   ["sk=base,14,3", "Sockel-Korpus am Boden andocken"],
   ["soc=8", "Sockel/Push 8"],
-  ["leg=8", "ein Beinsatz"],
-  ["legs=8,4", "vier Beine"]
+  ["leg=8", "ein Beinsatz"]
+];
+
+const QUICK_HELP_MODEL = [
+  ["a", "Corpus-Name in der ersten Spalte"],
+  ["b.a", "b erbt Werte und Kinder von a"],
+  ["a.griff", "Kind von a, wird mit a vererbt"],
+  ["rechte Strg", "Änderungen übernehmen"]
 ];
 
 function quickHelpRows(rows, className = "") {
@@ -4240,6 +4243,10 @@ function renderQuickHelpOverlay() {
       <section class="quick-help-section">
         <h3>Aliase</h3>
         <dl>${quickHelpRows(QUICK_HELP_ALIASES, "alias")}</dl>
+      </section>
+      <section class="quick-help-section">
+        <h3>Name</h3>
+        <dl>${quickHelpRows(QUICK_HELP_MODEL)}</dl>
       </section>
     </div>
   `;

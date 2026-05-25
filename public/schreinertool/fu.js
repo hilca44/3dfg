@@ -9,7 +9,7 @@ export const DEFAULT_CORPUS =
 a teil.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72 eb.mat.2 #regal_1`;
 
 const DEFAULT_CORPUS_url =
-`test=(0(test,mat.19,white,mat.16,cornflowerblue,-t,-o,-e),1(a,plrgtbc,(60,55,72),mb))`;
+`test=mat.19%2Csnow%2C14%2C1%7Emat.16%2Ccornflowerblue%2C16--a%7Eteil.sl%2Csr%2Cbo%2Cde%2Crw%2Ceb%7Ebreit.60%7Etief.55%7Ehoch.72%7Eeb.mat.2%7E%23regal_1`;
 
 function parseCornerSpec(v){
 

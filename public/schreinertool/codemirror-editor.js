@@ -16,9 +16,6 @@ let syntaxErrorLine = null;
 let syntaxErrorMessage = "";
 let syntaxErrorToken = "";
 let colorPaletteEl = null;
-let editorHelpBar = null;
-
-const defaultEditorHelpText = "Befehl oder Wert markieren: Hilfe erscheint hier.";
 
 const modernPartOptions = [
   ["sl", "linke Seite"],
@@ -1106,39 +1103,6 @@ function helpForToken(token) {
   return helpByToken.get(normalized) || "";
 }
 
-function createEditorHelpBar() {
-  if (editorHelpBar) return editorHelpBar;
-
-  editorHelpBar = document.getElementById("innEditorHelp");
-  if (!editorHelpBar) {
-    editorHelpBar = document.createElement("div");
-    editorHelpBar.id = "innEditorHelp";
-    editorHelpBar.className = "view";
-    textarea.insertAdjacentElement("afterend", editorHelpBar);
-  }
-
-  editorHelpBar.textContent = defaultEditorHelpText;
-  return editorHelpBar;
-}
-
-function editorHelpTextForPosition(view) {
-  if (!view.hasFocus) return defaultEditorHelpText;
-
-  const pos = view.state.selection.main.head;
-  const line = view.state.doc.lineAt(pos);
-  if (pos === line.from) return "Neue Zeile: Befehl eingeben oder Leertaste/Enter fuer Vorschlaege.";
-
-  const token = tokenAt(view.state, pos);
-  if (!token.text) return defaultEditorHelpText;
-
-  return helpForToken(token.text) || defaultEditorHelpText;
-}
-
-function updateEditorHelpBar(view) {
-  const bar = createEditorHelpBar();
-  bar.textContent = editorHelpTextForPosition(view);
-}
-
 const c3Hover = hoverTooltip((view, pos) => {
   const token = tokenAt(view.state, pos);
   if (!token.text) return null;
@@ -1225,11 +1189,10 @@ function createEditorHost() {
   let host = document.getElementById("innEditor");
   if (host) return host;
 
-  createEditorHelpBar();
   host = document.createElement("div");
   host.id = "innEditor";
   host.className = "view";
-  editorHelpBar.insertAdjacentElement("afterend", host);
+  textarea.insertAdjacentElement("afterend", host);
   return host;
 }
 
@@ -1250,7 +1213,6 @@ function createEditor() {
         EditorView.updateListener.of(update => {
           if (update.docChanged || update.selectionSet || update.focusChanged) {
             updateColorPalette(update.view);
-            updateEditorHelpBar(update.view);
           }
 
           if (!update.docChanged || syncing) return;
@@ -1263,7 +1225,6 @@ function createEditor() {
       ]
     })
   });
-  updateEditorHelpBar(editorView);
 }
 
 function setSyntaxError(lineNumber, message = "", token = "") {
@@ -1293,18 +1254,15 @@ function showInnEditor() {
   if (!host || !textarea) return false;
 
   textarea.style.display = "none";
-  createEditorHelpBar().classList.add("is-visible");
   host.style.display = "block";
   document.body.classList.add("inn-editor-active");
   setEditorText(readTextareaValue());
-  updateEditorHelpBar(editorView);
   return true;
 }
 
 function hideInnEditor() {
   const host = document.getElementById("innEditor");
   if (host) host.style.display = "none";
-  if (editorHelpBar) editorHelpBar.classList.remove("is-visible");
   hideColorPalette();
   document.body.classList.remove("inn-editor-active");
 }

@@ -367,14 +367,14 @@ const STATES = {
   main: {
     slot1: "canvas",
     slot2: "lineButtons",
-    btn: [],
+    btn: topToolbarButtons,
     buttons: []
   },
 
 inn: {
     slot1: "canvas",
     slot2: "inn",
-    btn: [],
+    btn: topToolbarButtons,
     buttons: []
   },
 
@@ -889,6 +889,7 @@ function initColorSelect(sel) {
 const ACTIONS = {
 
   main: [
+     { label: "☰", action: toggleHelpMenu },
       { label: "holz", labelKey: "ui.wood", to: "wood" },
       { label: "elp",    to: "help" },
           // { label: "open",   action: openDWGPicker }, // ✅ HIER
@@ -1538,6 +1539,10 @@ if (cfg.slot2 === "inn") {
   renderHolzliste(window.PR);
 }
 
+  requestAnimationFrame(positionQuickHelpOverlay);
+
+
+
   window.currentState = name;
 }
 
@@ -1749,6 +1754,29 @@ function updateToolbarStatus() {
   if (topStatus) {
     topStatus.innerHTML = `<a class="top-status-home" href="/">3dfg</a><span>${toolbarStatusText()}</span>`;
   }
+
+  const undo = document.getElementById("toolbarUndo");
+  if (undo) {
+    undo.textContent = `↶ ${undoStepCount()}`;
+    undo.disabled = editHistoryRendering || undoStepCount() <= 0;
+  }
+
+  const redo = document.getElementById("toolbarRedo");
+  if (redo) {
+    redo.textContent = `${redoStepCount()} ↷`;
+    redo.disabled = editHistoryRendering || redoStepCount() <= 0;
+  }
+}
+
+function topToolbarButtons() {
+  const textToggleLabel = window.CURRENT_STATE === "inn" ? "buttons" : "text";
+  return [
+    { label: "☰", action: () => toggleHelpMenu() },
+    { label: "↶", id: "toolbarUndo", action: undoProjectText },
+    { label: "teilen", action: shareProjectByMail },
+    { label: textToggleLabel, action: toggleInnMain },
+    { label: "↷", id: "toolbarRedo", action: redoProjectText }
+  ];
 }
 
 function setButtons(defs, nuu="slot3") {
@@ -3044,6 +3072,32 @@ function closeMenuOnce(menu, ev) {
 
 
 
+function toggleHelpMenu(e) {
+  const menu = document.getElementById("helpMenu");
+  if (!menu) return;
+
+  const isOpen = menu.style.display !== "none" && menu.style.display !== "";
+  menu.style.display = isOpen ? "none" : "grid";
+  if (!isOpen) menu.scrollTop = 0;
+
+  // Klick außerhalb schließt Menü
+  if (!isOpen) {
+    setTimeout(() => {
+      document.addEventListener("click", closeHelpMenuOnce);
+    }, 0);
+  }
+}
+
+function closeHelpMenuOnce(ev) {
+  const menu = document.getElementById("helpMenu");
+  if (!menu.contains(ev.target)) {
+    menu.style.display = "none";
+    document.removeEventListener("click", closeHelpMenuOnce);
+  }
+}
+
+
+
 function openC3cadFile(){
   document.getElementById("c3cadFileInput").click();
 }
@@ -4118,6 +4172,134 @@ Object.assign(window, {
   // alles, was per onclick genutzt wird
 });
 
+function addMenuButton(label, action, className = "") {
+  const menu = document.getElementById("helpMenu");
+  if (!menu) return;
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = ["menu-action", className].filter(Boolean).join(" ");
+  btn.textContent = label;
+  btn.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    menu.style.display = "none";
+    action?.();
+  });
+  menu.insertBefore(btn, menu.firstChild);
+}
+
+const QUICK_HELP_KEY = "c3cad.quickHelp.visible";
+
+const QUICK_HELP_COMMANDS = [
+  ["teil", "Teile setzen, z.B. teil.sl,sr,fr,rw,bo"],
+  ["breit tief hoch", "Masse setzen, z.B. breit.80 tief.40 hoch.72"],
+  ["mat", "Material setzen, z.B. mat.19,wh,f,14"],
+  ["x y z", "Position setzen, z.B. x.20"],
+  ["reihe", "Wiederholen, z.B. reihe.x.3,55r"],
+  ["cut", "Teile schneiden, z.B. fr.cut.x.2"],
+  ["push", "Schieben, Abstand, Fugen und Sockel"],
+  ["dock", "Verbinden/Andocken"],
+  ["dre", "Drehen um x, y oder z"]
+];
+
+const QUICK_HELP_ALIASES = [
+  ["sk=base,14,3", "Sockel-Korpus am Boden andocken"],
+  ["soc=8", "Sockel/Push 8"],
+  ["leg=8", "ein Beinsatz"]
+];
+
+const QUICK_HELP_MODEL = [
+  ["a", "Corpus-Name in der ersten Spalte"],
+  ["b.a", "b erbt Werte und Kinder von a"],
+  ["a.griff", "Kind von a, wird mit a vererbt"],
+  ["rechte Strg", "Änderungen übernehmen"]
+];
+
+function quickHelpRows(rows, className = "") {
+  return rows
+    .map(([key, text]) => `<div class="${className}"><dt>${htmlText(key)}</dt> <dd>${htmlText(text)}</dd></div>`)
+    .join("");
+}
+
+function htmlText(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function renderQuickHelpOverlay() {
+  const overlay = document.getElementById("quickHelpOverlay");
+  if (!overlay) return;
+
+  overlay.innerHTML = `
+    <h2>Kurzhilfe</h2>
+    <div class="quick-help-grid">
+      <section class="quick-help-section">
+        <h3>Befehle</h3>
+        <dl>${quickHelpRows(QUICK_HELP_COMMANDS)}</dl>
+      </section>
+      <section class="quick-help-section">
+        <h3>Aliase</h3>
+        <dl>${quickHelpRows(QUICK_HELP_ALIASES, "alias")}</dl>
+      </section>
+      <section class="quick-help-section">
+        <h3>Name</h3>
+        <dl>${quickHelpRows(QUICK_HELP_MODEL)}</dl>
+      </section>
+    </div>
+  `;
+}
+
+function positionQuickHelpOverlay() {
+  const overlay = document.getElementById("quickHelpOverlay");
+  const canvas = document.getElementById("canvas");
+  if (!overlay || !canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  overlay.style.left = `${rect.left}px`;
+  overlay.style.top = `${rect.top}px`;
+  overlay.style.width = `${rect.width}px`;
+  overlay.style.height = `${rect.height}px`;
+}
+
+function setQuickHelpVisible(visible) {
+  const overlay = document.getElementById("quickHelpOverlay");
+  if (!overlay) return;
+
+  renderQuickHelpOverlay();
+  positionQuickHelpOverlay();
+  overlay.classList.toggle("is-visible", Boolean(visible));
+  overlay.setAttribute("aria-hidden", visible ? "false" : "true");
+  localStorage.setItem(QUICK_HELP_KEY, visible ? "1" : "0");
+}
+
+function toggleQuickHelpOverlay() {
+  const overlay = document.getElementById("quickHelpOverlay");
+  const visible = !overlay?.classList.contains("is-visible");
+  setQuickHelpVisible(visible);
+}
+
+function initQuickHelpOverlay() {
+  renderQuickHelpOverlay();
+  setQuickHelpVisible(localStorage.getItem(QUICK_HELP_KEY) === "1");
+  window.addEventListener("resize", positionQuickHelpOverlay);
+  window.addEventListener("orientationchange", () => setTimeout(positionQuickHelpOverlay, 80));
+}
+
+function setupAppMenuActions() {
+  const menu = document.getElementById("helpMenu");
+  if (!menu || menu.dataset.appActions === "1") return;
+  menu.dataset.appActions = "1";
+
+  addMenuButton("Listen", downloadHolzlisteS, "menu-action-highlight");
+  addMenuButton("Aliase", toggleQuickHelpOverlay, "menu-action-alias");
+  addMenuButton("Hilfe", toggleQuickHelpOverlay, "menu-action-help");
+}
+
 function initEditToolbar() {
   restoreEditHistory();
   updateToolbarStatus();
@@ -4155,6 +4337,8 @@ function setupCentralReload() {
   });
 }
 
+setupAppMenuActions();
+initQuickHelpOverlay();
 initEditToolbar();
 loadVisitorCounter();
 setupCentralReload();

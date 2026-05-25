@@ -9,6 +9,43 @@ const PARTS = {
   mw: "v"
 };
 
+function legacyPartName(value) {
+  const key = String(value ?? "").trim().toLowerCase();
+  return PARTS[key] || key;
+}
+
+function normalizeDockRef(value, partIndex) {
+  const parts = String(value ?? "").split(",");
+  if (parts[partIndex]) parts[partIndex] = legacyPartName(parts[partIndex]);
+  return parts.join(",");
+}
+
+function normalizeDockSpec(value) {
+  const text = String(value ?? "").trim();
+  if (!text) return text;
+
+  if (text.includes("_")) {
+    const [cur, tar] = text.split("_");
+    return [
+      normalizeDockRef(cur, 0),
+      normalizeDockRef(tar, 1)
+    ].join("_");
+  }
+
+  const parts = text.split(",");
+  if (parts.length >= 5) {
+    parts[0] = legacyPartName(parts[0]);
+    parts[3] = legacyPartName(parts[3]);
+    return parts.join(",");
+  }
+  if (parts.length === 3) {
+    parts[1] = legacyPartName(parts[1]);
+    return parts.join(",");
+  }
+
+  return text;
+}
+
 const PROPS = {
   mat: "m",
   breit: "w",
@@ -205,7 +242,7 @@ function parseDslToken(token, fallbackHead = "") {
 
   if (action === "dock" || action === "connect" || action === "verbinden") {
     const spec = [axis, value].filter(Boolean).join(".");
-    return spec ? `i=${spec}` : "i";
+    return spec ? `i=${normalizeDockSpec(spec)}` : "i";
   }
 
   if (!ACTIONS.has(action) && propertyValue) {

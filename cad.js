@@ -31,6 +31,18 @@ const WDHXYZ = {
 }
 const XYZ = "xyz"
 const DWG_DIR = "/home/ch/3dfg/dwg";
+const MODERN_PART_KEYS = {
+    sl: "l",
+    sr: "r",
+    ls: "l",
+    rs: "r",
+    bo: "g",
+    de: "t",
+    rw: "b",
+    fr: "f",
+    eb: "c",
+    mw: "v"
+};
 
 const MATERIAL_COLOR_NAMES = {
     w: "white",
@@ -157,6 +169,11 @@ function stripValueAnnotation(value) {
 
 function clonePlainValue(value) {
   return Array.isArray(value) ? value.map(clonePlainValue) : value;
+}
+
+function normalizePartKey(value) {
+  const key = String(value ?? "").trim();
+  return MODERN_PART_KEYS[key.toLowerCase()] || key;
 }
 
 
@@ -899,12 +916,24 @@ export class Proj {
             for (let idx = 0; idx < Math.min(raw.length, 5); idx++) {
                 base[idx] = raw[idx] === "" ? null : raw[idx];
             }
+            if (base[0]) base[0] = normalizePartKey(base[0]);
+            if (base[3]) base[3] = normalizePartKey(base[3]);
             return base;
         }
 
         const text = String(raw ?? "").trim().replace(/^["'](.*)["']$/, "$1");
         const base = this.defaultI(obj);
         if (!text) return base;
+
+        const directParts = text.split(",").map(part => part.trim());
+        if (!text.includes("_") && directParts.length >= 5) {
+            base[0] = directParts[0] ? normalizePartKey(directParts[0]) : null;
+            base[1] = directParts[1] || "0";
+            base[2] = directParts[2] || base[2] || null;
+            base[3] = directParts[3] ? normalizePartKey(directParts[3]) : null;
+            base[4] = directParts[4] || "3";
+            return base;
+        }
 
         const parseCorner = value => {
             const s = String(value ?? "").trim();
@@ -921,7 +950,7 @@ export class Proj {
             }
 
             const parts = s.split(",").map(part => part.trim());
-            base[0] = parts[0] || null;
+            base[0] = parts[0] ? normalizePartKey(parts[0]) : null;
             base[1] = parseCorner(parts[1] ?? "0") ?? "0";
         };
 
@@ -940,7 +969,7 @@ export class Proj {
                 base[4] = parseCorner(parts[1]) ?? base[4];
                 return;
             }
-            base[3] = parts[1] || null;
+            base[3] = parts[1] ? normalizePartKey(parts[1]) : null;
             base[4] = parseCorner(parts[2] ?? base[4]) ?? "3";
         };
 
@@ -961,13 +990,13 @@ export class Proj {
         const [curPart, curCorner, tarKo, tarPart, tarCorner] = obj.i;
         obj.cur = [
             obj.nme || null,
-            curPart ?? null,
+            curPart ? normalizePartKey(curPart) : null,
             String(curCorner ?? "0")
         ];
 
         obj.tar = tarKo ? [
             tarKo,
-            tarPart ?? null,
+            tarPart ? normalizePartKey(tarPart) : null,
             String(tarCorner ?? "3")
         ] : [];
     }
@@ -976,13 +1005,13 @@ export class Proj {
         if (!obj || !Array.isArray(obj.i)) obj.i = this.defaultI(obj);
 
         if (key === "cur" && Array.isArray(obj.cur)) {
-            obj.i[0] = obj.cur[1] ?? null;
+            obj.i[0] = obj.cur[1] ? normalizePartKey(obj.cur[1]) : null;
             obj.i[1] = String(obj.cur[2] ?? "0");
         }
 
         if (key === "tar" && Array.isArray(obj.tar)) {
             obj.i[2] = obj.tar[0] ?? null;
-            obj.i[3] = obj.tar[1] ?? null;
+            obj.i[3] = obj.tar[1] ? normalizePartKey(obj.tar[1]) : null;
             obj.i[4] = String(obj.tar[2] ?? "3");
         }
     }
@@ -2123,7 +2152,7 @@ setTokenValue(obj, token){
 
 	        o[key] = [
 	            parts[0],
-	            parts[1],
+	            parts[1] ? normalizePartKey(parts[1]) : parts[1],
 	            parts[2]
 	        ];
 	        if (o === obj) {

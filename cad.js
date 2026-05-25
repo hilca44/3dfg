@@ -870,6 +870,19 @@ export class Proj {
         const pathAllowed = path => {
             const keys = String(path || "").split(".").filter(Boolean);
             if (!keys.length) return false;
+            const modernParts = {
+                sl: "l",
+                sr: "r",
+                ls: "l",
+                rs: "r",
+                bo: "g",
+                de: "t",
+                rw: "b",
+                fr: "f",
+                eb: "c",
+                mw: "v"
+            };
+            if (modernParts[keys[0]]) keys[0] = modernParts[keys[0]];
             if (allowedPath.has(keys[0])) return true;
             if (parts.has(keys[0]) && keys[1] && partProps.has(keys[1])) return true;
             return false;
@@ -4916,6 +4929,12 @@ applyInteriorLayout(k) {
 	        { axis: "y", dim: "d", key: "sy" },
 	        { axis: "z", dim: "h", key: "sz" }
 	    ];
+	    const spreadAxisByPart = {
+	        l: "x", r: "x", v: "x",
+	        f: "y", b: "y", a: "y",
+	        g: "z", t: "z", c: "z"
+	    };
+	    const basePart = String(ob.nme || "").charAt(0).toLowerCase();
 
 	    const active = axes
 	        .map(spec => {
@@ -4928,8 +4947,8 @@ applyInteriorLayout(k) {
 	            const count = Math.max(1, Math.round(Number.isFinite(countNum) ? countNum : 1));
 	            const spreadRaw = String(split?.[1] ?? "").trim();
 	            const spreadMode = split.length < 2 || /s$/i.test(spreadRaw);
-	            const isShelfHeightSpread = spreadMode && spec.axis === "z" && /^c(?:\d+)?$/i.test(String(ob.nme || ""));
-	            let start = isShelfHeightSpread ? 0 : Number(ob?.[spec.axis] || 0);
+	            const isThicknessSpread = spreadMode && spec.axis === spreadAxisByPart[basePart];
+	            let start = isThicknessSpread ? 0 : Number(ob?.[spec.axis] || 0);
 	            const spreadFullDim = Number(ko?.[spec.dim] || 0) - start;
 	            const fullDim = Number((spreadMode ? spreadFullDim : ob[spec.dim]) || 0);
 	            if (count <= 1 || !Number.isFinite(fullDim) || fullDim <= 0) return null;
@@ -4941,7 +4960,7 @@ applyInteriorLayout(k) {
 	            let gap = spreadMode
 	                ? Math.max(0, count > 1 ? (fullDim - partDim * count) / (count - 1) : 0)
 	                : Number(spreadRaw || 0);
-	            if (isShelfHeightSpread) {
+	            if (isThicknessSpread) {
 	                gap = Math.max(0, (fullDim - partDim * count) / (count + 1));
 	                start = gap;
 	            }

@@ -785,11 +785,35 @@ html, body {
 
 .quick-help-overlay.is-visible {
   display: block;
+  pointer-events: auto;
+}
+
+.quick-help-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  max-width: 720px;
+  margin: 0 0 6px;
 }
 
 .quick-help-overlay h2 {
   margin: 0 0 6px;
   font-size: 13px;
+}
+
+.quick-help-close {
+  padding: 4px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  background: var(--card);
+  color: var(--text-main);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.quick-help-close:hover {
+  background: var(--panel);
 }
 
 .quick-help-grid {

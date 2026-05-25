@@ -4397,6 +4397,11 @@ const QUICK_HELP_MODEL = [
   ["rechte Strg", "Änderungen übernehmen"]
 ];
 
+const QUICK_HELP_SAVE = [
+  ["Teilen", "Projekt-Link an die eigene E-Mail-Adresse senden"],
+  ["Link", "Der Link enthält dein Projekt und öffnet es wieder"]
+];
+
 function quickHelpRows(rows, className = "") {
   return rows
     .map(([key, text]) => `<div class="${className}"><dt>${htmlText(key)}</dt> <dd>${htmlText(text)}</dd></div>`)
@@ -4416,7 +4421,10 @@ function renderQuickHelpOverlay() {
   if (!overlay) return;
 
   overlay.innerHTML = `
-    <h2>Kurzhilfe</h2>
+    <div class="quick-help-head">
+      <h2>Kurzhilfe</h2>
+      <button class="quick-help-close" type="button">Schließen</button>
+    </div>
     <div class="quick-help-grid">
       <section class="quick-help-section">
         <h3>Befehle</h3>
@@ -4430,8 +4438,16 @@ function renderQuickHelpOverlay() {
         <h3>Name</h3>
         <dl>${quickHelpRows(QUICK_HELP_MODEL)}</dl>
       </section>
+      <section class="quick-help-section">
+        <h3>Speichern</h3>
+        <dl>${quickHelpRows(QUICK_HELP_SAVE)}</dl>
+      </section>
     </div>
   `;
+
+  overlay
+    .querySelector(".quick-help-close")
+    ?.addEventListener("click", () => setQuickHelpVisible(false));
 }
 
 function positionQuickHelpOverlay() {

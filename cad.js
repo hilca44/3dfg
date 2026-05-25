@@ -4949,17 +4949,17 @@ applyInteriorLayout(k) {
 	            const spreadMode = split.length < 2 || /s$/i.test(spreadRaw);
 	            const isThicknessSpread = spreadMode && spec.axis === spreadAxisByPart[basePart];
 	            let start = isThicknessSpread ? 0 : Number(ob?.[spec.axis] || 0);
-	            const spreadFullDim = Number(ko?.[spec.dim] || 0) - start;
-	            const fullDim = Number((spreadMode ? spreadFullDim : ob[spec.dim]) || 0);
+	            const fullDim = Number((isThicknessSpread ? ko?.[spec.dim] : ob[spec.dim]) || 0);
 	            if (count <= 1 || !Number.isFinite(fullDim) || fullDim <= 0) return null;
 
 	            const spreadValue = Number(spreadRaw.replace(/s$/i, ""));
-	            const partDim = spreadMode
+	            const gapValue = Number.isFinite(spreadValue) ? spreadValue : 0;
+	            const partDim = isThicknessSpread
 	                ? (Number.isFinite(spreadValue) && spreadValue > 0 ? spreadValue : Number(ob[spec.dim] || 0))
-	                : (fullDim - Number(spreadRaw || 0) * (count - 1)) / count;
-	            let gap = spreadMode
+	                : (fullDim - gapValue * (count - 1)) / count;
+	            let gap = isThicknessSpread
 	                ? Math.max(0, count > 1 ? (fullDim - partDim * count) / (count - 1) : 0)
-	                : Number(spreadRaw || 0);
+	                : gapValue;
 	            if (isThicknessSpread) {
 	                gap = Math.max(0, (fullDim - partDim * count) / (count + 1));
 	                start = gap;

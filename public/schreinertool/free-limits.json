@@ -4,6 +4,8 @@
     "pro": 600
   },
   "holzliste": {
+    "insideFreeLines": 60,
+    "exportFreeLines": 100,
     "freeLines": 100
   },
   "cutplan": {

@@ -13,7 +13,7 @@ const ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 if (window.freeLimitsReady) await window.freeLimitsReady;
 const FREE_LIMITS = window.FREE_LIMITS || {
   projectParts: { free: 100, pro: 600 },
-  holzliste: { freeLines: 100 },
+  holzliste: { insideFreeLines: 60, exportFreeLines: 100, freeLines: 100 },
   cutplan: { freePlates: 1 }
 };
 const PROJECT_PART_LIMITS = FREE_LIMITS.projectParts || { free: 100, pro: 600 };
@@ -2700,6 +2700,8 @@ function buildHolzlisteReportHTML(activePR, options = {}) {
 
   const currentInn = options.inn || document.getElementById("inn")?.value || activePR?.inn || "";
   const holzText = window._holzliste_text || "";
+  const isFreeView = options.plan !== "pro";
+  const displayHolzText = isFreeView ? freeHolzlisteText(holzText, "inside") : holzText;
   const projectUrl = innToUrl(currentInn);
   const projectName = activePR?.nme || "projekt";
   const sumeur = activePR?.eur || "Preis nicht kalkuliert";
@@ -2716,16 +2718,19 @@ function buildHolzlisteReportHTML(activePR, options = {}) {
 
   const parts = parseHolzliste(holzText);
   const byMaterial = groupByMaterial(parts);
-  const cutplanHTML = createCutplanHTML(byMaterial);
+  const cutplanHTML = createCutplanHTML(byMaterial, isFreeView
+    ? { maxPlates: FREE_LIMITS.cutplan?.freePlates || 1 }
+    : {}
+  );
 
   let beschlagText = "";
-  if (typeof cfg !== "undefined" && cfg?.beschlaege && cfg?.regeln) {
+  if (!isFreeView && typeof cfg !== "undefined" && cfg?.beschlaege && cfg?.regeln) {
     const beschlagListe = createBeschlagStuecklisteFromKorpus(parts, cfg);
     beschlagText = createBeschlagText(beschlagListe);
   }
 
   let kalkulationText = "";
-  if (typeof window.CF === "number" && window.CF > 0) {
+  if (!isFreeView && typeof window.CF === "number" && window.CF > 0) {
     kalkulationText = createKalkulationText(window.CF, parts);
   }
 
@@ -2751,7 +2756,7 @@ function buildHolzlisteReportHTML(activePR, options = {}) {
 
       <section>
         <h2>Holzliste</h2>
-        <pre>${escapeHTML(holzText)}</pre>
+        <pre>${escapeHTML(displayHolzText)}</pre>
       </section>
 
       <section>
@@ -2776,7 +2781,7 @@ function buildHolzlisteReportHTML(activePR, options = {}) {
   `;
 }
 
-function renderHolzlisteReport(PR) {
+async function renderHolzlisteReport(PR) {
   const el = document.getElementById("woodOverview");
   if (!el) return;
 
@@ -2792,12 +2797,15 @@ function renderHolzlisteReport(PR) {
     return;
   }
 
+  const plan = await getProjectAccessPlan();
+  await validateProjectPartLimit(PR, { plan });
+
   if (!isReadyPR(PR)) {
     el.textContent = "";
     return;
   }
 
-  el.innerHTML = buildHolzlisteReportHTML(PR);
+  el.innerHTML = buildHolzlisteReportHTML(PR, { plan });
 }
 
 async function openListenState() {
@@ -3756,10 +3764,16 @@ function createCutplanHTML(byMaterial, options = {}) {
 }
 
 
-function freeHolzlisteText(text) {
+function holzlisteFreeLineLimit(kind = "export") {
+  const limits = FREE_LIMITS.holzliste || {};
+  const key = kind === "inside" ? "insideFreeLines" : "exportFreeLines";
+  return Number(limits[key] || limits.freeLines || 100);
+}
+
+function freeHolzlisteText(text, kind = "export") {
   const lines = String(text || "").split(/\r?\n/);
   const firstLines = [];
-  const maxLines = Number(FREE_LIMITS.holzliste?.freeLines || 100);
+  const maxLines = holzlisteFreeLineLimit(kind);
 
   for (const line of lines) {
     if (!line.trim()) continue;
@@ -3839,7 +3853,7 @@ async function downloadHolzliste(options = {}) {
   renderHolzlisteAll(activePR);
 
   const holzText = window._holzliste_text || "";
-  const downloadHolzText = isFreeDownload ? freeHolzlisteText(holzText) : holzText;
+  const downloadHolzText = isFreeDownload ? freeHolzlisteText(holzText, "export") : holzText;
   const projektText = generateShortDescription(activePR);
   const projectUrl = innToUrl(currentInn);
 

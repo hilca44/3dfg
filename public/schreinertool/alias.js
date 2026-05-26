@@ -55,6 +55,7 @@ const PROPS = {
   tief: "d",
   hoch: "h",
   anz: "s",
+  dock: "c",
   push: "u"
 };
 

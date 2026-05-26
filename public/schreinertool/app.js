@@ -1,11 +1,11 @@
 // app.js – UI + Editor + State (kein Three!)
 
-import { Proj } from "./proj-client.js?v=arrayparse34";
-import { DEFAULT_CORPUS, innToUrl } from "./fu.js?v=arrayparse34";
-import { urlToInn } from "./fu.js?v=arrayparse34";
-import { updateAndReloadURL } from "./fu.js?v=arrayparse34";
+import { Proj } from "./proj-client.js?v=dockparse1";
+import { DEFAULT_CORPUS, innToUrl } from "./fu.js?v=dockparse1";
+import { urlToInn } from "./fu.js?v=dockparse1";
+import { updateAndReloadURL } from "./fu.js?v=dockparse1";
 import { ProjectEditor as pp} from "./project-editor.js?v=arrayparse34";
-import { convertLegacyToModern } from "./legacy-converter.js?v=arrayparse34";
+import { convertLegacyToModern } from "./legacy-converter.js?v=dockparse1";
 let CURRENT_STATE = null;
 const colors = window.colors || {};
 

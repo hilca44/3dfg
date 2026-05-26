@@ -1,3 +1,5 @@
+import { splitDslList, splitDslPath, splitLegacyCompactChars } from "./dsl-parser.js?v=dockparse1";
+
  const LIB={
   logo: "t=logo_S_mat.100,goldenrod_S_mat.16,cornflowerblue_N_D_S_d18_N_Z_S_10_N_W_S_50_N_-background_N_h_S_pb_S_w110_S_D_S_h110_S_mb2_S__N_-c-char_N_a_S_pgtl_S_wW_S_D_S_h50_S_z30_S_x10_N_-3-char_N_b_S_pgtr_S_wW_S_D_S_h50_S_zZ_S_x50_N_c_S_pgtr_S_wW_S_D_S_h50_S_cl0_bt0",
   test: "t=test_S_mat.19,white_S_mat.16,cornflowerblue_S_-t_S_-o_S_-e_S__N_a_S_60,55,72_S_mb_S__N_lotxt",
@@ -22,7 +24,7 @@ function parseCornerSpec(v){
     const s = String(v).trim();
 
     if (/^\d{2,}$/.test(s)){
-        return s.split("").map(Number);
+        return splitLegacyCompactChars(s).map(Number);
     }
 
     return Number(s);
@@ -48,16 +50,14 @@ function parseCornerRef(ref){
         return out;
     }
 
-    const parts = String(ref)
-        .split(",")
-        .map(s => s.trim());
+    const parts = splitDslList(ref);
 
     let target = parts[0] || null;
     let part = parts[1] || null;
     let corner = parts[2] ?? null;
 
     if (target && target.includes(".") && parts.length === 2){
-        const targetParts = target.split(".");
+        const targetParts = splitDslPath(target);
         target = targetParts[0] || null;
         part = targetParts[1] || null;
         corner = parts[1];

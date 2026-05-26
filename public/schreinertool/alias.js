@@ -1,3 +1,5 @@
+import { splitDslList, splitDslPath, splitDslWords } from "./dsl-parser.js?v=dockparse1";
+
 const PARTS = {
   sl: "l",
   sr: "r",
@@ -10,12 +12,13 @@ const PARTS = {
 };
 
 function legacyPartName(value) {
-  const key = String(value ?? "").trim().toLowerCase();
-  return PARTS[key] || key;
+  const text = String(value ?? "").trim();
+  const key = text.toLowerCase();
+  return PARTS[key] || text;
 }
 
 function normalizeDockRef(value, partIndex) {
-  const parts = String(value ?? "").split(",");
+  const parts = splitDslList(value);
   if (parts[partIndex]) parts[partIndex] = legacyPartName(parts[partIndex]);
   return parts.join(",");
 }
@@ -32,7 +35,7 @@ function normalizeDockSpec(value) {
     ].join("_");
   }
 
-  const parts = text.split(",");
+  const parts = splitDslList(text);
   if (parts.length >= 5) {
     parts[0] = legacyPartName(parts[0]);
     parts[3] = legacyPartName(parts[3]);
@@ -108,9 +111,8 @@ function splitLineComment(line) {
 }
 
 function partListToLegacy(value) {
-  const parts = String(value ?? "")
-    .split(",")
-    .map(part => part.trim().toLowerCase())
+  const parts = splitDslList(value)
+    .map(part => part.toLowerCase())
     .filter(Boolean);
 
   if (!parts.length) return "";
@@ -119,9 +121,8 @@ function partListToLegacy(value) {
 }
 
 function partGroup(value) {
-  const parts = String(value ?? "")
-    .split(",")
-    .map(part => part.trim().toLowerCase())
+  const parts = splitDslList(value)
+    .map(part => part.toLowerCase())
     .filter(Boolean);
 
   return parts.length && parts.every(part => PARTS[part])
@@ -134,20 +135,8 @@ function propKey(value) {
   return PROPS[key] || key;
 }
 
-function normalizeCompactValuePairs(value) {
-  const text = String(value ?? "").trim();
-  if (!text || text.includes(",") || /[()*/+-]/.test(text)) return text;
-  if (!/(?:\d[a-zäöüß]|[a-zäöüß]\d)/i.test(text)) return text;
-
-  const pairs = text.match(/[a-zäöüß]+-?\d+(?:\.\d+)?|-?\d+(?:\.\d+)?[a-zäöüß]+|\/[a-zäöüß]+|-?\d+(?:\.\d+)?/gi);
-  return pairs && pairs.join("") === text ? pairs.join(",") : text;
-}
-
 function valueList(value) {
-  return String(value ?? "")
-    .split(",")
-    .map(part => normalizeCompactValuePairs(part.trim()))
-    .join(",");
+  return splitDslList(value).join(",");
 }
 
 function dotValue(property, value) {
@@ -171,7 +160,7 @@ function materialToken(token) {
   const match = String(token ?? "").match(/^mat\.(.+)$/i);
   if (!match) return "";
 
-  const values = match[1].split(",").map(value => value.trim()).filter(Boolean);
+  const values = splitDslList(match[1]).filter(Boolean);
   if (values.length < 2 || !/^-?\d+(?:\.\d+)?$/.test(values[0])) return "";
   return `m,${values.join(",")}`;
 }
@@ -196,7 +185,7 @@ function parseDslToken(token, fallbackHead = "") {
     return legacy ? `p=${legacy}` : raw;
   }
 
-  const parts = raw.split(".");
+  const parts = splitDslPath(raw);
   if (parts.length < 2) return raw;
 
   const hasInheritedHead = fallbackHead && parts[0] === fallbackHead && parts.length > 2;
@@ -206,7 +195,8 @@ function parseDslToken(token, fallbackHead = "") {
   const index = group.length ? 1 : 0;
   const actionRaw = String(body[index] || "");
   const action = actionRaw.toLowerCase();
-  const axis = String(body[index + 1] || "").toLowerCase();
+  const axisRaw = String(body[index + 1] || "");
+  const axis = axisRaw.toLowerCase();
   const value = body.slice(index + 2).join(".");
   const propertyValue = body.slice(index + 1).join(".");
 
@@ -241,7 +231,7 @@ function parseDslToken(token, fallbackHead = "") {
   }
 
   if (action === "dock" || action === "connect" || action === "verbinden") {
-    const spec = [axis, value].filter(Boolean).join(".");
+    const spec = [axisRaw, value].filter(Boolean).join(".");
     return spec ? `i=${normalizeDockSpec(spec)}` : "i";
   }
 
@@ -261,19 +251,20 @@ function expandLine(line) {
   if (!trimmed || /^[-#]/.test(trimmed)) return raw;
 
   const { code, comment } = splitLineComment(trimmed);
-  const tokens = code.split(/\s+/).filter(Boolean);
+  const tokens = splitDslWords(code);
   if (!tokens.length) return raw;
 
   const out = [];
   let head = tokens[0];
 
   const first = parseDslToken(tokens[0], "");
-  if (first !== tokens[0] && tokens[0].split(".").length > 2) {
-    head = tokens[0].split(".")[0];
+  const firstPath = splitDslPath(tokens[0]);
+  if (first !== tokens[0] && firstPath.length > 2) {
+    head = firstPath[0];
     out.push(head, first);
   } else {
     out.push(tokens[0]);
-    head = tokens[0].split(".")[0] || "";
+    head = firstPath[0] || "";
   }
 
   for (const token of tokens.slice(1)) {
@@ -296,7 +287,7 @@ function parseAliasToken(token) {
 
   return {
     alias,
-    args: match[2].split(",").map(value => value.trim()).filter(Boolean)
+    args: splitDslList(match[2]).filter(Boolean)
   };
 }
 
@@ -314,7 +305,7 @@ function materializeAliasToken(token) {
 function mapTokenLines(inn, mapper) {
   return String(inn)
     .split(/\r?\n/)
-    .map(line => line.trim() ? line.trim().split(/\s+/).flatMap(mapper).join(" ") : line)
+    .map(line => line.trim() ? splitDslWords(line).flatMap(mapper).join(" ") : line)
     .join("\n");
 }
 

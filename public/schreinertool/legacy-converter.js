@@ -1,3 +1,5 @@
+import { splitDslList, splitDslWords, splitLegacyCompactChars } from "./dsl-parser.js?v=dockparse1";
+
 const LEGACY_PARTS = {
   l: "sl",
   r: "sr",
@@ -58,13 +60,11 @@ function partName(value) {
 function partList(value) {
   const text = String(value || "");
   if (text.includes(",")) {
-    const modern = text.split(",").map(part => part.trim()).filter(Boolean);
+    const modern = splitDslList(text).filter(Boolean);
     return modern.every(part => part.length > 1) ? modern.join(",") : modern.map(partName).filter(Boolean).join(",");
   }
 
-  return text
-    .toLowerCase()
-    .split("")
+  return splitLegacyCompactChars(text.toLowerCase())
     .map(partName)
     .filter(Boolean)
     .join(",");
@@ -81,10 +81,7 @@ function colorName(value) {
 }
 
 function normalizeMaterialValues(rawValues) {
-  const values = String(rawValues || "")
-    .split(",")
-    .map(value => value.trim())
-    .filter(Boolean);
+  const values = splitDslList(rawValues).filter(Boolean);
 
   if (values.length < 2) return values.join(",");
 
@@ -106,7 +103,7 @@ function convertMaterial(token) {
   const compact = token.match(/^m([\d.]+)([a-z]{1,2})([a-z])?([\d.,]*)$/i);
   if (compact) {
     const values = [compact[1], colorName(compact[2])];
-    if (compact[4]) values.push(...compact[4].split(",").filter(Boolean));
+    if (compact[4]) values.push(...splitDslList(compact[4]).filter(Boolean));
     return `mat.${values.join(",")}`;
   }
 
@@ -115,7 +112,7 @@ function convertMaterial(token) {
 }
 
 function convertRepeat(axis, value) {
-  const parts = String(value || "").split(",");
+  const parts = splitDslList(value);
   const count = parts.shift() || "";
   const rest = parts.length ? `,${parts.join(",")}` : "";
   return `reihe.${axis}.${count}${rest}`;
@@ -143,15 +140,9 @@ function convertLegacyConnect(token) {
 
   const parseRef = value => {
     const text = String(value || "").trim();
-    const ref = text.match(/^([a-z][a-z0-9_-]*?)([lrgtbcfv])?(\d+)$/i);
-    if (!ref) return text;
+    if (text.includes(",") || text.includes("_")) return text;
 
-    const [, korpus, part, corner] = ref;
-    return [
-      korpus.toLowerCase(),
-      part ? partName(part) : "",
-      corner
-    ].join(",");
+    return text;
   };
 
   return `dock.${match[1]}_${parseRef(match[2])}`;
@@ -203,8 +194,7 @@ function convertToken(token) {
 
   const partProp = raw.match(/^([lrgtbcfv](?:,[lrgtbcfv])*)\.(.+)$/i);
   if (partProp) {
-    return partProp[1]
-      .split(",")
+    return splitDslList(partProp[1])
       .map(part => convertPartToken(part, partProp[2]))
       .filter(Boolean)
       .join(" ") || raw;
@@ -212,9 +202,7 @@ function convertToken(token) {
 
   const compactPartMaterial = raw.match(/^m([lrgtbcfv]+)(\d+)$/i);
   if (compactPartMaterial) {
-    return compactPartMaterial[1]
-      .toLowerCase()
-      .split("")
+    return splitLegacyCompactChars(compactPartMaterial[1].toLowerCase())
       .map(part => `${partName(part)}.mat.${compactPartMaterial[2]}`)
       .filter(Boolean)
       .join(" ") || raw;
@@ -239,7 +227,7 @@ function convertLine(line) {
   if (!trimmed || /^[-#]/.test(trimmed)) return raw;
 
   const { code, comment } = splitLineComment(trimmed);
-  const tokens = code.split(/\s+/).filter(Boolean);
+  const tokens = splitDslWords(code);
   if (!tokens.length) return raw;
 
   const out = [tokens[0], ...tokens.slice(1).flatMap(token => convertToken(token).split(/\s+/).filter(Boolean))];

@@ -1,4 +1,4 @@
-import { expandAliases } from "./alias.js?v=arrayparse34";
+import { expandAliases } from "./alias.js?v=dockparse1";
 
 async function loadProjFromServer(text) {
   const url = "/getProj?text=" + encodeURIComponent(text);

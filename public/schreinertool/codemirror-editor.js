@@ -4,6 +4,7 @@ import { defaultKeymap, history, historyKeymap } from "https://esm.sh/@codemirro
 import { autocompletion, completionKeymap, completionStatus, startCompletion } from "https://esm.sh/@codemirror/autocomplete@6";
 import { baseCommands, materialSuggest, 
   parameterOptionsByProperty } from "./suggest.js?v=arrayparse37";
+import { splitDslList } from "./dsl-parser.js?v=dockparse1";
 
 let editorView = null;
 let textarea = null;
@@ -296,9 +297,7 @@ function partsFromPValue(value) {
   const text = String(value || "").trim();
   if (!text) return [];
 
-  const parts = text.includes(",")
-    ? text.split(",").map(part => part.trim().toLowerCase())
-    : text.toLowerCase().split("").map(part => legacyPartToModern[part] || part);
+  const parts = splitDslList(text).map(part => part.toLowerCase());
 
   const valid = new Set(modernPartOptions.map(([part]) => part));
   return parts.filter((part, index) => valid.has(part) && parts.indexOf(part) === index);
@@ -358,10 +357,8 @@ function partListCompletionOptions(token) {
   const segmentStart = valueStart + lastComma + 1;
   const prefix = text.slice(valueStart, segmentStart);
   const used = new Set(
-    valueBeforeCursor
-      .slice(0, Math.max(0, lastComma))
-      .split(",")
-      .map(part => part.trim().toLowerCase())
+    splitDslList(valueBeforeCursor.slice(0, Math.max(0, lastComma)))
+      .map(part => part.toLowerCase())
       .filter(Boolean)
   );
 

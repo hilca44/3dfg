@@ -967,6 +967,74 @@ function makePartLocalBB(w, d, h) {
     );
 }
 
+function parseHoleSpec(value) {
+    const parts = String(value || "").split(",").map(s => s.trim()).filter(Boolean);
+    if (parts.length < 2) return null;
+    const width = Number(parts[0]);
+    const height = Number(parts[1]);
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return null;
+    return { width, height };
+}
+
+function makePartGeometryWithHole(partName, w, d, h, holeSpec) {
+    const hole = parseHoleSpec(holeSpec);
+    if (!hole) return null;
+
+    let shapeWidth, shapeHeight, depth;
+    let rotateX = 0, rotateY = 0;
+
+    if (partName === "sl" || partName === "sr") {
+        shapeWidth = d;
+        shapeHeight = h;
+        depth = w;
+        rotateY = Math.PI / 2;
+        rotateX = Math.PI / 2;
+    } else if (partName === "fr" || partName === "rw" || partName === "mw") {
+        shapeWidth = w;
+        shapeHeight = h;
+        depth = d;
+        rotateX = Math.PI / 2;
+    } else if (partName === "bo" || partName === "de") {
+        shapeWidth = w;
+        shapeHeight = d;
+        depth = h;
+    } else {
+        return null;
+    }
+
+    if (hole.width >= shapeWidth || hole.height >= shapeHeight) return null;
+
+    const holeX = (shapeWidth - hole.width) / 2;
+    const holeY = (shapeHeight - hole.height) / 2;
+
+    const shape = new THREE.Shape();
+    shape.moveTo(0, 0);
+    shape.lineTo(shapeWidth, 0);
+    shape.lineTo(shapeWidth, shapeHeight);
+    shape.lineTo(0, shapeHeight);
+    shape.closePath();
+
+    const holePath = new THREE.Path();
+    holePath.moveTo(holeX, holeY);
+    holePath.lineTo(holeX + hole.width, holeY);
+    holePath.lineTo(holeX + hole.width, holeY + hole.height);
+    holePath.lineTo(holeX, holeY + hole.height);
+    holePath.closePath();
+    shape.holes.push(holePath);
+
+    const geo = new THREE.ExtrudeGeometry(shape, {
+        depth,
+        bevelEnabled: false
+    });
+
+    if (rotateY) geo.rotateY(rotateY);
+    if (rotateX) geo.rotateX(rotateX);
+    geo.translate(-w * 0.5, -d * 0.5, -h * 0.5);
+    geo.computeVertexNormals();
+
+    return geo;
+}
+
 function rotationPivotOffsetZ(localBB, angleRad, corner) {
     if (corner == null || !angleRad || !localBB) return new THREE.Vector3();
 
@@ -999,8 +1067,9 @@ function makeM(k, e1, e) {
         d = partDim(e.d, `${k.nme}.${e1}.d`),
         h = partDim(e.h, `${k.nme}.${e1}.h`);
 
+    const customGeo = makePartGeometryWithHole(e1, w, d, h, e.loch);
     const geo = resTracker.track(
-        new THREE.BoxGeometry(w, d, h)
+        customGeo || new THREE.BoxGeometry(w, d, h)
     );
 
     if (e.__edgeOnly) {
@@ -3629,7 +3698,8 @@ function updatePartMesh(mesh, group, part) {
     const h = partDim(part.h, `${partName}.h`);
 
     mesh.geometry.dispose();
-    mesh.geometry = resTracker.track(new THREE.BoxGeometry(w, d, h));
+    const customGeo = makePartGeometryWithHole(partName, w, d, h, part.loch);
+    mesh.geometry = resTracker.track(customGeo || new THREE.BoxGeometry(w, d, h));
 
     const edge = mesh.children.find(child => child.isLineSegments);
     if (edge) {

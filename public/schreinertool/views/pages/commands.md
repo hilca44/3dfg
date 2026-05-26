@@ -276,8 +276,7 @@ Ungleiche Werte können direkt an Maß oder Position stehen:
 
 ## Innenaufteilung
 
-`layout` und `cols` erzeugen automatisch Mittelseiten und Fachböden.
-
+`layout` und `cols` erzeugen automatisch Mittelseiten und Fachböden.- `loch` erzeugt einen mittigen rechteckigen Ausschnitt auf der Teilfläche, z.B. `sl.loch.20,20`.
 `a breit.300 tief.60 hoch.220 layout.30:4,240:2,rest:3`
 
 Bedeutung:

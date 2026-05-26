@@ -1766,7 +1766,12 @@ function updateToolbarStatus() {
 }
 
 function topToolbarButtons() {
-  return [];
+  return [
+    { label: "Datei", labelKey: "ui.file", to: "file" },
+    { label: "Hilfe", labelKey: "ui.help", to: "help" },
+    { label: "Baum", label: "Baum", to: "tree" },
+    { label: "Holz", label: "Holz", to: "wood" }
+  ];
 }
 
 function setButtons(defs, nuu="slot3") {

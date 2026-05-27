@@ -4492,6 +4492,17 @@ function setupAppMenuActions() {
   const menu = document.getElementById("helpMenu");
   if (!menu || menu.dataset.appActions === "1") return;
   menu.dataset.appActions = "1";
+
+  addMenuButton("App", () => {
+    window.location.href = "./app.html";
+  }, "menu-action-app");
+
+  addMenuButton("Wiederherstellen", restoreEditHistory, "menu-action-highlight");
+
+  addMenuButton("Zurück", () => {
+    if (typeof setState === "function") setState("main");
+    else window.history.back();
+  }, "menu-action-app");
 }
 
 function initEditToolbar() {

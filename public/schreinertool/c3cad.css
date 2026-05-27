@@ -688,7 +688,17 @@ html, body {
 }
 
 #helpMenu .menu-action-help:hover {
-  background: #cfedfb;
+  background: #d4ecff;
+}
+
+#helpMenu .menu-action-app {
+  background: #e8f2ff;
+  color: #0f3a66;
+  font-weight: 700;
+}
+
+#helpMenu .menu-action-app:hover {
+  background: #d4e7ff;
 }
 
 #helpMenu .menu-action-alias {

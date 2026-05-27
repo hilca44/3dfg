@@ -30,6 +30,8 @@
     "addMaterial": "+ material",
     "helpCommands": "Help - properties",
     "noHelp": "No help available.",
+    "share": "Share",
+    "shareTooltip": "Send project link to your e-mail",
     "back": "back",
     "wood": "wood",
     "templates": "templates",

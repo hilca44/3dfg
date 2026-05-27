@@ -872,6 +872,7 @@ const ACTIONS = {
 
   main: [
      { label: "☰", action: toggleHelpMenu },
+      { label: "Battenholz", action: () => setState("wood") },
       { label: "holz", labelKey: "ui.wood", to: "wood" },
       { label: "Hilfe", action: toggleQuickHelpOverlay },
           // { label: "open",   action: openDWGPicker }, // ✅ HIER
@@ -1710,7 +1711,7 @@ function updateToolbarStatus() {
 function topToolbarButtons() {
   return [
     { label: "☰", action: toggleHelpMenu },
-    { label: "Datei", labelKey: "ui.file", to: "file" },
+    { labelKey: "ui.share", label: "📤 Teilen", titleKey: "ui.shareTooltip", title: "Projekt-Link per E-Mail senden", action: shareProjectByMail },
     { label: "Hilfe", labelKey: "ui.help", action: toggleQuickHelpOverlay },
     { label: "Baum", label: "Baum", to: "tree" },
     { label: "Holz", label: "Holz", to: "wood" }
@@ -1735,6 +1736,7 @@ function setButtons(defs, nuu="slot3") {
     const btn = document.createElement("button");
     if (d.id) btn.id = d.id;
     btn.textContent = d.labelKey ? stt(d.labelKey, d.label) : d.label;
+    btn.title = d.titleKey ? stt(d.titleKey, d.title) : (d.title || "");
     btn.onclick = d.to
       ? () => setState(d.to)
       : d.action || null;

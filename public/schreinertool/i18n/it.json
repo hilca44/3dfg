@@ -30,6 +30,8 @@
     "addMaterial": "+ materiale",
     "helpCommands": "Aiuto - comandi",
     "noHelp": "Nessun aiuto disponibile.",
+    "share": "Condividi",
+    "shareTooltip": "Invia il link del progetto via e-mail",
     "back": "indietro",
     "wood": "legno",
     "templates": "modelli",

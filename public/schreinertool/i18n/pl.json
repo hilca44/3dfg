@@ -30,6 +30,8 @@
     "addMaterial": "+ material",
     "helpCommands": "Pomoc - polecenia",
     "noHelp": "Brak pomocy.",
+    "share": "Udostępnij",
+    "shareTooltip": "Wyślij link do projektu na e-mail",
     "back": "wstecz",
     "wood": "drewno",
     "templates": "szablony",

@@ -989,6 +989,74 @@ function applyPartRotation(mesh, part, w, d, h) {
     mesh.userData.localBB = localBB;
 }
 
+function makeDimLabel(text, position) {
+    const element = document.createElement("div");
+    element.textContent = text;
+    element.style.cssText = [
+        "padding:2px 6px",
+        "background:rgba(255,255,255,0.92)",
+        "border:1px solid rgba(128,128,128,0.35)",
+        "border-radius:3px",
+        "font-size:11px",
+        "color:#222",
+        "white-space:nowrap",
+        "pointer-events:none"
+    ].join(";");
+
+    const label = new CSS2DObject(element);
+    label.position.copy(position);
+    return label;
+}
+
+function makeDimensionHelper(w, d, h) {
+    const halfW = w * 0.5;
+    const halfD = d * 0.5;
+    const halfH = h * 0.5;
+    const offset = Math.max(4, Math.min(w, d, h) * 0.05);
+    const positions = [
+        // width dimension lines
+        -halfW, -halfD - offset, -halfH,
+         halfW, -halfD - offset, -halfH,
+        -halfW,  halfD + offset, -halfH,
+         halfW,  halfD + offset, -halfH,
+        // depth dimension lines
+        -halfW - offset, -halfD, -halfH,
+        -halfW - offset,  halfD, -halfH,
+         halfW + offset, -halfD, -halfH,
+         halfW + offset,  halfD, -halfH,
+        // height dimension lines
+        -halfW - offset, -halfD - offset, -halfH,
+        -halfW - offset, -halfD - offset,  halfH,
+         halfW + offset,  halfD + offset, -halfH,
+         halfW + offset,  halfD + offset,  halfH
+    ];
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+
+    const material = new THREE.LineBasicMaterial({
+        color: 0x2f2f2f,
+        transparent: true,
+        opacity: 0.75
+    });
+
+    const helper = new THREE.Group();
+    const lines = new THREE.LineSegments(geometry, material);
+    helper.add(lines);
+
+    helper.add(makeDimLabel(`${Math.round(w * 100) / 100} cm`, new THREE.Vector3(0, -halfD - offset - 2, -halfH)));
+    helper.add(makeDimLabel(`${Math.round(d * 100) / 100} cm`, new THREE.Vector3(-halfW - offset - 2, 0, -halfH)));
+    helper.add(makeDimLabel(`${Math.round(h * 100) / 100} cm`, new THREE.Vector3(halfW + offset + 2, halfD + offset + 2, 0)));
+
+    return helper;
+}
+
+function addDimensionHelper(object3d, w, d, h) {
+    const helper = makeDimensionHelper(w, d, h);
+    object3d.add(helper);
+    object3d.userData.dimHelper = helper;
+}
+
 function makeM(k, e1, e) {
     e = normalizeRenderablePart(e);
     if (e.__skipRender) return new THREE.Group();
@@ -1018,6 +1086,10 @@ function makeM(k, e1, e) {
         edge.layers.set(lay);
 
         applyPartRotation(edge, e, w, d, h);
+
+        if (e.dim) {
+            addDimensionHelper(edge, w, d, h);
+        }
 
         const key = k.nme + e1;
         meshMap[key] = edge;
@@ -1070,6 +1142,10 @@ function makeM(k, e1, e) {
     mesh.layers.set(lay);
 
     applyPartRotation(mesh, e, w, d, h);
+
+    if (e.dim) {
+        addDimensionHelper(mesh, w, d, h);
+    }
 
     const key = k.nme + e1;
     meshMap[key] = mesh;
@@ -1261,6 +1337,19 @@ function createK(k, nme) {
         if (!k[e1]) continue;
         if (k[e1].__skipRender) continue;
         g.add(makeM(k, e1, k[e1]));
+    }
+
+    if (k.dim) {
+        const box = g.userData.localBB.clone();
+        const center = box.getCenter(new THREE.Vector3());
+        const helper = makeDimensionHelper(
+            box.max.x - box.min.x,
+            box.max.y - box.min.y,
+            box.max.z - box.min.z
+        );
+        helper.position.copy(center);
+        g.add(helper);
+        g.userData.dimHelper = helper;
     }
 
     return g;
@@ -3125,8 +3214,8 @@ function inspectorFieldValue(value) {
 
 const INSPECTOR_FIELDS = {
     order: "nme comment p w d h x y z m s u i j cur tar".split(" "),
-    korpus: "nme p w d h x y z m u i".split(" "),
-    part: "nme w d h x y z m u".split(" ")
+    korpus: "nme p w d h x y z m dim u i".split(" "),
+    part: "nme w d h x y z m dim u".split(" ")
 };
 
 function inspectorFieldsFor(type, obj) {

@@ -7,7 +7,7 @@
 
 [Tisch variabel](app.html?tisch=m15g%7Em27b%7E-t%7E-h%7E-e--a%7Ep%3Dtlrbf%7Ew%3D120%7Ed%3D70%7Eh%3D72%7Em%3D1%7El%2Cr.sy%3D2%2Cd-10%7Ef%2Cb.u%3D%2810-h%29g%7Et.u%3D5%7Emt%3D2--ba%7Ex144--ca%7Ew60%7Ex140--da%7Eh155%7Ey-88)
 
-[Tisch](app.html?tisch=tisch_S_m19w8_S_m19g11_S_m19s25_S_-t_S_-o_S_-e_S__S__N_t_S_ptlrb_S_120%2C80%2C72_S_ut-1r-1l_S_dt64%2C-2%2C1_S_ulr8f_S_ub30g_S_yb_P_-11_S_mb2_S_%23tisch_N_)
+[Tisch](https://3dfg.de/app.html?tisch=mat.19%2Cwhite%2C8%7Emat.19%2Cgray%2C11%7Emat.19%2Csilver%2C25%7E-t%7E-o%7E-e--t%7Eteil.de%2Csl%2Csr%2Crw%7E120%2C80%2C72%7Ede.push.-1r%2C-1l%7Ede.tief.64%2C-2%2C1%7Esl%2Csr.push.8v%7Erw.push.-30u%7Erw.y.%2B-11%7Erw.mat.2%7E%23tisch)
 
 [runde Theke](app.html?test=test_S_m19btf14%2C1_S_m16ble16_S_m19grb18_N_a_S_pftglrbc_S_60%2C35%2C72_S_mf_S_mt3_S_hb40_N_ba_S_c_S_n15_S_o_P_20_S_u8g_S_pl-)
 

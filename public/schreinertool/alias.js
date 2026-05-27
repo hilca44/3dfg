@@ -109,14 +109,15 @@ const ALIASES = {
     return [`push.${height}gs`];
   },
 
-
   leg(args) {
     const height = args[0] || "8";
     const count = args[1] ? `,${args[1]}` : "";
     return [`leg.${height}${count}`];
   },
 
-
+  dim(args) {
+    return ["dim=1"];
+  }
 };
 
 function splitLineComment(line) {
@@ -305,7 +306,7 @@ export function expandModernSyntax(inn = "") {
 }
 
 function parseAliasToken(token) {
-  const match = String(token ?? "").match(/^([a-z][a-z0-9_]*)=(.*)$/i);
+  const match = String(token ?? "").match(/^([a-z][a-z0-9_]*)(?:=(.*))?$/i);
   if (!match) return null;
 
   const alias = ALIASES[match[1].toLowerCase()];
@@ -313,7 +314,7 @@ function parseAliasToken(token) {
 
   return {
     alias,
-    args: splitDslList(match[2]).filter(Boolean)
+    args: splitDslList(match[2] || "").filter(Boolean)
   };
 }
 

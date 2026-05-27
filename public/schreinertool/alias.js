@@ -17,6 +17,19 @@ function legacyPartName(value) {
   return PARTS[key] || text;
 }
 
+function dockSideToSpec(value) {
+  const side = String(value ?? "").trim().toLowerCase();
+  const mapping = {
+    r: "0_3",
+    l: "2_1",
+    u: "1_0",
+    o: "5_6",
+    v: "4_7",
+    h: "6_5"
+  };
+  return mapping[side] || value;
+}
+
 function normalizeDockRef(value, partIndex) {
   const parts = splitDslList(value);
   if (parts[partIndex]) parts[partIndex] = legacyPartName(parts[partIndex]);
@@ -26,6 +39,11 @@ function normalizeDockRef(value, partIndex) {
 function normalizeDockSpec(value) {
   const text = String(value ?? "").trim();
   if (!text) return text;
+
+  const simpleSide = dockSideToSpec(text);
+  if (simpleSide !== text) {
+    return simpleSide;
+  }
 
   if (text.includes("_")) {
     const [cur, tar] = text.split("_");

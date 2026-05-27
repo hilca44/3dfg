@@ -873,7 +873,7 @@ const ACTIONS = {
   main: [
      { label: "☰", action: toggleHelpMenu },
       { label: "holz", labelKey: "ui.wood", to: "wood" },
-      { label: "elp",    to: "help" },
+      { label: "Hilfe", action: toggleQuickHelpOverlay },
           // { label: "open",   action: openDWGPicker }, // ✅ HIER
       { label: "redraw",  action: onRenderClicked },
       // { label: "save",   action: downloadHolzliste }
@@ -1711,7 +1711,7 @@ function topToolbarButtons() {
   return [
     { label: "☰", action: toggleHelpMenu },
     { label: "Datei", labelKey: "ui.file", to: "file" },
-    { label: "Hilfe", labelKey: "ui.help", to: "help" },
+    { label: "Hilfe", labelKey: "ui.help", action: toggleQuickHelpOverlay },
     { label: "Baum", label: "Baum", to: "tree" },
     { label: "Holz", label: "Holz", to: "wood" }
   ];

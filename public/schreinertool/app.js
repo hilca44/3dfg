@@ -2570,7 +2570,6 @@ function renderHolzliste(PR) {
   }
 
   let txt = "";
-  txt += renderStueckliste(PR);
   txt += renderStuecklisteByMaterial(PR);
   txt += renderStuecklisteByCorpus(PR);
 
@@ -3020,7 +3019,6 @@ function renderHolzlisteAll(PR) {
 
   let txt = "";
   txt += renderProjektKopf(PR);
-  txt += renderStueckliste(PR);
   txt += renderStuecklisteByMaterial(PR);
   txt += renderStuecklisteByCorpus(PR);
   txt += renderKorpusUebersicht(PR);

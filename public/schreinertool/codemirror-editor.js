@@ -1025,6 +1025,29 @@ function buildDecorations(view) {
           }));
           continue;
         }
+        // Dock validation: if dock token misses a target corpus, mark as error
+        try {
+          if (/^dock\./i.test(token) || /^i=/i.test(token)) {
+            const spec = /^dock\./i.test(token) ? token.slice(5) : token.slice(2);
+            const parts = splitDslList(spec).map(p => String(p || "").trim());
+            const modernParts = ["sl","sr","bo","de","rw","fr","eb","mw"];
+            const legacyParts = ["l","r","g","t","b","f","c","v"];
+            const first = (parts[0] || "").toLowerCase();
+
+            // Wenn nur zwei Werte angegeben sind und der erste ein Teil-Token ist,
+            // dann fehlt der Zielkorpus (z.B. "dock.fr,0" statt "dock.a,fr,0").
+            if (parts.length === 2 && (modernParts.includes(first) || legacyParts.includes(first))) {
+              builder.add(start, end, Decoration.mark({
+                class: "cm-c3-error-text",
+                attributes: { title: "Dock: Zielkorpus fehlt" }
+              }));
+              pos = line.to + 1;
+              break;
+            }
+          }
+        } catch (e) {
+          // ignore parsing errors here
+        }
 
         const cls = classForToken(token, match.index === 0 ? 0 : 1);
         if (cls) builder.add(start, end, Decoration.mark({ class: cls }));

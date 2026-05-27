@@ -3227,22 +3227,25 @@ function toggleHelpMenu(e) {
   e?.stopPropagation();
 
   const isOpen = menu.style.display !== "none" && menu.style.display !== "";
-  menu.style.display = isOpen ? "none" : "grid";
-  if (!isOpen) menu.scrollTop = 0;
+  if (isOpen) {
+    menu.style.display = "none";
+    document.removeEventListener("click", closeHelpMenuOnce);
+    return;
+  }
+
+  menu.style.display = "grid";
+  menu.scrollTop = 0;
 
   // Klick außerhalb schließt Menü
-  if (!isOpen) {
-    setTimeout(() => {
-      document.addEventListener("click", closeHelpMenuOnce);
-    }, 0);
-  }
+  setTimeout(() => {
+    document.addEventListener("click", closeHelpMenuOnce, { once: true });
+  }, 0);
 }
 
 function closeHelpMenuOnce(ev) {
   const menu = document.getElementById("helpMenu");
   if (!menu.contains(ev.target)) {
     menu.style.display = "none";
-    document.removeEventListener("click", closeHelpMenuOnce);
   }
 }
 

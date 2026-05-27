@@ -2557,6 +2557,218 @@ async function renderMainWithDWGs(pr) {
     fitCameraToObject(modelGroup);
 }
 
+let treeView3DScene = null;
+let treeView3DCamera = null;
+let treeView3DRenderer = null;
+let treeView3DLabelRenderer = null;
+let treeView3DControls = null;
+let treeView3DContainer = null;
+let treeView3DObjects = null;
+let treeViewPointColors = new Map();
+
+function disposeTreeView3D() {
+    if (!treeView3DContainer) return;
+    treeView3DContainer.querySelectorAll("canvas, .c3-label-renderer").forEach(el => el.remove());
+    treeView3DScene = null;
+    treeView3DCamera = null;
+    treeView3DRenderer?.dispose?.();
+    treeView3DRenderer = null;
+    treeView3DLabelRenderer = null;
+    treeView3DControls?.dispose?.();
+    treeView3DControls = null;
+    treeView3DObjects = null;
+}
+
+function initTreeView3D() {
+    const host = document.getElementById("tree3dView");
+    if (!host) return false;
+    if (treeView3DContainer !== host) {
+        disposeTreeView3D();
+        treeView3DContainer = host;
+    }
+    host.style.position = "relative";
+    host.querySelector(".tree-view-3d-hint")?.remove();
+
+    const existing = host.querySelector("canvas");
+    if (existing && treeView3DScene && treeView3DCamera && treeView3DRenderer) {
+        resizeTreeView3D();
+        return true;
+    }
+
+    host.querySelectorAll("canvas, .c3-label-renderer").forEach(el => el.remove());
+
+    const size = Math.max(320, Math.min(host.clientWidth || 320, host.clientHeight || 320));
+
+    treeView3DScene = new THREE.Scene();
+    treeView3DScene.background = new THREE.Color("#000000");
+
+    treeView3DCamera = new THREE.PerspectiveCamera(45, 1, 1, 10000);
+    treeView3DCamera.up.set(0, 0, 1);
+
+    treeView3DRenderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    treeView3DRenderer.setPixelRatio(window.devicePixelRatio || 1);
+    treeView3DRenderer.setSize(size, size);
+    treeView3DRenderer.domElement.style.position = "absolute";
+    treeView3DRenderer.domElement.style.top = "0";
+    treeView3DRenderer.domElement.style.left = "0";
+    treeView3DContainer.appendChild(treeView3DRenderer.domElement);
+
+    treeView3DLabelRenderer = new CSS2DRenderer();
+    treeView3DLabelRenderer.setSize(size, size);
+    treeView3DLabelRenderer.domElement.style.position = "absolute";
+    treeView3DLabelRenderer.domElement.style.top = "0";
+    treeView3DLabelRenderer.domElement.style.left = "0";
+    treeView3DLabelRenderer.domElement.style.pointerEvents = "none";
+    treeView3DLabelRenderer.domElement.style.zIndex = "5";
+    treeView3DLabelRenderer.domElement.classList.add("c3-label-renderer");
+    treeView3DContainer.appendChild(treeView3DLabelRenderer.domElement);
+
+    treeView3DObjects = new THREE.Group();
+    treeView3DScene.add(treeView3DObjects);
+
+    treeView3DControls = new OrbitControls(treeView3DCamera, treeView3DRenderer.domElement);
+    treeView3DControls.enablePan = false;
+    treeView3DControls.enableZoom = true;
+    treeView3DControls.enableRotate = true;
+    treeView3DControls.update();
+
+    return true;
+}
+
+function resizeTreeView3D() {
+    if (!treeView3DContainer || !treeView3DCamera || !treeView3DRenderer || !treeView3DLabelRenderer) return;
+    const size = Math.max(320, Math.min(treeView3DContainer.clientWidth || 320, treeView3DContainer.clientHeight || 320));
+    treeView3DCamera.aspect = 1;
+    treeView3DCamera.updateProjectionMatrix();
+    treeView3DRenderer.setSize(size, size);
+    treeView3DLabelRenderer.setSize(size, size);
+}
+
+function getTreePointColorByPart(partName) {
+    if (!partName) return "#ffffff";
+    return treeViewPointColors.get(partName) || "#ffffff";
+}
+
+function getTreePointColor(letter) {
+    const entry = treeViewPointColors.get(letter);
+    return entry || "#ffffff";
+}
+
+function updateTreePointColorMap() {
+    treeViewPointColors.clear();
+    const map = new Map();
+    modelGroup?.traverse(obj => {
+        if (obj.userData?.type !== "part") return;
+        const key = `${obj.userData.korpusName || "?"}.${obj.userData.partName || "?"}`;
+        if (obj.material && obj.material.color) {
+            map.set(key, `#${obj.material.color.getHexString()}`);
+        }
+    });
+    for (const [key, color] of map.entries()) {
+        treeViewPointColors.set(key, color);
+    }
+}
+
+function frameTreeView3D() {
+    if (!treeView3DRenderer || !treeView3DScene || !treeView3DCamera) return;
+    treeView3DRenderer.render(treeView3DScene, treeView3DCamera);
+    treeView3DLabelRenderer.render(treeView3DScene, treeView3DCamera);
+}
+
+function clearTreeView3DObjects() {
+    if (!treeView3DObjects) return;
+    treeView3DObjects.traverse(obj => {
+        if (obj.geometry) obj.geometry.dispose?.();
+        if (obj.material) obj.material.dispose?.();
+        if (obj.element) obj.element.remove?.();
+    });
+    while (treeView3DObjects.children.length) {
+        treeView3DObjects.remove(treeView3DObjects.children[0]);
+    }
+}
+
+function setTree3DViewDirection(direction = treeRenderDirection) {
+    if (!treeView3DCamera || !treeView3DObjects) return;
+    treeRenderDirection = direction;
+    const box = new THREE.Box3().setFromObject(treeView3DObjects);
+    if (box.isEmpty()) return;
+    const center = new THREE.Vector3();
+    const size = new THREE.Vector3();
+    box.getCenter(center);
+    box.getSize(size);
+    const span = Math.max(size.x, size.y, size.z, 20) * 1.3;
+    const far = Math.max(size.x + size.y + size.z + 200, 500);
+    treeView3DCamera.position.set(0,0,0);
+    if (direction === "x") {
+        treeView3DCamera.position.set(box.max.x + span * 0.8, center.y, center.z);
+    } else if (direction === "y") {
+        treeView3DCamera.position.set(center.x, box.max.y + span * 0.8, center.z);
+    } else {
+        treeView3DCamera.position.set(center.x, center.y, box.max.z + span * 0.8);
+    }
+    treeView3DCamera.lookAt(center);
+    treeView3DCamera.updateProjectionMatrix();
+    treeView3DControls.target.copy(center);
+    treeView3DControls.update();
+}
+
+function renderKorpusTree3DView(_groups = [], _edges = []) {
+    if (!modelGroup) return;
+    if (!initTreeView3D()) return;
+    resizeTreeView3D();
+    updateTreePointColorMap();
+    clearTreeView3DObjects();
+
+    const points = collectSceneAnchorTreePoints();
+    if (!points.length) {
+        frameTreeView3D();
+        return points;
+    }
+
+    const axes = new THREE.AxesHelper(40);
+    treeView3DObjects.add(axes);
+
+    for (const point of points) {
+        const partName = point.items?.[0]?.nme?.split(".").slice(0, 2).join(".");
+        const color = getTreePointColorByPart(partName);
+        const sphere = new THREE.Mesh(
+            new THREE.SphereGeometry(Math.max(1.5, Math.min(3.5, point.items.length))),
+            new THREE.MeshBasicMaterial({ color })
+        );
+        sphere.position.copy(point.point);
+        treeView3DObjects.add(sphere);
+
+        const labelEl = document.createElement("div");
+        labelEl.className = "tree-view-3d-label";
+        labelEl.textContent = point.letter;
+        labelEl.style.color = color;
+        labelEl.style.fontWeight = "700";
+        labelEl.style.textShadow = "0 0 6px rgba(0,0,0,0.8)";
+        labelEl.style.background = "rgba(0,0,0,0.4)";
+        labelEl.style.padding = "2px 6px";
+        labelEl.style.borderRadius = "4px";
+        labelEl.style.whiteSpace = "nowrap";
+
+        const label = new CSS2DObject(labelEl);
+        label.position.copy(point.point);
+        label.position.z += 5;
+        treeView3DObjects.add(label);
+
+        treeViewPointColors.set(point.letter, color);
+    }
+
+    setTree3DViewDirection(treeRenderDirection);
+    frameTreeView3D();
+    return points.map(point => ({
+        letter: point.letter,
+        key: point.key,
+        items: point.items,
+        x: point.x,
+        y: point.y,
+        z: point.z
+    }));
+}
+
 function clearKorpusTreeRender() {
     if (!treeRenderOverlay) return;
     scene?.remove(treeRenderOverlay);
@@ -2760,6 +2972,8 @@ function setKorpusTreeViewDirection(direction) {
 
 window.showKorpusTreeRender = showKorpusTreeRender;
 window.setKorpusTreeViewDirection = setKorpusTreeViewDirection;
+window.renderKorpusTree3DView = renderKorpusTree3DView;
+window.getTreePointColor = getTreePointColor;
 window.restoreKorpusPerspectiveRender = restoreKorpusPerspectiveRender;
 window.filterKorpusTreeLetters = function (letters) {
     if (!treeRenderOverlay) return;

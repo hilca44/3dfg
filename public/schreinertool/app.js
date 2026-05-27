@@ -1893,6 +1893,7 @@ function renderTreeTables(renderPoints) {
   const visiblePoints = usedLetters.size
     ? renderPoints.filter(p => usedLetters.has(p.letter))
     : renderPoints;
+  const getTreeColor = window.getTreePointColor || (() => "#ffffff");
   const rows = distances.length
     ? distances.map(d => `
         <tr>
@@ -1904,33 +1905,44 @@ function renderTreeTables(renderPoints) {
       `).join("")
     : `<tr><td colspan="4">keine horizontalen oder vertikalen Abstände</td></tr>`;
   const pointRows = visiblePoints.length
-    ? visiblePoints.map(p => `
-        <tr>
-          <td>${p.letter}</td>
+    ? visiblePoints.map(p => {
+        const color = getTreeColor(p.letter);
+        return `
+        <tr style="color:${color}">
+          <td><span class="tree-point-chip" style="background:${color}"></span>${p.letter}</td>
           <td>${treeEsc([...new Set((p.items || []).map(item => displayPartName(item.nme)))].join(", "))}</td>
           <td>${treeFmtMm(p.x)}</td>
           <td>${treeFmtMm(p.y)}</td>
           <td>${treeFmtMm(p.z)}</td>
         </tr>
-      `).join("")
+      `;
+      }).join("")
     : `<tr><td colspan="5">keine Punkte</td></tr>`;
+  const edges = getTreeEdges(renderPoints);
 
   host.innerHTML = `
     <div class="tree-panel">
-      <table class="tree-distance-table">
-        <thead>
-          <tr><th>Von</th><th>Bis</th><th>X</th><th>Y</th></tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <table class="tree-distance-table">
-        <thead>
-          <tr><th>Punkt</th><th>Teile</th><th>X</th><th>Y</th><th>Z</th></tr>
-        </thead>
-        <tbody>${pointRows}</tbody>
-      </table>
+      <div class="tree-view-3d" id="tree3dView">
+        <div class="tree-view-3d-hint">3D-Darstellung der Baum-Maße</div>
+      </div>
+      <div class="tree-data-panels">
+        <table class="tree-distance-table">
+          <thead>
+            <tr><th>Von</th><th>Bis</th><th>X</th><th>Y</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <table class="tree-distance-table">
+          <thead>
+            <tr><th>Punkt</th><th>Teile</th><th>X</th><th>Y</th><th>Z</th></tr>
+          </thead>
+          <tbody>${pointRows}</tbody>
+        </table>
+      </div>
     </div>
   `;
+
+  window.renderKorpusTree3DView?.(renderPoints, edges);
 }
 
 function setTreeViewDirection(direction) {

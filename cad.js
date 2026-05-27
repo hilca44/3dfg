@@ -5221,6 +5221,10 @@ applyInteriorLayout(k) {
         : Number(rawGap || 0);
     if (!Number.isFinite(gap)) gap = 0;
 
+    // If a part is repeated along an axis without an explicit gap,
+    // distribute the copies evenly across the parent container dimension.
+    // This makes eb.reihe.z.N fill the cabinet height and similarly
+    // repeats along x behave evenly if used for e.g. middle supports.
     if (isPart && count > 1 && gap === 0 && Number.isFinite(ko[dimofxyz]) && Number.isFinite(ob[dimofxyz])) {
         const partOffset = Number(ob[xyzpara] || 0);
         const totalPartSize = Number(ob[dimofxyz]) * count;

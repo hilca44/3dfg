@@ -2571,6 +2571,9 @@ function renderHolzliste(PR) {
 
   let txt = "";
   txt += renderStueckliste(PR);
+  txt += renderStuecklisteByMaterial(PR);
+  txt += renderStuecklisteByCorpus(PR);
+
   // el.textContent = txt;
 
   let txt2 = "";
@@ -2846,6 +2849,116 @@ out +=
   return out;
 }
 
+function renderStuecklisteByMaterial(PR) {
+  if (!isReadyPR(PR)) return "";
+
+  let out = "\nSTÜCKLISTE NACH MATERIAL (mm)\n";
+  out += sep(70) + "\n";
+  out += pad("MAT", 10) + pad("NME", 20) + pad("ANZ", 6) + pad("W", 6) + pad("D", 6) + pad("S", 6) + "\n";
+  out += line(70) + "\n";
+
+  // group by material signature p.co|p.s
+  const mats = {};
+  for (const key of PR.alljj) {
+    const p = PR.allpa[key];
+    if (!p) continue;
+    const matKey = `${p.co || ""}|${p.s || ""}`;
+    if (!mats[matKey]) mats[matKey] = [];
+    mats[matKey].push({ key, p });
+  }
+
+  const matKeys = Object.keys(mats).sort();
+  for (const mk of matKeys) {
+    const [co, s] = mk.split("|");
+    out += `\nMAT: ${co || "-"} / Stärke: ${s || "-"}\n`;
+
+    // within material, aggregate by base name + dims
+    const groups = new Map();
+    for (const item of mats[mk]) {
+      const p = item.p;
+      const key = item.key;
+      const [A, B, C] = dimsMM(p);
+      const name = (function() {
+        const fullName = String(p?.nme || key || "");
+        const rawName = fullName.includes("_") ? fullName.split("_").slice(1).join("_") : fullName;
+        const korpusNames = Object.keys(PR?.oks || {}).sort((a, b) => b.length - a.length);
+        for (const korpusName of korpusNames) {
+          if (!rawName.startsWith(korpusName)) continue;
+          const partName = rawName.slice(korpusName.length);
+          if (!partName) return displayPartName(rawName);
+          return displayPartName(partName);
+        }
+        return displayPartName(rawName || fullName);
+      })();
+
+      const gkey = `${name}|${A}x${B}x${C}`;
+      const entry = groups.get(gkey) || { name, A, B, C, count: 0 };
+      entry.count += Number(p.n || 1);
+      groups.set(gkey, entry);
+    }
+
+    const entries = Array.from(groups.values()).sort((a, b) => a.name.localeCompare(b.name));
+    for (const e of entries) {
+      out += pad("", 10) + pad(e.name, 20) + pad(e.count, 6) + pad(e.A, 6) + pad(e.B, 6) + pad(e.C, 6) + "\n";
+    }
+  }
+
+  return out;
+}
+
+function renderStuecklisteByCorpus(PR) {
+  if (!isReadyPR(PR)) return "";
+
+  let out = "\nSTÜCKLISTE NACH KORPUS (mm)\n";
+  out += sep(70) + "\n";
+
+  // determine corpus names from PR.pp (korpusse)
+  const korpusNames = Object.keys(PR.pp || {}).sort();
+  if (!korpusNames.length) {
+    // fallback: collect from parts
+    const set = new Set();
+    for (const key of PR.alljj) {
+      const p = PR.allpa[key];
+      if (!p) continue;
+      const fullName = String(p?.nme || key || "");
+      const rawName = fullName.includes("_") ? fullName.split("_").slice(1).join("_") : fullName;
+      const maybe = Object.keys(PR?.oks || {}).find(k => rawName.startsWith(k));
+      if (maybe) set.add(maybe);
+    }
+    korpusNames.push(...Array.from(set).sort());
+  }
+
+  for (const kor of korpusNames) {
+    out += `\nKORPUS: ${kor}\n`;
+    out += pad("NME", 20) + pad("ANZ", 6) + pad("W", 6) + pad("D", 6) + pad("S", 6) + "\n";
+    out += line(60) + "\n";
+
+    // collect parts belonging to this korpus
+    const groups = new Map();
+    for (const key of PR.alljj) {
+      const p = PR.allpa[key];
+      if (!p) continue;
+      const fullName = String(p?.nme || key || "");
+      const rawName = fullName.includes("_") ? fullName.split("_").slice(1).join("_") : fullName;
+      if (!rawName.startsWith(kor)) continue;
+      const partName = rawName.slice(kor.length) || rawName;
+      const name = displayPartName(partName);
+      const [A, B, C] = dimsMM(p);
+      const gkey = `${name}|${A}x${B}x${C}`;
+      const entry = groups.get(gkey) || { name, A, B, C, count: 0 };
+      entry.count += Number(p.n || 1);
+      groups.set(gkey, entry);
+    }
+
+    const entries = Array.from(groups.values()).sort((a, b) => a.name.localeCompare(b.name));
+    for (const e of entries) {
+      out += pad(e.name, 20) + pad(e.count, 6) + pad(e.A, 6) + pad(e.B, 6) + pad(e.C, 6) + "\n";
+    }
+  }
+
+  return out;
+}
+
 function renderKorpusUebersicht(PR) {
   if (!isReadyPR(PR)) return "";
 
@@ -2908,6 +3021,8 @@ function renderHolzlisteAll(PR) {
   let txt = "";
   txt += renderProjektKopf(PR);
   txt += renderStueckliste(PR);
+  txt += renderStuecklisteByMaterial(PR);
+  txt += renderStuecklisteByCorpus(PR);
   txt += renderKorpusUebersicht(PR);
   txt += renderMaterialUebersicht(PR);
 

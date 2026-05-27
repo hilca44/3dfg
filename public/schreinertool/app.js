@@ -1767,6 +1767,7 @@ function updateToolbarStatus() {
 
 function topToolbarButtons() {
   return [
+    { label: "☰", action: toggleHelpMenu },
     { label: "Datei", labelKey: "ui.file", to: "file" },
     { label: "Hilfe", labelKey: "ui.help", to: "help" },
     { label: "Baum", label: "Baum", to: "tree" },
@@ -4553,6 +4554,7 @@ setupAppMenuActions();
 initQuickHelpOverlay();
 initEditToolbar();
 loadVisitorCounter();
+setState(window.currentState || localStorage.getItem("c3cad_state") || "main");
 setupCentralReload();
 bootState();
 

@@ -238,6 +238,13 @@ function parseDslToken(token, fallbackHead = "") {
   }
 
   if ((action === "reihe" || action === "copy") && /^[xyz]$/.test(axis) && value) {
+    // Special-case: `eb.reihe.z.N` should create N shelves inside the same
+    // cabinet instead of repeating the whole cabinet. Map modern `eb` ->
+    // legacy `c` and set `n` (count) for shelves when axis is `z`.
+    if (axis === "z" && part === "c") {
+      return legacyPartPath(part, `n=${valueList(value)}`, fallbackHead, body[0]);
+    }
+
     return part
       ? legacyPartPath(part, `n${axis}=${valueList(value)}`, fallbackHead, body[0])
       : `n${axis}=${valueList(value)}`;

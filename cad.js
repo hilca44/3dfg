@@ -5221,6 +5221,15 @@ applyInteriorLayout(k) {
         : Number(rawGap || 0);
     if (!Number.isFinite(gap)) gap = 0;
 
+    if (isPart && count > 1 && gap === 0 && Number.isFinite(ko[dimofxyz]) && Number.isFinite(ob[dimofxyz])) {
+        const partOffset = Number(ob[xyzpara] || 0);
+        const totalPartSize = Number(ob[dimofxyz]) * count;
+        const availableSpace = Number(ko[dimofxyz]) - partOffset - totalPartSize;
+        if (availableSpace > 0 && count > 1) {
+            gap = availableSpace / (count - 1);
+        }
+    }
+
     if (split && count > 1) {
         const fullDim = Number(ob[dimofxyz] || 0);
         const splitDim = (fullDim - gap * (count - 1)) / count;

@@ -434,21 +434,7 @@ templates: {
     ]
   },
 
-  // ✅ NEU: Line-Editor als eigener Modus
-  blockedi: {
-    slot1: "blockEditor",
-    slot2: null,
-    btn: [
-      { label: "cancel", labelKey: "ui.cancel", action: closeBlockEditor },
 
-      { label: "save", labelKey: "ui.save", action: saveBlockEdit },
-    ],
-    buttons: [
-      { label: "cancel", labelKey: "ui.cancel", action: closeBlockEditor },
-      { label: "save", labelKey: "ui.save", action: saveBlockEdit },
-  ],
-    // buttons: null
-  },
 
 
 
@@ -647,7 +633,7 @@ function renderProject(){
 
 function openProjectEditor() {
 
-  const host = document.getElementById("blockEditor");
+  const host = document.getElementById("projectEdit");
   if (!host) return;
 
   host.innerHTML = "";
@@ -1260,51 +1246,7 @@ function saveCurrentUrlToServer_noFetch() {
   form.submit();   // 🔥 DAS ist der entscheidende Punkt
 }
 
-function openBlockEditornnnnnooode(corpus) {
-  if (!corpus) return;
-
-  fetch(`/block-editor?corpus=${encodeURIComponent(corpus)}`)
-    .then(r => {
-      if (!r.ok) {
-        throw new Error(`Block-Editor HTTP ${r.status}`);
-      }
-      return r.text();
-    })
-    .then(html => {
-      const editor = document.getElementById("blockEditor");
-      const overlay = document.getElementById("blockEditorOverlay");
-
-      if (!editor || !overlay) {
-        console.warn("Block-Editor DOM fehlt");
-        return;
-      }
-
-      editor.innerHTML = html;
-      overlay.classList.remove("hidden");
-    })
-    .catch(err => {
-      console.error("openBlockEditor failed:", JSON.stringify(err));
-      alert("Block-Editor konnte nicht geladen werden.");
-    });
-}
-
-
-
-function openBlockEditor(idx) {
-  const ta = document.getElementById("inn");
-  activeLineIndex = idx;
-
-  setState("inn");
-  setTimeout(() => {
-    if (!ta) return;
-    const lines = ta.value.split(/\r?\n/);
-    const start = lines.slice(0, idx).reduce((sum, line) => sum + line.length + 1, 0);
-    const end = start + (lines[idx] || "").length;
-    ta.focus();
-    ta.setSelectionRange(start, end);
-    window.syncInnEditorFromTextarea?.();
-  }, 50);
-}
+// Block Editor entfernt - nicht mehr benötigt
 
 
 
@@ -2040,35 +1982,7 @@ function saveCurrentUrlToServer() {
 }
 
 
-function saveBlockEdit22() {
-  if (activeLineIndex === null) return;
-
-  const ta = document.getElementById("inn");
-  const form = document.getElementById("blockEditForm");
-
-  if (!ta || !form) return;
-
-  const inputs = form.querySelectorAll("input");
-
-  const newLine = Array.from(inputs)
-    .map(inp => inp.value.trim())
-    .filter(v => v.length > 0)
-    .join(" ");
-
-  const lines = ta.value.split(/\r?\n/);
-
-  if (activeLineIndex < 0 || activeLineIndex >= lines.length) return;
-
-  lines[activeLineIndex] = newLine;
-  ta.value = lines.join("\n");
-
-  // Editor schließen / State zurück
-  activeLineIndex = null;
-  
-  renderLineButtonsFromInn();
-  onRenderClicked();
-  // setState("main");
-}
+// Block Editor entfernt
 
 function saveBlockEdit() {
   if (activeLineIndex === null) return;
@@ -3081,7 +2995,19 @@ function renderLineButtonsFromInn(options = {}) {
   if (idx === 0 && line) {
     pp.openProjectEditorFromLine(line);
   } else {
-    openBlockEditor(idx);
+    // Statt Block Editor direkt zum Text Editor wechseln
+    setState("inn");
+    activeLineIndex = idx;
+    setTimeout(() => {
+      const ta = document.getElementById("inn");
+      if (!ta) return;
+      const lines = ta.value.split(/\r?\n/);
+      const start = lines.slice(0, idx).reduce((sum, line) => sum + line.length + 1, 0);
+      const end = start + (lines[idx] || "").length;
+      ta.focus();
+      ta.setSelectionRange(start, end);
+      window.syncInnEditorFromTextarea?.();
+    }, 50);
   }
 };
 
@@ -3125,7 +3051,8 @@ function newCorpus() {
   ta.value = lines.join("\n");
 
   renderLineButtonsFromInn();
-  openBlockEditor(newIndex);
+  // Statt Block Editor direkt zum Text Editor wechseln
+  setState("inn");
 }
 function lastCorpusLetter(lines) {
   for (let i = lines.length - 1; i >= 0; i--) {
@@ -3436,186 +3363,10 @@ document.addEventListener("keydown", (e) => {
 
 
 
-function closeBlockEditor(){
-  window.location.href=window.location.href
-}
-
-function renderBlockEditor11(line) {
-  const host = document.getElementById("blockEditor");
-    // ✅ FORM neu erzeugen
-  const form = document.createElement("form");
-  form.id = "blockEditForm";
-  form.innerHTML=""
+// Block Editor Funktionen entfernt - nicht mehr benötigt
 
 
-  // submit abfangen
-  form.addEventListener("submit", e => {
-    e.preventDefault();
-    saveBlockEdit();   // ← DEIN Save
-  });
-
-  const blocks = parseLineToBlocks(line);
-
-  blocks.forEach((b, i) => {
-    const row = document.createElement("div");
-    row.style.marginBottom = "8px";
-
-    const label = document.createElement("div");
-    label.textContent = b.label;
-    // label.style.fontSize = "12px";
-    label.style.opacity = "0.7";
-
-    const input = document.createElement("input");
-    input.type = "text";
-    input.value = b.token;
-    input.dataset.index = i;
-    input.style.width = "100%";
-
-
-if (b.type === "size") {
-  input.inputMode = "text";
-  input.autocomplete = "off";
-  input.spellcheck = false;
-}
-
-    row.appendChild(label);
-    row.appendChild(input);
-    form.appendChild(row);
-  });
-  const submit = document.createElement("button");
-submit.type = "submit";
-submit.style.display = "none";
-form.appendChild(submit);
-
-  host.appendChild(form);
-}
-
-
-function renderBlockEditor(line) {
-  const host = document.getElementById("blockEditor");
-  if (!host) return;
-
-  host.innerHTML = "";
-
-  const form = document.createElement("form");
-  form.id = "blockEditForm";
-
-  form.addEventListener("submit", e => {
-    e.preventDefault();
-    saveBlockEdit();
-  });
-
-  const blocks = parseLineToBlocks(line);
-
-  blocks.forEach((b, i) => {
-    const row = document.createElement("div");
-    row.className=        "row"    // ❗ wichtig
-
-    /* ---------- HELP-BUTTON ---------- */
-    const helpBtn = document.createElement("button");
-    helpBtn.type = "button";  
-    helpBtn.textContent = "?";
-
-    helpBtn.onclick = () => {
-      if (b.cmd) showHelpCommand(b.cmd);
-    };
-const label = document.createElement("label");
-if(i===0){              
-label.textContent = `Schrankname: b = Basis, b1 erbt von b, b.a1 erbt von a1`;
-
-
-}else if(b.disabled){
-  label.textContent = "aus: " + b.token.slice(1);
-}else if(/^[0-9]/.test(b.token)){ // einzelner Buchstabe
-  label.textContent = b.token[0]+": "+CMD["a"]?.slice(0,4) || " ";
-}else{
-
-  label.textContent = "Befehl "+b.token[0]+": "+CMD[b.token[0]]?.slice(0,2)
-  .join("\n") || " ";
-}
-// Linebreak erzeugen
-label.appendChild(document.createElement("br"));
-
-// Wrapper für Input + Help
-const fieldWrap = document.createElement("div");
-fieldWrap.className = "field-wrap";
-
-    /* ---------- INPUT ---------- */
-    const input = document.createElement("input");
-    input.type = "text";
-    input.value = b.token;
-    input.dataset.index = i;
-
-    if (b.type === "size") {
-      input.inputMode = "text";
-      input.autocomplete = "off";
-      input.spellcheck = false;
-    }
-
-// zusammensetzen
-fieldWrap.appendChild(input);
-fieldWrap.appendChild(helpBtn);
-
-row.appendChild(label);
-row.appendChild(fieldWrap);
-form.appendChild(row);
-  });
-
-  const submit = document.createElement("button");
-  submit.type = "submit";
-  submit.style.display = "none";
-  form.appendChild(submit);
-
-  host.appendChild(form);
-}
-
-
-function showCommandHelpFromFocusedInput() {
-  const active = document.activeElement;
-
-  if (!active || active.tagName !== "INPUT") {
-    alert("Kein Eingabefeld aktiv.");
-    return;
-  }
-
-  const value = active.value?.trim();
-  if (!value) {
-    alert("Eingabe ist leer.");
-    return;
-  }
-
-  const key = value[0].toLowerCase();
-  const helpText = CMD?.[key];
-
-  if (!helpText) {
-    alert("Kein Hilfetext gefunden für: " + key);
-    return;
-  }
-
-  showHelpPopup(key, helpText);
-}
-
-function saveBlockEdit11111111111111111() {
-  const ta = document.getElementById("inn");
-  const inputs = document.querySelectorAll("#blockEditor input");
-
-  if (activeLineIndex === null) return;
-
-  const newLine = Array.from(inputs)
-    .map(i => i.value.trim())
-    .filter(Boolean)
-    .join(" ");
-
-  const lines = ta.value.split(/\r?\n/);
-  lines[activeLineIndex] = newLine;
-  ta.value = lines.join("\n");
-
-  setState("main");
-  renderLineButtonsFromInn();
-  activeLineIndex = null;
-  onRenderClicked()
-
-}
+// Block Editor entfernt
 
 
 const MATERIAL_PREISE = {
@@ -4141,25 +3892,6 @@ function layoutPlates(parts, sheet) {
   }
   return plates;
 }
-
-
-function attachBlockEditorKeys(inputEl) {
-  inputEl.addEventListener("keydown", (e) => {
-
-    // ENTER → akzeptieren
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      saveBlockEdit();
-    }
-
-    // ESC → abbrechen
-    if (e.key === "Escape") {
-      e.preventDefault();
-      cancelLineEdit();
-    }
-  });
-}
-
 // function openBlockEditor(initialValue) {
 //   const be = document.getElementById("blockEditor");
 
@@ -4341,8 +4073,6 @@ Object.assign(window, {
   updateToolbarStatus,
   showInnProjectError,
 
-  openBlockEditor,
-  saveBlockEdit,
   cancelLineEdit,
   saveCurrentUrlToServer_noFetch,
   renderLineButtonsFromInn,

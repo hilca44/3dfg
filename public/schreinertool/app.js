@@ -147,35 +147,7 @@ function toggleUIMode(target) {
 
 
 let ohlp = {};
-loadHelp()
-
-
-
-function parseLineToBlocks(line) {
-  const tokens = line.trim().split(/\s+/);
-
-  return tokens.map((token, i) => {
-    // 🔹 Block 0 = Korpusname
-    if (i === 0) {
-      return {
-        token,
-        type: "korpus",
-        label: `Beispiel: b = id, b1 erbt von b, b.a1 erbt von a1`,
-        index: 0
-      };
-    }
-
-    // 🔹 alle anderen Blöcke normal klassifizieren
-    return {
-      token,
-      index: i,
-      ...classifyBlock(token)
-    };
-  });
-}
-
-
-function classifyBlock(token) {
+function describeToken(token) {
   if (/^-/.test(String(token))) {
     return {
       cmd: null,

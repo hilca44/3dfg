@@ -849,6 +849,7 @@ export class Proj {
         const lines = String(inn ?? "").split(/\r?\n/);
         const allowedPath = new Set([
             "p", "w", "d", "h", "x", "y", "z", "m", "s", "u",
+            "dim",
             "nx", "ny", "nz", "sx", "sy", "sz",
             "i", "cur", "tar", "o", "ox", "oy", "oz",
             "layout", "cols", "fit", "vi", "leg", "wdh",
@@ -857,6 +858,7 @@ export class Proj {
         const parts = new Set(["l", "r", "g", "t", "b", "f", "c", "v", "gg"]);
         const partProps = new Set([
             "w", "d", "h", "x", "y", "z", "m", "s", "u",
+            "dim",
             "sx", "sy", "sz", "nx", "ny", "nz",
             "o", "ox", "oy", "oz", "vi", "co"
         ]);

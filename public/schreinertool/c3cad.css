@@ -632,10 +632,10 @@ html, body {
 }
 
 #helpMenu {
+  display: none;
   position: fixed;
   left: 18px;
   bottom: calc(env(safe-area-inset-bottom) + var(--keyboard-inset) + 120px);
-  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-flow: row dense;
   align-content: start;

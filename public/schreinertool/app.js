@@ -362,6 +362,7 @@ tree: {
     { label: "X", action: () => setTreeViewDirection("x") },
     { label: "Y", action: () => setTreeViewDirection("y") },
     { label: "Z", action: () => setTreeViewDirection("z") },
+    { label: "Maße", action: () => setTreeViewMode("dim") },
     { label: "reload (rctrl)", action: renderKorpusTreeView }
   ]
 },
@@ -1871,6 +1872,13 @@ function getTreeAlignedDistances(groups) {
   );
 }
 
+let treeViewMode = "tree";
+
+function setTreeViewMode(mode) {
+  treeViewMode = mode === "dim" ? "dim" : "tree";
+  renderKorpusTreeView();
+}
+
 function renderKorpusTreeView() {
   const host = document.getElementById("treeView");
   if (!host) return;
@@ -1919,12 +1927,15 @@ function renderTreeTables(renderPoints) {
       }).join("")
     : `<tr><td colspan="5">keine Punkte</td></tr>`;
   const edges = getTreeEdges(renderPoints);
+  const showDimView = treeViewMode === "dim";
 
   host.innerHTML = `
     <div class="tree-panel">
+      ${showDimView ? `
       <div class="tree-view-3d" id="tree3dView">
-        <div class="tree-view-3d-hint">3D-Darstellung der Baum-Maße</div>
+        <div class="tree-view-3d-hint">Maße</div>
       </div>
+      ` : ""}
       <div class="tree-data-panels">
         <table class="tree-distance-table">
           <thead>
@@ -1942,7 +1953,11 @@ function renderTreeTables(renderPoints) {
     </div>
   `;
 
-  window.renderKorpusTree3DView?.(renderPoints, edges);
+  if (showDimView) {
+    window.renderKorpusTree3DView?.(renderPoints, edges);
+  } else {
+    if (typeof disposeTreeView3D === "function") disposeTreeView3D();
+  }
 }
 
 function setTreeViewDirection(direction) {

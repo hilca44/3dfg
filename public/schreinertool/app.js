@@ -1916,10 +1916,11 @@ function quickHelpSearchEntries() {
     ...(typeof QUICK_HELP_SAVE !== "undefined" ? QUICK_HELP_SAVE : [])
   ];
 
-  return rows.map(([label, detail, aliases]) => ({
+  return rows.map(([label, detail, aliases, action]) => ({
     label,
     detail,
     aliases,
+    action,
     type: "Tipp",
     group: "Tipps & Tricks",
     infoOnly: true
@@ -2077,6 +2078,10 @@ function insertProjectLineToken(token) {
 }
 
 function insertCommandSearchEntry(entry) {
+  if (typeof entry?.action === "function") {
+    entry.action();
+    return true;
+  }
   if (entry?.projectLine) return insertProjectLineToken(entry.insert || entry.label);
   return insertCommandSearchText(entry?.insert || entry?.label);
 }
@@ -2190,7 +2195,10 @@ function createCommandSearch() {
       button.className = "command-search-item";
       button.addEventListener("mousedown", (event) => event.preventDefault());
       button.addEventListener("click", () => {
-        if (entry.infoOnly && !entry.insert) {
+        if (typeof entry.action === "function") {
+          rememberCommandSearchEntry(entry);
+          insertCommandSearchEntry(entry);
+        } else if (entry.infoOnly && !entry.insert) {
           showCommandSearchInfo(entry);
         } else {
           rememberCommandSearchEntry(entry);
@@ -4850,8 +4858,8 @@ const QUICK_HELP_MODEL = [
 ];
 
 const QUICK_HELP_SAVE = [
-  ["Teilen", "Projekt-Link an die eigene E-Mail-Adresse senden", "speichern save share shell senden mail email download projektlink"],
-  ["Link", "Der Link enthält dein Projekt und öffnet es wieder", "teilen speichern save share shell projektlink url"]
+  ["Teilen", "Projekt-Link an die eigene E-Mail-Adresse senden", "speichern save share shell senden mail email download projektlink", shareProjectByMail],
+  ["Link", "Der Link enthält dein Projekt und öffnet es wieder", "teilen speichern save share shell projektlink url", copyProjectLink]
 ];
 
 function quickHelpRows(rows, className = "") {

@@ -3878,6 +3878,7 @@ function onSceneClick(event) {
     if (window.CURRENT_STATE !== "inn") {
         window.setState?.("inn");
     }
+    activateKorpusDimView(partHits[0].object?.userData?.korpusName);
     showPartInspector(partHits[0].object);
 }
 
@@ -4142,6 +4143,21 @@ function patchInnLine(korpusName, changes) {
     return url;
 }
 
+function activateKorpusDimView(korpusName) {
+    const name = String(korpusName || "").trim();
+    const korpus = name ? window.PR?.oks?.[name] : null;
+    if (!korpus) return;
+
+    korpus.dim = 1;
+    patchInnLine(name, [{ path: "dim", token: "dim" }]);
+    window.renderLineButtonsFromInn?.();
+    window.recordEditHistory?.();
+    setEditorViewMode("measure", {
+        keepBackground: true,
+        preserveSurface: false
+    });
+}
+
 function setSelectedPart(mesh) {
     if (selectedPartOutline) {
         selectedPartOutline.removeFromParent();
@@ -4220,6 +4236,7 @@ function showKorpusInspector(korpus, group) {
         group.userData.korpusData = korpus;
         group.userData.localBB = makeKorpusLocalBB(korpus);
     }
+    activateKorpusDimView(korpus?.nme || group?.userData?.korpusName || group?.name);
     setSelectedKorpus(group);
     showAnchorMarkersForKorpus(group);
     const panel = ensurePartInspector();

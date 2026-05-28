@@ -618,6 +618,7 @@ let treeRenderDirection = "z";
 let treeRenderColoredParts = new Map();
 let treeRenderSavedBackground = null;
 let editorViewMode = "normal";
+let activeDimSelection = null;
 
 function getRenderSquareSize() {
     const host = document.getElementById("slot1") || container;
@@ -3086,8 +3087,16 @@ function addTreeRenderDimensions() {
         if (obj.userData?.type !== "part") return;
         const partData = obj.userData?.partData || {};
         const korpusData = window.PR?.oks?.[obj.userData?.korpusName] || {};
-        const explicitPartDim = Boolean(partData.dim || hasDimViewFlag(partData.vi));
-        const inheritedKorpusDim = !explicitPartDim && Boolean(projectDim || korpusData.dim || hasDimViewFlag(korpusData.vi));
+        const selectedPartDim = activeDimSelection?.type === "part" &&
+            activeDimSelection.korpusName === obj.userData?.korpusName &&
+            activeDimSelection.partName === obj.userData?.partName;
+        const selectedKorpusDim = activeDimSelection?.type === "korpus" &&
+            activeDimSelection.korpusName === obj.userData?.korpusName;
+        const explicitPartDim = selectedPartDim || Boolean(!activeDimSelection && (partData.dim || hasDimViewFlag(partData.vi)));
+        const inheritedKorpusDim = !explicitPartDim && (
+            selectedKorpusDim ||
+            Boolean(!activeDimSelection && (projectDim || korpusData.dim || hasDimViewFlag(korpusData.vi)))
+        );
         if (!explicitPartDim && !inheritedKorpusDim) return;
         const bb = obj.userData.localBB;
         if (!bb) return;
@@ -3132,6 +3141,14 @@ function addTreeRenderDimensions() {
 }
 
 function collectTreeRenderDimensionPartKeys() {
+    if (activeDimSelection?.type === "part") {
+        return new Set([`${activeDimSelection.korpusName}.${activeDimSelection.partName}`]);
+    }
+
+    if (activeDimSelection?.type === "korpus") {
+        return collectKorpusDimensionPartKeys(activeDimSelection.korpusName);
+    }
+
     const targetPartKeys = new Set();
     const seenKorpusDims = new Map();
 
@@ -3174,6 +3191,40 @@ function collectTreeRenderDimensionPartKeys() {
         ];
         if (dims.some(([axis, value]) => markKorpusDim(korpusName, axis, value))) {
             targetPartKeys.add(key);
+        }
+    });
+
+    return targetPartKeys;
+}
+
+function collectKorpusDimensionPartKeys(selectedKorpusName) {
+    const targetPartKeys = new Set();
+    const seenKorpusDims = new Map();
+
+    function markKorpusDim(korpusName, axis, valueCm) {
+        const value = Math.round(Number(valueCm) * 10);
+        if (!Number.isFinite(value) || value <= 0) return false;
+        const key = `${axis}:${value}`;
+        if (!seenKorpusDims.has(korpusName)) seenKorpusDims.set(korpusName, new Set());
+        const seen = seenKorpusDims.get(korpusName);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    }
+
+    modelGroup?.traverse(obj => {
+        if (obj.userData?.type !== "part") return;
+        const korpusName = obj.userData?.korpusName || "?";
+        if (korpusName !== selectedKorpusName) return;
+        const bb = obj.userData.localBB;
+        if (!bb) return;
+        const dims = [
+            ["x", bb.max.x - bb.min.x],
+            ["y", bb.max.y - bb.min.y],
+            ["z", bb.max.z - bb.min.z]
+        ];
+        if (dims.some(([axis, value]) => markKorpusDim(korpusName, axis, value))) {
+            targetPartKeys.add(treeRenderPartKey(obj));
         }
     });
 
@@ -3878,7 +3929,7 @@ function onSceneClick(event) {
     if (window.CURRENT_STATE !== "inn") {
         window.setState?.("inn");
     }
-    activateKorpusDimView(partHits[0].object?.userData?.korpusName);
+    activatePartDimView(partHits[0].object);
     showPartInspector(partHits[0].object);
 }
 
@@ -4143,13 +4194,55 @@ function patchInnLine(korpusName, changes) {
     return url;
 }
 
+function clearDimSelections() {
+    for (const korpus of Object.values(window.PR?.oks || {})) {
+        if (!korpus || typeof korpus !== "object") continue;
+        delete korpus.dim;
+        for (const partName of korpus.jj || []) {
+            if (korpus[partName] && typeof korpus[partName] === "object") {
+                delete korpus[partName].dim;
+            }
+        }
+    }
+
+    const editor = document.getElementById("inn");
+    if (!editor) return;
+    const isDimToken = token => /^(?:dim(?:[=:].*)?|(?!(?:vi)\.)[a-z][a-z0-9_]*\.dim(?:[=:].*)?)$/i.test(String(token || ""));
+    editor.value = editor.value
+        .split(/\r?\n/)
+        .map(line => line.split(/\s+/).filter(token => !isDimToken(token)).join(" "))
+        .join("\n");
+    setUrlNoReload(innToUrl(editor.value));
+}
+
 function activateKorpusDimView(korpusName) {
     const name = String(korpusName || "").trim();
     const korpus = name ? window.PR?.oks?.[name] : null;
     if (!korpus) return;
 
+    clearDimSelections();
+    activeDimSelection = { type: "korpus", korpusName: name };
     korpus.dim = 1;
     patchInnLine(name, [{ path: "dim", token: "dim" }]);
+    window.renderLineButtonsFromInn?.();
+    window.recordEditHistory?.();
+    setEditorViewMode("measure", {
+        keepBackground: true,
+        preserveSurface: false
+    });
+}
+
+function activatePartDimView(mesh) {
+    const data = mesh?.userData || {};
+    const korpusName = String(data.korpusName || "").trim();
+    const partName = String(data.partName || "").trim();
+    const part = data.partData || (korpusName && partName ? window.PR?.oks?.[korpusName]?.[partName] : null);
+    if (!korpusName || !partName || !part) return;
+
+    clearDimSelections();
+    activeDimSelection = { type: "part", korpusName, partName };
+    part.dim = 1;
+    patchInnLine(korpusName, [{ path: `${partName}.dim`, token: `${partName}.dim` }]);
     window.renderLineButtonsFromInn?.();
     window.recordEditHistory?.();
     setEditorViewMode("measure", {

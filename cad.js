@@ -1951,6 +1951,16 @@ setTokenValue(obj, token){
     const lastKey = keys[keys.length - 1];
     if (modernPropertyKeys[lastKey]) keys[keys.length - 1] = modernPropertyKeys[lastKey];
 
+    if (
+        keys.length === 1 &&
+        ["l", "r", "g", "t", "b", "f", "c", "v", "gg"].includes(keys[0]) &&
+        String(rawValue).trim().toLowerCase() === "dim"
+    ) {
+        keys = [keys[0], "dim"];
+        resolvedValue = 1;
+        v = "1";
+    }
+
     if (keys[0] === "m" && keys.length === 2 && /^[a-z]$/i.test(keys[1])){
         keys = [keys[1], "m"];
     }

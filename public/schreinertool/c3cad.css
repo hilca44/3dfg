@@ -851,6 +851,16 @@ html, body {
   background: #ebe2d2;
 }
 
+#helpMenu .menu-action-tutor {
+  background: #e8f7ee;
+  color: #17452a;
+  font-weight: 700;
+}
+
+#helpMenu .menu-action-tutor:hover {
+  background: #d4f0df;
+}
+
 #helpMenu .menu-divider {
   grid-column: 1 / -1;
   height: 1px;

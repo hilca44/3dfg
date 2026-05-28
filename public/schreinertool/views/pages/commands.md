@@ -176,7 +176,7 @@ Dasselbe Prinzip gilt für `y`, `z`, `breit`, `tief` und `hoch`, auch an Teilen:
 
 Aliase sind Kurzbefehle fuer haeufige Korpusformen. Sie bleiben im Text sichtbar und werden nur intern vor dem Berechnen erweitert.
 
-`b sk=a,14,3` - erzeugt einen Schubkasten `b` in Korpus `a`, Hoehe 14 cm, `reihe.z.3`.
+`b sk.a,14,3` - erzeugt einen Schubkasten `b` in Korpus `a`, Hoehe 14 cm, `reihe.z.3`.
 
 Das entspricht intern:
 
@@ -190,15 +190,15 @@ Parameter:
 
 Wenn der Alias sichtbar ausgeschrieben werden soll, wird als vierter Parameter `e` geschrieben:
 
-`b sk=a,14,3,e`
+`b sk.a,14,3,e`
 
-`a leg=22,4` - erzeugt vier Beine mit 22 cm Höhe.
+`a leg.22,4` - erzeugt vier Beine mit 22 cm Höhe.
 
 Das entspricht intern:
 
-`a leg=22,4`
+`a leg.22,4`
 
-`a leg=22,2` - erzeugt zwei Beine mit 22 cm Höhe.
+`a leg.22,2` - erzeugt zwei Beine mit 22 cm Höhe.
 
 ## Maße
 

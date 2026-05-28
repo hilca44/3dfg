@@ -1363,6 +1363,129 @@ async function convertInnTextToModern() {
   await applyInnTextChanges();
 }
 
+const TUTOR_AUTOPLAY_STEPS = [
+  {
+    text: "tutordemo\na",
+    pause: 650
+  },
+  {
+    text: "tutordemo\na breit.60",
+    pause: 650
+  },
+  {
+    text: "tutordemo\na breit.60 tief.55 hoch.72",
+    pause: 800
+  },
+  {
+    text: "tutordemo\na teil.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72",
+    pause: 900
+  },
+  {
+    text: "tutordemo\na teil.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1",
+    pause: 1000
+  },
+  {
+    text: "tutordemo\na teil.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1\nb teil.sl,sr,bo,de,rw,eb breit.40 tief.55 hoch.72 dock.a,,0_b,,1",
+    pause: 1200
+  }
+];
+
+const TUTOR_TYPE_DELAY = 28;
+let tutorAutoplayRun = null;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function setTutorStatus(text) {
+  const topStatus = document.getElementById("topStatus");
+  if (!topStatus) return;
+
+  if (text) {
+    topStatus.innerHTML = `<a class="top-status-home" href="/">3dfg</a><span>${htmlText(text)}</span>`;
+  } else {
+    updateToolbarStatus();
+  }
+}
+
+async function typeTutorText(ta, from, to, run) {
+  let value = from;
+  const target = String(to || "");
+
+  while (value.length > target.length || !target.startsWith(value)) {
+    if (run.cancelled) return false;
+    value = value.slice(0, -1);
+    ta.value = value;
+    window.syncInnEditorFromTextarea?.();
+    await sleep(12);
+  }
+
+  for (let i = value.length; i < target.length; i++) {
+    if (run.cancelled) return false;
+    value += target[i];
+    ta.value = value;
+    window.syncInnEditorFromTextarea?.();
+    await sleep(target[i] === "\n" ? TUTOR_TYPE_DELAY * 5 : TUTOR_TYPE_DELAY);
+  }
+
+  return true;
+}
+
+async function runTutorAutoplay(run) {
+  const ta = document.getElementById("inn");
+  if (!ta) return;
+
+  setState("inn");
+  ta.value = "";
+  window.syncInnEditorFromTextarea?.();
+  window.showInnEditor?.();
+  setTutorStatus("Tutor: Autoplay startet");
+
+  for (let index = 0; index < TUTOR_AUTOPLAY_STEPS.length; index++) {
+    const step = TUTOR_AUTOPLAY_STEPS[index];
+    setTutorStatus(`Tutor: Schritt ${index + 1}/${TUTOR_AUTOPLAY_STEPS.length}`);
+
+    const typed = await typeTutorText(ta, ta.value, step.text, run);
+    if (!typed || run.cancelled) return;
+
+    const ok = await applyInnTextChanges();
+    if (!ok || run.cancelled) return;
+
+    await sleep(step.pause);
+  }
+
+  recordReloadHistory();
+  setTutorStatus("Tutor: fertig");
+  await sleep(900);
+}
+
+function stopTutorAutoplay() {
+  if (!tutorAutoplayRun) return false;
+  tutorAutoplayRun.cancelled = true;
+  tutorAutoplayRun = null;
+  setTutorStatus("");
+  return true;
+}
+
+function toggleTutorAutoplay() {
+  if (stopTutorAutoplay()) return;
+
+  const run = { cancelled: false };
+  tutorAutoplayRun = run;
+
+  runTutorAutoplay(run)
+    .catch((err) => {
+      console.error("Tutor-Autoplay fehlgeschlagen:", err);
+      alert("Tutor konnte nicht abgespielt werden: " + friendlyProjectErrorMessage(err));
+    })
+    .finally(() => {
+      if (tutorAutoplayRun === run) {
+        tutorAutoplayRun = null;
+        setTutorStatus("");
+      }
+    });
+}
+
 async function toggleInnMain() {
 
   // aktuellen State aus localStorage lesen
@@ -1685,6 +1808,7 @@ const TOP_TOOLBAR_ACTIONS = [
   { label: "☰", action: toggleHelpMenu, placement: "toolbar", className: "toolbar-menu-button" },
   { kind: "search", placement: "toolbar" },
   { labelKey: "ui.share", label: "📤 Teilen", titleKey: "ui.shareTooltip", title: "Projekt-Link per E-Mail senden", action: shareProjectByMail, placement: "menu" },
+  { label: "Tutor", title: "Autoplay im Editor starten", action: toggleTutorAutoplay, placement: "menu", className: "menu-action-tutor" },
   { label: "Hilfe", labelKey: "ui.help", action: toggleQuickHelpOverlay, placement: "menu" },
   { label: "Ansicht", action: () => window.cycleEditorViewMode?.(), placement: "menu" },
   { label: "Baum", to: "tree", placement: "menu" },
@@ -4709,9 +4833,9 @@ const QUICK_HELP_COMMANDS = [
 ];
 
 const QUICK_HELP_ALIASES = [
-  ["sk=base,14,3", "Sockel-Korpus am Boden andocken"],
-  ["soc=8", "Sockel/Push 8"],
-  ["leg=8", "ein Beinsatz"],
+  ["sk.base,14,3", "Sockel-Korpus am Boden andocken"],
+  ["soc.8", "Sockel/Push 8"],
+  ["leg.8", "ein Beinsatz"],
   ["dim", "Masszahlen fuer dieses Teil anzeigen"],
   ["rw.dim", "Masszahlen fuer die Rueckwand anzeigen"],
   ["rw,sl.dim", "Masszahlen fuer Rueckwand und linke Seite anzeigen"]

@@ -311,7 +311,7 @@ export function expandModernSyntax(inn = "") {
 }
 
 function parseAliasToken(token) {
-  const match = String(token ?? "").match(/^([a-z][a-z0-9_]*)(?:=(.*))?$/i);
+  const match = String(token ?? "").match(/^([a-z][a-z0-9_]*)(?:[=.](.*))?$/i);
   if (!match) return null;
 
   const alias = ALIASES[match[1].toLowerCase()];

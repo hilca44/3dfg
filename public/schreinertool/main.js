@@ -2542,7 +2542,10 @@ async function renderMainWithDWGs(pr) {
     removeAnchorMarkers();
     fitCameraToObject(modelGroup);
     if (projectHasDimViewFlag(pr) || editorViewMode === "measure") {
-        setEditorViewMode("measure", { keepBackground: projectHasDimViewFlag(pr) });
+        setEditorViewMode("measure", {
+            keepBackground: projectHasDimViewFlag(pr),
+            preserveSurface: projectHasDimViewFlag(pr)
+        });
     }
 }
 
@@ -2708,7 +2711,7 @@ function updateTreePointColorMap(useDistinctPartColors = false) {
     }
 }
 
-function applyTreeRenderPartColors() {
+function applyTreeRenderPartColors(options = {}) {
     const partColors = new Map();
     let colorIndex = 0;
 
@@ -2724,9 +2727,9 @@ function applyTreeRenderPartColors() {
 
         if (!treeRenderColoredParts.has(obj)) {
             ensureTreeRenderSavedPart(obj);
-            if (obj.material?.clone) obj.material = obj.material.clone();
         }
-        if (obj.material) {
+        if (!options.preserveSurface && obj.material?.clone) obj.material = obj.material.clone();
+        if (!options.preserveSurface && obj.material) {
             obj.material.wireframe = true;
             obj.material.transparent = false;
             obj.material.opacity = 1;
@@ -3267,7 +3270,7 @@ function setEditorViewMode(mode = "normal", options = {}) {
             scene.background = new THREE.Color("#000000");
         }
         updateTreePointColorMap(true);
-        applyTreeRenderPartColors();
+        applyTreeRenderPartColors({ preserveSurface: options.preserveSurface });
 
         treeRenderOverlay = new THREE.Group();
         treeRenderOverlay.name = "editorMeasureOverlay";

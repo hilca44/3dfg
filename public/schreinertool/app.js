@@ -1366,31 +1366,60 @@ async function convertInnTextToModern() {
 const TUTOR_AUTOPLAY_STEPS = [
   {
     text: "tutordemo\na",
-    pause: 650
+    pause: 1600
   },
   {
-    text: "tutordemo\na breit.60",
-    pause: 650
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na",
+    pause: 2000
   },
   {
-    text: "tutordemo\na breit.60 tief.55 hoch.72",
-    pause: 800
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na breit.60",
+    pause: 1800
   },
   {
-    text: "tutordemo\na teil.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72",
-    pause: 900
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na breit.60 tief.55 hoch.72",
+    pause: 2200
   },
   {
-    text: "tutordemo\na teil.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1",
-    pause: 1000
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72",
+    pause: 2400
   },
   {
-    text: "tutordemo\na teil.sl,sr,bo,de,rw,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1\nb teil.sl,sr,bo,de,rw,eb breit.40 tief.55 hoch.72 dock.a,,0_b,,1",
-    pause: 1200
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1",
+    pause: 2600
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2",
+    pause: 2400
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4",
+    pause: 2600
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8",
+    pause: 2600
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.12,4",
+    pause: 2800
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4",
+    pause: 2800
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4\nb teil.sl,sr,bo,de,rw,eb,fr breit.40 tief.55 hoch.72 dock.a,,0_b,,1",
+    pause: 3200
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4\nb teil.sl,sr,bo,de,rw,eb,fr breit.40 tief.55 hoch.72 dock.a,,0_b,,1 reihe.x.3,55r",
+    pause: 3600
   }
 ];
 
-const TUTOR_TYPE_DELAY = 28;
+const TUTOR_TYPE_DELAY = 70;
+const TUTOR_DELETE_DELAY = 35;
 let tutorAutoplayRun = null;
 
 function sleep(ms) {
@@ -1417,7 +1446,7 @@ async function typeTutorText(ta, from, to, run) {
     value = value.slice(0, -1);
     ta.value = value;
     window.syncInnEditorFromTextarea?.();
-    await sleep(12);
+    await sleep(TUTOR_DELETE_DELAY);
   }
 
   for (let i = value.length; i < target.length; i++) {

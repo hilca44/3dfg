@@ -2714,10 +2714,12 @@ function updateTreePointColorMap(useDistinctPartColors = false) {
 function applyTreeRenderPartColors(options = {}) {
     const partColors = new Map();
     let colorIndex = 0;
+    const onlyPartKeys = options.onlyPartKeys || null;
 
     modelGroup?.traverse(obj => {
         if (obj.userData?.type !== "part") return;
         const key = treeRenderPartKey(obj);
+        if (onlyPartKeys && !onlyPartKeys.has(key)) return;
         if (!partColors.has(key)) {
             partColors.set(key, treeRenderDistinctColor(colorIndex++));
         }
@@ -3022,6 +3024,7 @@ function addTreeRenderPartEdgeLabel(obj, color, valueCm, localPosition, axis) {
 }
 
 function addTreeRenderDimensions() {
+    const targetPartKeys = collectTreeRenderDimensionPartKeys();
     const seenKorpusDims = new Map();
     const projectDim = projectDefaultHasDimViewFlag(window.PR);
 
@@ -3047,6 +3050,7 @@ function addTreeRenderDimensions() {
         if (!bb) return;
 
         const key = treeRenderPartKey(obj);
+        if (!targetPartKeys.has(key)) return;
         const korpusName = obj.userData?.korpusName || "?";
         const color = getTreePointColorByPart(key) || "#ffffff";
         const w = bb.max.x - bb.min.x;
@@ -3081,6 +3085,55 @@ function addTreeRenderDimensions() {
             );
         }
     });
+}
+
+function collectTreeRenderDimensionPartKeys() {
+    const targetPartKeys = new Set();
+    const seenKorpusDims = new Map();
+
+    function markKorpusDim(korpusName, axis, valueCm) {
+        const value = Math.round(Number(valueCm) * 10);
+        if (!Number.isFinite(value) || value <= 0) return false;
+        const key = `${axis}:${value}`;
+        if (!seenKorpusDims.has(korpusName)) seenKorpusDims.set(korpusName, new Set());
+        const seen = seenKorpusDims.get(korpusName);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    }
+
+    modelGroup?.traverse(obj => {
+        if (obj.userData?.type !== "part") return;
+        const partData = obj.userData?.partData || {};
+        const korpusData = window.PR?.oks?.[obj.userData?.korpusName] || {};
+        const explicitPartDim = Boolean(partData.dim || hasDimViewFlag(partData.vi));
+        const inheritedKorpusDim = !explicitPartDim && Boolean(
+            projectDefaultHasDimViewFlag(window.PR) ||
+            korpusData.dim ||
+            hasDimViewFlag(korpusData.vi)
+        );
+        if (!explicitPartDim && !inheritedKorpusDim) return;
+
+        const bb = obj.userData.localBB;
+        if (!bb) return;
+        const key = treeRenderPartKey(obj);
+        if (explicitPartDim) {
+            targetPartKeys.add(key);
+            return;
+        }
+
+        const korpusName = obj.userData?.korpusName || "?";
+        const dims = [
+            ["x", bb.max.x - bb.min.x],
+            ["y", bb.max.y - bb.min.y],
+            ["z", bb.max.z - bb.min.z]
+        ];
+        if (dims.some(([axis, value]) => markKorpusDim(korpusName, axis, value))) {
+            targetPartKeys.add(key);
+        }
+    });
+
+    return targetPartKeys;
 }
 
 function projectHasDimViewFlag(pr) {
@@ -3270,7 +3323,10 @@ function setEditorViewMode(mode = "normal", options = {}) {
             scene.background = new THREE.Color("#000000");
         }
         updateTreePointColorMap(true);
-        applyTreeRenderPartColors({ preserveSurface: options.preserveSurface });
+        applyTreeRenderPartColors({
+            preserveSurface: options.preserveSurface,
+            onlyPartKeys: collectTreeRenderDimensionPartKeys()
+        });
 
         treeRenderOverlay = new THREE.Group();
         treeRenderOverlay.name = "editorMeasureOverlay";

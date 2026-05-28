@@ -117,6 +117,11 @@ const ALIASES = {
 
   dim(args) {
     return ["dim=1"];
+  },
+
+  expl(args) {
+    const value = args[0] || "22";
+    return [`xy=${value}`];
   }
 };
 

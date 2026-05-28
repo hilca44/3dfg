@@ -13,7 +13,7 @@ export const baseCommands = [
   ["vi.wf", "Wireframe-Ansicht"],
   ["rw.dim", "Masszahlen fuer Rueckwand anzeigen"],
   ["rw,sl.dim", "Masszahlen fuer Rueckwand und linke Seite anzeigen"],
-  ["expl", "Alias fuer xy.22: Explosionsansicht in der Projektzeile aktivieren"],
+  ["expl", "Alias fuer xy=22: Explosionsansicht in der Projektzeile aktivieren"],
   
   ["teil.", "teil.[sl,sr,bo,de,rw,fr,eb,mw]"],
   ["mat.", "mat.[staerke],[farbe],[preis],[kantenpreis]"],

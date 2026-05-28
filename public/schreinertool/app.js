@@ -1833,7 +1833,7 @@ function allCommandSearchEntries() {
   const commandEntries = baseCommands.map(([label, detail]) => ({
     label,
     detail,
-    insert: label === "expl" ? "xy.22" : label,
+    insert: label === "expl" ? "xy=22" : label,
     projectLine: label === "expl",
     type: commandSearchType(label),
     group: commandSearchType(label) === "Eigenschaft" ? "Eigenschaften" : "Befehle",

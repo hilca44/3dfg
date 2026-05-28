@@ -4253,7 +4253,9 @@ const QUICK_HELP_COMMANDS = [
   ["cut", "Teile schneiden, z.B. fr.cut.x.2"],
   ["push", "Schieben, Abstand, Fugen und Sockel"],
   ["dock", "Verbinden/Andocken"],
-  ["dre", "Drehen um x, y oder z"]
+  ["dre", "Drehen um x, y oder z"],
+  ["vi.wf", "Wireframe-Ansicht"],
+  ["vi.dim", "Massansicht automatisch aktivieren"]
 ];
 
 const QUICK_HELP_ALIASES = [
@@ -4261,8 +4263,6 @@ const QUICK_HELP_ALIASES = [
   ["soc=8", "Sockel/Push 8"],
   ["leg=8", "ein Beinsatz"],
   ["dim", "Masszahlen fuer dieses Teil anzeigen"],
-  ["vi.dim", "Massansicht automatisch aktivieren"],
-  ["vi.wf", "Wireframe-Ansicht"],
   ["rw.dim", "Masszahlen fuer die Rueckwand anzeigen"],
   ["rw,sl.dim", "Masszahlen fuer Rueckwand und linke Seite anzeigen"]
 ];

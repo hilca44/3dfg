@@ -2542,7 +2542,7 @@ async function renderMainWithDWGs(pr) {
     removeAnchorMarkers();
     fitCameraToObject(modelGroup);
     if (projectHasDimViewFlag(pr) || editorViewMode === "measure") {
-        setEditorViewMode("measure");
+        setEditorViewMode("measure", { keepBackground: projectHasDimViewFlag(pr) });
     }
 }
 
@@ -3250,7 +3250,7 @@ function restoreKorpusPerspectiveRender() {
     fitCameraToObject(modelGroup);
 }
 
-function setEditorViewMode(mode = "normal") {
+function setEditorViewMode(mode = "normal", options = {}) {
     const nextMode = ["normal", "wireframe", "measure"].includes(mode) ? mode : "normal";
     clearKorpusTreeRender();
     editorViewMode = nextMode;
@@ -3262,8 +3262,10 @@ function setEditorViewMode(mode = "normal") {
     }
 
     if (nextMode === "measure") {
-        if (treeRenderSavedBackground === null) treeRenderSavedBackground = scene.background;
-        scene.background = new THREE.Color("#000000");
+        if (!options.keepBackground) {
+            if (treeRenderSavedBackground === null) treeRenderSavedBackground = scene.background;
+            scene.background = new THREE.Color("#000000");
+        }
         updateTreePointColorMap(true);
         applyTreeRenderPartColors();
 

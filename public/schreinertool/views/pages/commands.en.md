@@ -225,6 +225,10 @@ This means:
 
 `a vi=wf` - wireframe.
 
+`a vi.dim` - enable dimension view automatically.
+
+`a vi.dim vi.wf` - enable dimension view and wireframe together.
+
 `a fr.vi=t4` - transparency level for the front.
 
 ## Points

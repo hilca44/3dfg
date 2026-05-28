@@ -344,6 +344,10 @@ Das bedeutet:
 
 `vi=wf` - Drahtmodell.
 
+`vi.dim` - Maßansicht automatisch aktivieren.
+
+`vi.dim vi.wf` - Maßansicht und Drahtmodell gemeinsam setzen.
+
 `fr.vi=t4` - Transparenzstufe für die Front.
 
 ## Punkte

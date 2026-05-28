@@ -2482,6 +2482,7 @@ function closeInspectorAndRestore() {
     const panel = partInspector;
     const restoreState = inspectorRestoreState;
 
+    clearActiveDimView();
     if (panel) panel.style.display = "none";
     setSelectedPart(null);
     setSelectedKorpus(null);
@@ -4213,6 +4214,15 @@ function clearDimSelections() {
         .map(line => line.split(/\s+/).filter(token => !isDimToken(token)).join(" "))
         .join("\n");
     setUrlNoReload(innToUrl(editor.value));
+}
+
+function clearActiveDimView() {
+    if (!activeDimSelection && editorViewMode !== "measure") return;
+    activeDimSelection = null;
+    clearDimSelections();
+    setEditorViewMode("normal");
+    window.renderLineButtonsFromInn?.();
+    window.recordEditHistory?.();
 }
 
 function activateKorpusDimView(korpusName) {

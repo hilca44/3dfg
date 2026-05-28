@@ -2651,7 +2651,10 @@ function getTreePointColorByPart(partName) {
 
 function getTreePointColor(letter) {
     const entry = treeViewPointColors.get(letter);
-    return entry || "#ffffff";
+    if (entry) return entry;
+    const palette = ["#59d8ff", "#ff7a7a", "#f9d65c", "#7cff9b", "#c78bff", "#ff9f43", "#80a8ff", "#ff6ec7"];
+    const index = Math.max(0, (String(letter || "A").charCodeAt(0) || 65) - 65);
+    return palette[index % palette.length];
 }
 
 function updateTreePointColorMap() {
@@ -2757,6 +2760,7 @@ function renderKorpusTree3DView(_groups = [], _edges = []) {
         treeViewPointColors.set(point.letter, color);
     }
 
+    addTreeView3DDimensions(points);
     setTree3DViewDirection(treeRenderDirection);
     frameTreeView3D();
     return points.map(point => ({
@@ -2767,6 +2771,84 @@ function renderKorpusTree3DView(_groups = [], _edges = []) {
         y: point.y,
         z: point.z
     }));
+}
+
+function treeView3DNumber(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return "";
+    return String(Math.round(n * 10));
+}
+
+function getTreeView3DAlignedDistances(points) {
+    const EPS = 1;
+    const out = [];
+    const seenValue = new Set();
+    const bucketKey = value => String(Math.round(Number(value || 0) / EPS));
+
+    function addAdjacent(list, axis) {
+        const sorted = [...list].sort((a, b) => axis === "X" ? a.x - b.x : a.y - b.y);
+        for (let i = 0; i < sorted.length - 1; i++) {
+            const a = sorted[i];
+            const b = sorted[i + 1];
+            const value = axis === "X" ? Math.abs(b.x - a.x) : Math.abs(b.y - a.y);
+            if (value <= EPS) continue;
+
+            const valueKey = `${axis}:${treeView3DNumber(value)}`;
+            if (seenValue.has(valueKey)) continue;
+            seenValue.add(valueKey);
+
+            out.push({ from: a, to: b, axis, value });
+        }
+    }
+
+    const byY = new Map();
+    const byX = new Map();
+
+    for (const point of points) {
+        const yKey = bucketKey(point.y);
+        const xKey = bucketKey(point.x);
+        if (!byY.has(yKey)) byY.set(yKey, []);
+        if (!byX.has(xKey)) byX.set(xKey, []);
+        byY.get(yKey).push(point);
+        byX.get(xKey).push(point);
+    }
+
+    for (const list of byY.values()) {
+        if (list.length > 1) addAdjacent(list, "X");
+    }
+    for (const list of byX.values()) {
+        if (list.length > 1) addAdjacent(list, "Y");
+    }
+
+    return out;
+}
+
+function addTreeView3DDimensions(points) {
+    const dimensions = getTreeView3DAlignedDistances(points);
+    const offsets = { X: new THREE.Vector3(0, 6, 5), Y: new THREE.Vector3(6, 0, 5) };
+
+    for (const dim of dimensions) {
+        const color = getTreePointColor(dim.from.letter);
+        const from = dim.from.point.clone().add(offsets[dim.axis]);
+        const to = dim.to.point.clone().add(offsets[dim.axis]);
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([from, to]);
+        const line = new THREE.Line(
+            lineGeo,
+            new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.95 })
+        );
+        treeView3DObjects.add(line);
+
+        const labelEl = document.createElement("div");
+        labelEl.className = "tree-view-3d-dim-label";
+        labelEl.style.color = color;
+        labelEl.textContent = `${dim.axis} ${treeView3DNumber(dim.value)}`;
+        labelEl.title = `${dim.from.letter}-${dim.to.letter}`;
+
+        const label = new CSS2DObject(labelEl);
+        label.position.copy(from).add(to).multiplyScalar(0.5);
+        label.position.z += 3;
+        treeView3DObjects.add(label);
+    }
 }
 
 function clearKorpusTreeRender() {
@@ -2923,6 +3005,7 @@ function showKorpusTreeRender(_groups = [], _edges = []) {
 
     clearKorpusTreeRender();
     setTreeOrthographicCamera(treeRenderDirection);
+    updateTreePointColorMap();
 
     const points = collectSceneAnchorTreePoints();
     treeRenderOverlay = new THREE.Group();
@@ -2931,10 +3014,14 @@ function showKorpusTreeRender(_groups = [], _edges = []) {
 
     for (const point of points) {
         const title = point.items.map(item => displayPartName(item.nme)).join(", ");
+        const partName = point.items?.[0]?.nme?.split(".").slice(0, 2).join(".");
+        const color = getTreePointColorByPart(partName);
+        treeViewPointColors.set(point.letter, color);
 
         const crossEl = document.createElement("div");
         crossEl.className = "tree-render-cross";
         crossEl.title = title;
+        crossEl.style.setProperty("--tree-point-color", color);
 
         const cross = new CSS2DObject(crossEl);
         cross.position.copy(point.point);
@@ -2945,6 +3032,7 @@ function showKorpusTreeRender(_groups = [], _edges = []) {
         letterEl.className = "tree-render-letter";
         letterEl.textContent = point.letter;
         letterEl.title = title;
+        letterEl.style.color = color;
 
         const letter = new CSS2DObject(letterEl);
         letter.position.copy(point.point);

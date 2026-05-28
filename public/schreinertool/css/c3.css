@@ -146,6 +146,62 @@ html, body {
     pointer-events: none;
 }
 
+.tree-view-3d-label,
+.tree-view-3d-dim-label {
+    font: 700 13px monospace;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.tree-view-3d-dim-label {
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.82);
+    border: 1px solid currentColor;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.75);
+}
+
+.tree-dim-key {
+    display: grid;
+    gap: 6px;
+    padding: 10px;
+    border-radius: 8px;
+    background: #000;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+.tree-dim-key-title {
+    font: 700 13px monospace;
+    color: #fff;
+}
+
+.tree-dim-key-row {
+    display: grid;
+    grid-template-columns: minmax(58px, auto) 34px 1fr;
+    gap: 8px;
+    align-items: center;
+    font: 700 13px monospace;
+}
+
+.tree-dim-key-points {
+    white-space: nowrap;
+}
+
+.tree-dim-key-separator,
+.tree-dim-key-axis {
+    color: rgba(255,255,255,0.68);
+}
+
+.tree-dim-key-value {
+    font-size: 15px;
+}
+
+.tree-dim-key-empty {
+    color: rgba(255,255,255,0.68);
+    font: 700 13px monospace;
+}
+
 .tree-point-chip {
     display: inline-block;
     width: 12px;
@@ -226,7 +282,7 @@ html, body {
     top: 0;
     width: 2px;
     height: 18px;
-    background: var(--text-main);
+    background: var(--tree-point-color, var(--text-main));
     transform-origin: center;
 }
 

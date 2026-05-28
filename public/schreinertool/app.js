@@ -1926,6 +1926,24 @@ function renderTreeTables(renderPoints) {
       `;
       }).join("")
     : `<tr><td colspan="5">keine Punkte</td></tr>`;
+  const dimKeyRows = distances.length
+    ? distances.map(d => {
+        const fromColor = getTreeColor(d.from);
+        const toColor = getTreeColor(d.to);
+        const value = treeFmtMm(d.value);
+        return `
+          <div class="tree-dim-key-row">
+            <span class="tree-dim-key-points">
+              <span style="color:${fromColor}">${d.from}</span>
+              <span class="tree-dim-key-separator">-</span>
+              <span style="color:${toColor}">${d.to}</span>
+            </span>
+            <span class="tree-dim-key-axis">${d.axis}</span>
+            <span class="tree-dim-key-value" style="color:${fromColor}">${value}</span>
+          </div>
+        `;
+      }).join("")
+    : `<div class="tree-dim-key-empty">keine Maße gefunden</div>`;
   const edges = getTreeEdges(renderPoints);
   const showDimView = treeViewMode === "dim";
 
@@ -1937,6 +1955,12 @@ function renderTreeTables(renderPoints) {
       </div>
       ` : ""}
       <div class="tree-data-panels">
+        ${showDimView ? `
+        <div class="tree-dim-key">
+          <div class="tree-dim-key-title">Maße</div>
+          ${dimKeyRows}
+        </div>
+        ` : ""}
         <table class="tree-distance-table">
           <thead>
             <tr><th>Von</th><th>Bis</th><th>X</th><th>Y</th></tr>

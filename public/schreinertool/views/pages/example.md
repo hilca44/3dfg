@@ -9,7 +9,7 @@
 
 [Tisch](https://3dfg.de/app.html?tisch=mat.19%2Cwhite%2C8%7Emat.19%2Cgray%2C11%7Emat.19%2Csilver%2C25%7E-t%7E-o%7E-e--t%7Eteil.de%2Csl%2Csr%2Crw%7E120%2C80%2C72%7Ede.push.-1r%2C-1l%7Ede.tief.64%2C-2%2C1%7Esl%2Csr.push.8v%7Erw.push.-30u%7Erw.y.%2B-11%7Erw.mat.2%7E%23tisch)
 
-[runde Theke](app.html?test=test_S_m19btf14%2C1_S_m16ble16_S_m19grb18_N_a_S_pftglrbc_S_60%2C35%2C72_S_mf_S_mt3_S_hb40_N_ba_S_c_S_n15_S_o_P_20_S_u8g_S_pl-)
+[runde Theke](https://3dfg.de/app.html?test=mat.19%2Cwheat%2C14%2C1%7Emat.16%2Ccornflowerblue%2C16%7Emat.19%2Cgray%2C18--a%7Eteil.fr%2Cde%2Cbo%2Csl%2Csr%2Crw%2Ceb%7E60%2C35%2C72%7Efr.mat.2%7Ede.mat.3%7Erw.hoch.40--a1%7Edock.r%7Ereihe.x.15%7Edre.z.%2B20%7Esoc.8)
 
 ## Variable Möbel
 [Schrankwand variabel](https://3dfg.de/app.html?schrankwand_variabel=Breit.300%7EHoch.190%7EAnz%3Dfloor%28Breit%2F50%29%7EF%3D%28Breit%2FAnz%29%7Emat.19%2Cwh%2Cf%2C14%2C1%7Emat.16%2Cbl%2Ce%2C16%7ER%3D%28%28Hoch-1.9-8%29%2Fr%28Hoch%2F33%29%29--a%7Eteil.fr%2Csl%2Csr%2Cbo%2Cde%2Crw%2Ceb%7Ebreit.F%7Ereihe.x.Anz%7Ehoch.Hoch%7Epush.8us%7Eeb.cut.z.r%28Hoch%2F33%29%7Eeb.z.%28R%2B8%29%7Efr.hoch.-%282*R%29%2C%282*R%29%7Efr.mat.2)

@@ -1366,60 +1366,65 @@ async function convertInnTextToModern() {
 const TUTOR_AUTOPLAY_STEPS = [
   {
     text: "tutordemo\na",
-    pause: 1600
-  },
-  {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na",
-    pause: 2000
-  },
-  {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na breit.60",
-    pause: 1800
-  },
-  {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na breit.60 tief.55 hoch.72",
     pause: 2200
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72",
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na",
+    pause: 2600
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na breit.60",
     pause: 2400
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1",
-    pause: 2600
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na breit.60 tief.55 hoch.72",
+    pause: 3000
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2",
-    pause: 2400
-  },
-  {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4",
-    pause: 2600
-  },
-  {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8",
-    pause: 2600
-  },
-  {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.12,4",
-    pause: 2800
-  },
-  {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4",
-    pause: 2800
-  },
-  {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4\nb teil.sl,sr,bo,de,rw,eb,fr breit.40 tief.55 hoch.72 dock.a,,0_b,,1",
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72",
     pause: 3200
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,eb,fr breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4\nb teil.sl,sr,bo,de,rw,eb,fr breit.40 tief.55 hoch.72 dock.a,,0_b,,1 reihe.x.3,55r",
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1",
+    pause: 3400
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2",
+    pause: 3200
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4",
+    pause: 3400
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8",
+    pause: 3400
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.12,4",
     pause: 3600
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4",
+    pause: 3600
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4\nb teil.sl,sr,bo,de,rw,fr,eb breit.40 tief.55 hoch.72 dock.r",
+    pause: 4200
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4\nb teil.sl,sr,bo,de,rw,fr,eb breit.40 tief.55 hoch.72 dock.r\nc teil.sl,sr,bo,de,rw,fr,eb breit.40 tief.55 hoch.40 dock.o",
+    pause: 4600
+  },
+  {
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4\nb teil.sl,sr,bo,de,rw,fr,eb breit.40 tief.55 hoch.72 dock.r reihe.x.3,55r\nc teil.sl,sr,bo,de,rw,fr,eb breit.40 tief.55 hoch.40 dock.o",
+    pause: 5000
   }
 ];
 
-const TUTOR_TYPE_DELAY = 70;
-const TUTOR_DELETE_DELAY = 35;
+const TUTOR_TYPE_DELAY = 105;
+const TUTOR_DELETE_DELAY = 55;
+const TUTOR_RELOAD_KEY_DELAY = 1200;
 let tutorAutoplayRun = null;
 
 function sleep(ms) {
@@ -1437,12 +1442,49 @@ function setTutorStatus(text) {
   }
 }
 
+function tutorKeyLabel(value) {
+  if (value === " ") return "Leertaste";
+  if (value === "\n") return "Enter";
+  if (value === "\t") return "Tab";
+  return value;
+}
+
+function tutorKeyDisplay() {
+  let box = document.getElementById("tutorKeyDisplay");
+  if (box) return box;
+
+  box = document.createElement("div");
+  box.id = "tutorKeyDisplay";
+  box.className = "tutor-key-display";
+  box.innerHTML = '<span class="tutor-key-caption"></span><kbd></kbd>';
+  document.body.appendChild(box);
+  return box;
+}
+
+function showTutorKey(label, caption = "Taste", important = false) {
+  const box = tutorKeyDisplay();
+  box.querySelector(".tutor-key-caption").textContent = caption;
+  box.querySelector("kbd").textContent = label;
+  box.classList.toggle("is-important", important);
+  box.classList.add("is-visible", "is-pressed");
+  clearTimeout(showTutorKey.timer);
+  showTutorKey.timer = setTimeout(() => box.classList.remove("is-pressed"), 180);
+}
+
+function hideTutorKey() {
+  const box = document.getElementById("tutorKeyDisplay");
+  if (!box) return;
+  clearTimeout(showTutorKey.timer);
+  box.classList.remove("is-visible", "is-pressed", "is-important");
+}
+
 async function typeTutorText(ta, from, to, run) {
   let value = from;
   const target = String(to || "");
 
   while (value.length > target.length || !target.startsWith(value)) {
     if (run.cancelled) return false;
+    showTutorKey("Backspace", "Taste");
     value = value.slice(0, -1);
     ta.value = value;
     window.syncInnEditorFromTextarea?.();
@@ -1451,6 +1493,7 @@ async function typeTutorText(ta, from, to, run) {
 
   for (let i = value.length; i < target.length; i++) {
     if (run.cancelled) return false;
+    showTutorKey(tutorKeyLabel(target[i]), "Taste");
     value += target[i];
     ta.value = value;
     window.syncInnEditorFromTextarea?.();
@@ -1477,6 +1520,11 @@ async function runTutorAutoplay(run) {
     const typed = await typeTutorText(ta, ta.value, step.text, run);
     if (!typed || run.cancelled) return;
 
+    setTutorStatus("Tutor: rechte Strg druecken zum Aktualisieren");
+    showTutorKey("rechte Strg", "Aktualisieren", true);
+    await sleep(TUTOR_RELOAD_KEY_DELAY);
+    if (run.cancelled) return;
+
     const ok = await applyInnTextChanges();
     if (!ok || run.cancelled) return;
 
@@ -1486,6 +1534,7 @@ async function runTutorAutoplay(run) {
   recordReloadHistory();
   setTutorStatus("Tutor: fertig");
   await sleep(900);
+  hideTutorKey();
 }
 
 function stopTutorAutoplay() {
@@ -1493,6 +1542,7 @@ function stopTutorAutoplay() {
   tutorAutoplayRun.cancelled = true;
   tutorAutoplayRun = null;
   setTutorStatus("");
+  hideTutorKey();
   return true;
 }
 
@@ -1511,6 +1561,7 @@ function toggleTutorAutoplay() {
       if (tutorAutoplayRun === run) {
         tutorAutoplayRun = null;
         setTutorStatus("");
+        hideTutorKey();
       }
     });
 }

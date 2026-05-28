@@ -1373,58 +1373,49 @@ const TUTOR_AUTOPLAY_STEPS = [
     pause: 2600
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na breit.60",
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na breit.96",
     pause: 2400
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na breit.60 tief.55 hoch.72",
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na breit.96 tief.42 hoch.128",
     pause: 3000
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72",
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.96 tief.42 hoch.128",
     pause: 3200
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1",
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.96 tief.42 hoch.128 fr.cut.z.4,1",
     pause: 3400
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2",
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.96 tief.42 hoch.128 fr.cut.z.4,1 fr.mat.2",
     pause: 3200
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4",
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.96 tief.42 hoch.128 fr.cut.z.4,1 fr.mat.2 fr.push.0.4",
     pause: 3400
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8",
-    pause: 3400
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.96 tief.42 hoch.128 fr.cut.z.4,1 fr.mat.2 fr.push.0.4 soc.10 leg.18,4",
+    pause: 3800
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.12,4",
-    pause: 3600
-  },
-  {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4",
-    pause: 3600
-  },
-  {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4\nb teil.sl,sr,bo,de,rw,fr,eb breit.40 tief.55 hoch.72 dock.r",
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.96 tief.42 hoch.128 fr.cut.z.4,1 fr.mat.2 fr.push.0.4 soc.10 leg.18,4\nb teil.sl,sr,bo,de,rw,fr,eb breit.54 tief.68 hoch.88 dock.r",
     pause: 4200
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4\nb teil.sl,sr,bo,de,rw,fr,eb breit.40 tief.55 hoch.72 dock.r\nc teil.sl,sr,bo,de,rw,fr,eb breit.40 tief.55 hoch.40 dock.o",
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.96 tief.42 hoch.128 fr.cut.z.4,1 fr.mat.2 fr.push.0.4 soc.10 leg.18,4\nb teil.sl,sr,bo,de,rw,fr,eb breit.54 tief.68 hoch.88 dock.r\nc teil.sl,sr,bo,de,rw,fr,eb breit.120 tief.34 hoch.46 dock.o",
     pause: 4600
   },
   {
-    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.60 tief.55 hoch.72 fr.cut.z.3,1 fr.mat.2 fr.push.0.4 soc.8 leg.18,4\nb teil.sl,sr,bo,de,rw,fr,eb breit.40 tief.55 hoch.72 dock.r reihe.x.3,55r\nc teil.sl,sr,bo,de,rw,fr,eb breit.40 tief.55 hoch.40 dock.o",
+    text: "tutordemo mat.19,snow,14,1 mat.16,cornflowerblue,16\na teil.sl,sr,bo,de,rw,fr,eb breit.96 tief.42 hoch.128 fr.cut.z.4,1 fr.mat.2 fr.push.0.4 soc.10 leg.18,4\nb teil.sl,sr,bo,de,rw,fr,eb breit.54 tief.68 hoch.88 dock.r reihe.x.4,62r\nc teil.sl,sr,bo,de,rw,fr,eb breit.120 tief.34 hoch.46 dock.o\nd teil.sl,sr,bo,de,rw,fr breit.140 tief.30 hoch.34 dock.l soc.6 leg.12,6\ne teil.sl,sr,bo,de,rw,fr,eb breit.44 tief.44 hoch.160 dock.r",
     pause: 5000
   }
 ];
 
-const TUTOR_TYPE_DELAY = 105;
-const TUTOR_DELETE_DELAY = 55;
-const TUTOR_RELOAD_KEY_DELAY = 1200;
+const TUTOR_BLOCK_DELAY = 2000;
+const TUTOR_RELOAD_KEY_DELAY = 2000;
 let tutorAutoplayRun = null;
 
 function sleep(ms) {
@@ -1440,13 +1431,6 @@ function setTutorStatus(text) {
   } else {
     updateToolbarStatus();
   }
-}
-
-function tutorKeyLabel(value) {
-  if (value === " ") return "Leertaste";
-  if (value === "\n") return "Enter";
-  if (value === "\t") return "Tab";
-  return value;
 }
 
 function tutorKeyDisplay() {
@@ -1478,29 +1462,15 @@ function hideTutorKey() {
   box.classList.remove("is-visible", "is-pressed", "is-important");
 }
 
-async function typeTutorText(ta, from, to, run) {
-  let value = from;
-  const target = String(to || "");
+async function showTutorBlock(ta, text, run) {
+  if (run.cancelled) return false;
 
-  while (value.length > target.length || !target.startsWith(value)) {
-    if (run.cancelled) return false;
-    showTutorKey("Backspace", "Taste");
-    value = value.slice(0, -1);
-    ta.value = value;
-    window.syncInnEditorFromTextarea?.();
-    await sleep(TUTOR_DELETE_DELAY);
-  }
+  ta.value = String(text || "");
+  window.syncInnEditorFromTextarea?.();
+  showTutorKey("Block", "Eingabe");
+  await sleep(TUTOR_BLOCK_DELAY);
 
-  for (let i = value.length; i < target.length; i++) {
-    if (run.cancelled) return false;
-    showTutorKey(tutorKeyLabel(target[i]), "Taste");
-    value += target[i];
-    ta.value = value;
-    window.syncInnEditorFromTextarea?.();
-    await sleep(target[i] === "\n" ? TUTOR_TYPE_DELAY * 5 : TUTOR_TYPE_DELAY);
-  }
-
-  return true;
+  return !run.cancelled;
 }
 
 async function runTutorAutoplay(run) {
@@ -1517,8 +1487,8 @@ async function runTutorAutoplay(run) {
     const step = TUTOR_AUTOPLAY_STEPS[index];
     setTutorStatus(`Tutor: Schritt ${index + 1}/${TUTOR_AUTOPLAY_STEPS.length}`);
 
-    const typed = await typeTutorText(ta, ta.value, step.text, run);
-    if (!typed || run.cancelled) return;
+    const shown = await showTutorBlock(ta, step.text, run);
+    if (!shown || run.cancelled) return;
 
     setTutorStatus("Tutor: rechte Strg druecken zum Aktualisieren");
     showTutorKey("rechte Strg", "Aktualisieren", true);

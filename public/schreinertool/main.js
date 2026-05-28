@@ -2738,6 +2738,13 @@ function applyTreeRenderPartColors() {
 
         if (!treeRenderColoredParts.has(obj)) {
             ensureTreeRenderSavedPart(obj);
+            if (obj.material?.clone) obj.material = obj.material.clone();
+        }
+        if (obj.material) {
+            obj.material.wireframe = true;
+            obj.material.transparent = false;
+            obj.material.opacity = 1;
+            if (obj.material.color) obj.material.color.set(color);
         }
         const edgeChildren = obj.isLineSegments ? [obj] : obj.children.filter(child => child.isLineSegments);
         for (const edge of edgeChildren) {
@@ -3013,6 +3020,7 @@ function addTreeRenderPartEdgeLabel(obj, color, valueCm, localPosition, axis) {
     labelText.className = axis === "z"
         ? "tree-render-dim-text tree-render-dim-text-vertical"
         : "tree-render-dim-text";
+    labelText.style.color = color;
     labelText.textContent = `${treeView3DNumber(valueCm)} mm`;
     labelEl.appendChild(labelText);
 

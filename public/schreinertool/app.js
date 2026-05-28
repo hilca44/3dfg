@@ -362,7 +362,6 @@ tree: {
     { label: "X", action: () => setTreeViewDirection("x") },
     { label: "Y", action: () => setTreeViewDirection("y") },
     { label: "Z", action: () => setTreeViewDirection("z") },
-    { label: "Maße", action: () => setTreeViewMode("dim") },
     { label: "reload (rctrl)", action: renderKorpusTreeView }
   ]
 },
@@ -1686,6 +1685,7 @@ function topToolbarButtons() {
     { label: "☰", action: toggleHelpMenu },
     { labelKey: "ui.share", label: "📤 Teilen", titleKey: "ui.shareTooltip", title: "Projekt-Link per E-Mail senden", action: shareProjectByMail },
     { label: "Hilfe", labelKey: "ui.help", action: toggleQuickHelpOverlay },
+    { label: "Ansicht", action: () => window.cycleEditorViewMode?.() },
     { label: "Baum", label: "Baum", to: "tree" },
     { label: "Holz", label: "Holz", to: "wood" }
   ];

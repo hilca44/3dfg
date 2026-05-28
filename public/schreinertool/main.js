@@ -617,6 +617,7 @@ let treeRenderOverlay = null;
 let treeRenderDirection = "z";
 let treeRenderColoredParts = new Map();
 let treeRenderSavedBackground = null;
+let editorViewMode = "normal";
 
 function getRenderSquareSize() {
     const host = document.getElementById("slot1") || container;
@@ -2692,6 +2693,17 @@ function restoreTreeRenderPartColors() {
     }
 }
 
+function ensureTreeRenderSavedPart(obj) {
+    if (treeRenderColoredParts.has(obj)) return treeRenderColoredParts.get(obj);
+    const edgeChildren = obj.isLineSegments ? [obj] : obj.children.filter(child => child.isLineSegments);
+    const saved = {
+        material: obj.material,
+        edges: edgeChildren.map(edge => ({ object: edge, material: edge.material }))
+    };
+    treeRenderColoredParts.set(obj, saved);
+    return saved;
+}
+
 function updateTreePointColorMap(useDistinctPartColors = false) {
     treeViewPointColors.clear();
     const map = new Map();
@@ -2725,11 +2737,7 @@ function applyTreeRenderPartColors() {
         treeViewPointColors.set(key, color);
 
         if (!treeRenderColoredParts.has(obj)) {
-            const edgeChildren = obj.isLineSegments ? [obj] : obj.children.filter(child => child.isLineSegments);
-            treeRenderColoredParts.set(obj, {
-                material: obj.material,
-                edges: edgeChildren.map(edge => ({ object: edge, material: edge.material }))
-            });
+            ensureTreeRenderSavedPart(obj);
             if (obj.material?.clone) obj.material = obj.material.clone();
         }
         if (obj.material?.color) obj.material.color.set(color);
@@ -2746,6 +2754,21 @@ function applyTreeRenderPartColors() {
                 edge.material.depthTest = false;
             }
             edge.renderOrder = 1000;
+        }
+    });
+}
+
+function applyEditorWireframeView() {
+    modelGroup?.traverse(obj => {
+        if (obj.userData?.type !== "part") return;
+        ensureTreeRenderSavedPart(obj);
+        if (obj.material?.clone && obj.material === treeRenderColoredParts.get(obj)?.material) {
+            obj.material = obj.material.clone();
+        }
+        if (obj.material) {
+            obj.material.wireframe = true;
+            obj.material.transparent = true;
+            obj.material.opacity = 0.35;
         }
     });
 }
@@ -3171,6 +3194,7 @@ function setTreeOrthographicCamera(direction = treeRenderDirection) {
 
 function restoreKorpusPerspectiveRender() {
     clearKorpusTreeRender();
+    editorViewMode = "normal";
     if (!scene || !modelGroup || !renderer?.domElement) return;
 
     const box = new THREE.Box3().setFromObject(modelGroup);
@@ -3187,6 +3211,41 @@ function restoreKorpusPerspectiveRender() {
     controls.enableRotate = true;
 
     fitCameraToObject(modelGroup);
+}
+
+function setEditorViewMode(mode = "normal") {
+    const nextMode = ["normal", "wireframe", "measure"].includes(mode) ? mode : "normal";
+    clearKorpusTreeRender();
+    editorViewMode = nextMode;
+
+    if (!scene || !modelGroup) return editorViewMode;
+
+    if (nextMode === "wireframe") {
+        applyEditorWireframeView();
+    }
+
+    if (nextMode === "measure") {
+        if (treeRenderSavedBackground === null) treeRenderSavedBackground = scene.background;
+        scene.background = new THREE.Color("#000000");
+        updateTreePointColorMap(true);
+        applyTreeRenderPartColors();
+
+        treeRenderOverlay = new THREE.Group();
+        treeRenderOverlay.name = "editorMeasureOverlay";
+        scene.add(treeRenderOverlay);
+        addTreeRenderDimensions();
+    }
+
+    renderer?.render?.(scene, camera);
+    labelRenderer?.render?.(scene, camera);
+    return editorViewMode;
+}
+
+function cycleEditorViewMode() {
+    const order = ["normal", "wireframe", "measure"];
+    const currentIndex = order.indexOf(editorViewMode);
+    const nextMode = order[(currentIndex + 1) % order.length];
+    return setEditorViewMode(nextMode);
 }
 
 function showKorpusTreeRender(_groups = [], _edges = [], options = {}) {
@@ -3263,6 +3322,8 @@ window.setKorpusTreeViewDirection = setKorpusTreeViewDirection;
 window.renderKorpusTree3DView = renderKorpusTree3DView;
 window.getTreePointColor = getTreePointColor;
 window.restoreKorpusPerspectiveRender = restoreKorpusPerspectiveRender;
+window.setEditorViewMode = setEditorViewMode;
+window.cycleEditorViewMode = cycleEditorViewMode;
 window.filterKorpusTreeLetters = function (letters) {
     if (!treeRenderOverlay) return;
 

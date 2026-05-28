@@ -3012,40 +3012,63 @@ function addTreeRenderPartEdgeLabel(obj, color, valueCm, localPosition, axis) {
 }
 
 function addTreeRenderDimensions() {
+    const seenKorpusDims = new Map();
+
+    function shouldRenderKorpusDim(korpusName, axis, valueCm) {
+        const value = Math.round(Number(valueCm) * 10);
+        if (!Number.isFinite(value) || value <= 0) return false;
+        const key = `${axis}:${value}`;
+        if (!seenKorpusDims.has(korpusName)) seenKorpusDims.set(korpusName, new Set());
+        const seen = seenKorpusDims.get(korpusName);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    }
+
     modelGroup?.traverse(obj => {
         if (obj.userData?.type !== "part") return;
         const partData = obj.userData?.partData || {};
-        if (!partData.dim) return;
+        const korpusData = window.PR?.oks?.[obj.userData?.korpusName] || {};
+        const explicitPartDim = Boolean(partData.dim);
+        const inheritedKorpusDim = !explicitPartDim && Boolean(korpusData.dim);
+        if (!explicitPartDim && !inheritedKorpusDim) return;
         const bb = obj.userData.localBB;
         if (!bb) return;
 
         const key = treeRenderPartKey(obj);
+        const korpusName = obj.userData?.korpusName || "?";
         const color = getTreePointColorByPart(key) || "#ffffff";
         const w = bb.max.x - bb.min.x;
         const d = bb.max.y - bb.min.y;
         const h = bb.max.z - bb.min.z;
 
-        addTreeRenderPartEdgeLabel(
-            obj,
-            color,
-            w,
-            new THREE.Vector3((bb.min.x + bb.max.x) * 0.5, bb.min.y, bb.min.z),
-            "x"
-        );
-        addTreeRenderPartEdgeLabel(
-            obj,
-            color,
-            d,
-            new THREE.Vector3(bb.min.x, (bb.min.y + bb.max.y) * 0.5, bb.min.z),
-            "y"
-        );
-        addTreeRenderPartEdgeLabel(
-            obj,
-            color,
-            h,
-            new THREE.Vector3(bb.min.x, bb.min.y, (bb.min.z + bb.max.z) * 0.5),
-            "z"
-        );
+        if (explicitPartDim || shouldRenderKorpusDim(korpusName, "x", w)) {
+            addTreeRenderPartEdgeLabel(
+                obj,
+                color,
+                w,
+                new THREE.Vector3((bb.min.x + bb.max.x) * 0.5, bb.min.y, bb.min.z),
+                "x"
+            );
+        }
+        if (explicitPartDim || shouldRenderKorpusDim(korpusName, "y", d)) {
+            addTreeRenderPartEdgeLabel(
+                obj,
+                color,
+                d,
+                new THREE.Vector3(bb.min.x, (bb.min.y + bb.max.y) * 0.5, bb.min.z),
+                "y"
+            );
+        }
+        if (explicitPartDim || shouldRenderKorpusDim(korpusName, "z", h)) {
+            addTreeRenderPartEdgeLabel(
+                obj,
+                color,
+                h,
+                new THREE.Vector3(bb.min.x, bb.min.y, (bb.min.z + bb.max.z) * 0.5),
+                "z"
+            );
+        }
     });
 }
 

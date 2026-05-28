@@ -2684,13 +2684,22 @@ function restoreTreeRenderPartColors() {
 
 function ensureTreeRenderSavedPart(obj) {
     if (treeRenderColoredParts.has(obj)) return treeRenderColoredParts.get(obj);
-    const edgeChildren = obj.isLineSegments ? [obj] : obj.children.filter(child => child.isLineSegments);
+    const edgeChildren = treeRenderEdgeObjects(obj);
     const saved = {
         material: obj.material,
         edges: edgeChildren.map(edge => ({ object: edge, material: edge.material }))
     };
     treeRenderColoredParts.set(obj, saved);
     return saved;
+}
+
+function treeRenderEdgeObjects(obj) {
+    const edges = [];
+    if (obj?.isLineSegments) edges.push(obj);
+    obj?.traverse?.(child => {
+        if (child !== obj && child.isLineSegments) edges.push(child);
+    });
+    return edges;
 }
 
 function updateTreePointColorMap(useDistinctPartColors = false) {
@@ -2737,18 +2746,22 @@ function applyTreeRenderPartColors(options = {}) {
             obj.material.opacity = 1;
             if (obj.material.color) obj.material.color.set(color);
         }
-        const edgeChildren = obj.isLineSegments ? [obj] : obj.children.filter(child => child.isLineSegments);
+        const edgeChildren = treeRenderEdgeObjects(obj);
         for (const edge of edgeChildren) {
-            if (edge.material?.clone && !edge.userData.treeRenderEdgeMaterial) {
-                edge.material = edge.material.clone();
+            if (!edge.userData.treeRenderEdgeMaterial) {
+                edge.material = new THREE.LineBasicMaterial({
+                    color,
+                    transparent: false,
+                    opacity: 1,
+                    depthTest: false,
+                    depthWrite: false
+                });
                 edge.userData.treeRenderEdgeMaterial = true;
+            } else if (edge.material?.color) {
+                edge.material.color.set(color);
             }
-            if (edge.material?.color) edge.material.color.set(color);
-            if (edge.material) {
-                edge.material.transparent = false;
-                edge.material.opacity = 1;
-                edge.material.depthTest = false;
-            }
+            if (edge.material) edge.material.needsUpdate = true;
+            edge.visible = true;
             edge.renderOrder = 1000;
         }
     });

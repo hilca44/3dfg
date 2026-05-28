@@ -1897,6 +1897,8 @@ function renderKorpusTreeView() {
 function renderTreeTables(renderPoints) {
   const host = document.getElementById("treeView");
   if (!host) return;
+  const showDimView = treeViewMode === "dim";
+  host.classList.toggle("tree-dim-mode", showDimView);
   const distances = getTreeAlignedDistances(renderPoints);
   const usedLetters = new Set(distances.flatMap(d => [d.from, d.to]));
   window.filterKorpusTreeLetters?.([...usedLetters]);
@@ -1947,7 +1949,6 @@ function renderTreeTables(renderPoints) {
       }).join("")
     : `<div class="tree-dim-key-empty">keine Maße gefunden</div>`;
   const edges = getTreeEdges(renderPoints);
-  const showDimView = treeViewMode === "dim";
 
   host.innerHTML = `
     <div class="tree-panel">

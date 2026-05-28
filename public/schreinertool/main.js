@@ -616,6 +616,7 @@ let projectSummaryPanel = null;
 let treeRenderOverlay = null;
 let treeRenderDirection = "z";
 let treeRenderColoredParts = new Map();
+let treeRenderSavedBackground = null;
 
 function getRenderSquareSize() {
     const host = document.getElementById("slot1") || container;
@@ -2677,8 +2678,18 @@ function restoreTreeRenderPartColors() {
         } else if (obj.material?.color && saved.color) {
             obj.material.color.copy(saved.color);
         }
+        for (const edge of saved.edges || []) {
+            if (edge?.object && edge.material) {
+                edge.object.material = edge.material;
+                edge.object.userData.treeRenderEdgeMaterial = false;
+            }
+        }
     });
     treeRenderColoredParts = new Map();
+    if (scene && treeRenderSavedBackground !== null) {
+        scene.background = treeRenderSavedBackground;
+        treeRenderSavedBackground = null;
+    }
 }
 
 function updateTreePointColorMap(useDistinctPartColors = false) {
@@ -2714,10 +2725,28 @@ function applyTreeRenderPartColors() {
         treeViewPointColors.set(key, color);
 
         if (!treeRenderColoredParts.has(obj)) {
-            treeRenderColoredParts.set(obj, { material: obj.material });
+            const edgeChildren = obj.isLineSegments ? [obj] : obj.children.filter(child => child.isLineSegments);
+            treeRenderColoredParts.set(obj, {
+                material: obj.material,
+                edges: edgeChildren.map(edge => ({ object: edge, material: edge.material }))
+            });
             if (obj.material?.clone) obj.material = obj.material.clone();
         }
         if (obj.material?.color) obj.material.color.set(color);
+        const edgeChildren = obj.isLineSegments ? [obj] : obj.children.filter(child => child.isLineSegments);
+        for (const edge of edgeChildren) {
+            if (edge.material?.clone && !edge.userData.treeRenderEdgeMaterial) {
+                edge.material = edge.material.clone();
+                edge.userData.treeRenderEdgeMaterial = true;
+            }
+            if (edge.material?.color) edge.material.color.set(color);
+            if (edge.material) {
+                edge.material.transparent = false;
+                edge.material.opacity = 1;
+                edge.material.depthTest = false;
+            }
+            edge.renderOrder = 1000;
+        }
     });
 }
 
@@ -2952,40 +2981,62 @@ function collectTreeRenderDimensions(points) {
     return dimensions;
 }
 
-function addTreeRenderDimensions(points) {
-    const dimensions = collectTreeRenderDimensions(points);
+function addTreeRenderPartEdgeLabel(obj, color, valueCm, localPosition, axis) {
+    if (!treeRenderOverlay || !Number.isFinite(valueCm) || valueCm <= 0) return;
 
-    for (const dim of dimensions) {
-        const partName = dim.from.items?.[0]?.nme?.split(".").slice(0, 2).join(".");
-        const color = getTreePointColorByPart(partName) || getTreePointColor(dim.from.letter);
-        const offset = treeRenderAxisVector(dim.perpendicular).multiplyScalar(dim.orientation === "horizontal" ? 7 : -7);
-        const from = dim.from.point.clone().add(offset);
-        const to = dim.to.point.clone().add(offset);
-        const lineGeo = new THREE.BufferGeometry().setFromPoints([from, to]);
-        const lineMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.95 });
-        lineMat.depthTest = false;
-        const line = new THREE.Line(lineGeo, lineMat);
-        line.renderOrder = 999;
-        line.userData.treeLetters = [dim.from.letter, dim.to.letter];
-        treeRenderOverlay.add(line);
+    const labelEl = document.createElement("div");
+    labelEl.className = "tree-render-dim-label";
+    labelEl.style.color = color;
 
-        const labelEl = document.createElement("div");
-        labelEl.className = "tree-render-dim-label";
-        labelEl.style.color = color;
-        labelEl.title = `${dim.from.letter}-${dim.to.letter}`;
+    const labelText = document.createElement("span");
+    labelText.className = axis === "z"
+        ? "tree-render-dim-text tree-render-dim-text-vertical"
+        : "tree-render-dim-text";
+    labelText.textContent = `${treeView3DNumber(valueCm)} mm`;
+    labelEl.appendChild(labelText);
 
-        const labelText = document.createElement("span");
-        labelText.className = dim.orientation === "vertical"
-            ? "tree-render-dim-text tree-render-dim-text-vertical"
-            : "tree-render-dim-text";
-        labelText.textContent = treeView3DNumber(dim.value);
-        labelEl.appendChild(labelText);
+    obj.updateWorldMatrix(true, false);
+    const worldPosition = obj.localToWorld(localPosition.clone());
+    const label = new CSS2DObject(labelEl);
+    label.position.copy(worldPosition);
+    label.userData.treePartKey = treeRenderPartKey(obj);
+    treeRenderOverlay.add(label);
+}
 
-        const label = new CSS2DObject(labelEl);
-        label.position.copy(from).add(to).multiplyScalar(0.5);
-        label.userData.treeLetters = [dim.from.letter, dim.to.letter];
-        treeRenderOverlay.add(label);
-    }
+function addTreeRenderDimensions() {
+    modelGroup?.traverse(obj => {
+        if (obj.userData?.type !== "part") return;
+        const bb = obj.userData.localBB;
+        if (!bb) return;
+
+        const key = treeRenderPartKey(obj);
+        const color = getTreePointColorByPart(key) || "#ffffff";
+        const w = bb.max.x - bb.min.x;
+        const d = bb.max.y - bb.min.y;
+        const h = bb.max.z - bb.min.z;
+
+        addTreeRenderPartEdgeLabel(
+            obj,
+            color,
+            w,
+            new THREE.Vector3((bb.min.x + bb.max.x) * 0.5, bb.min.y, bb.min.z),
+            "x"
+        );
+        addTreeRenderPartEdgeLabel(
+            obj,
+            color,
+            d,
+            new THREE.Vector3(bb.min.x, (bb.min.y + bb.max.y) * 0.5, bb.min.z),
+            "y"
+        );
+        addTreeRenderPartEdgeLabel(
+            obj,
+            color,
+            h,
+            new THREE.Vector3(bb.min.x, bb.min.y, (bb.min.z + bb.max.z) * 0.5),
+            "z"
+        );
+    });
 }
 
 function clearKorpusTreeRender() {
@@ -3144,7 +3195,15 @@ function showKorpusTreeRender(_groups = [], _edges = [], options = {}) {
     clearKorpusTreeRender();
     setTreeOrthographicCamera(treeRenderDirection);
     updateTreePointColorMap(Boolean(options.dimensions));
-    if (options.dimensions) applyTreeRenderPartColors();
+    if (options.dimensions) {
+        if (scene && treeRenderSavedBackground === null) treeRenderSavedBackground = scene.background;
+        if (scene) scene.background = new THREE.Color("#000000");
+        if (controls) {
+            controls.enableRotate = true;
+            controls.update();
+        }
+        applyTreeRenderPartColors();
+    }
 
     const points = collectSceneAnchorTreePoints();
     treeRenderOverlay = new THREE.Group();

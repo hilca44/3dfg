@@ -108,6 +108,10 @@ html, body {
     background: var(--card);
 }
 
+#treeView.tree-dim-mode {
+    background: #000;
+}
+
 .tree-panel {
     display: block;
     gap: 12px;
@@ -236,6 +240,11 @@ html, body {
     width: 100%;
     border-collapse: collapse;
     background: var(--white);
+}
+
+.tree-dim-mode .tree-distance-table {
+    background: #000;
+    color: #fff;
 }
 
 .tree-distance-table th,

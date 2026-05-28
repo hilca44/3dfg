@@ -1498,7 +1498,13 @@ cloneChildKorpusse(parentName, newRootName) {
                 return `${path}${op}${parts.join("_")}`;
             }
             const parts = String(raw).split(",");
-            if (parts.length >= 3 && parts[2]) parts[2] = remapName(parts[2]);
+            if (parts.length >= 5) {
+                if (parts[2]) parts[2] = remapName(parts[2]);
+            } else if (parts.length >= 2) {
+                if (parts[0]) parts[0] = remapName(parts[0]);
+            } else if (parts[0] && !/^\d+$/.test(parts[0])) {
+                parts[0] = remapName(parts[0]);
+            }
             return `${path}${op}${parts.join(",")}`;
         }
 

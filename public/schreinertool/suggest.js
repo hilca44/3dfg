@@ -21,7 +21,6 @@ export const baseCommands = [
   ["tief.", "tief.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
   ["hoch.", "hoch.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
   ["anz.", "anz.[zahl]"],
-  ["co.", "co.[farbe]"],
   ["x.", "x.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
   ["y.", "y.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
   ["z.", "z.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],

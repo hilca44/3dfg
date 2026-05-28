@@ -72,8 +72,7 @@ const propertyOptions = [
   ["tiefe.", "tiefe.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
   ["hoch.", "hoch.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
   ["hoehe.", "hoehe.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
-  ["anz.", "anz.[zahl]"],
-  ["co.", "co.[farbe]"]
+  ["anz.", "anz.[zahl]"]
 ];
 
 const defaultParameterOptions = [

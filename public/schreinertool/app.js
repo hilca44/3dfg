@@ -1761,10 +1761,26 @@ function frequentCommandSearchEntries() {
 
 function commandSearchType(label) {
   const key = String(label || "").replace(/[.=].*$/, "");
-  if (["breit", "breite", "tief", "tiefe", "hoch", "hoehe", "x", "y", "z", "anz", "co", "mat", "push"].includes(key)) {
+  if (["breit", "breite", "tief", "tiefe", "hoch", "hoehe", "x", "y", "z", "anz", "mat", "push"].includes(key)) {
     return "Eigenschaft";
   }
   return "Befehl";
+}
+
+function commandSearchAliases(label) {
+  const key = String(label || "").replace(/[.=].*$/, "").toLowerCase();
+  const aliases = {
+    reihe: "kopier kopieren kopie duplizieren vervielfaeltigen mehrfach wiederholen repetition repeat array serie",
+    copy: "kopier kopieren kopie duplizieren vervielfaeltigen mehrfach wiederholen reihe",
+    cut: "schneiden teilen aufteilen saegen schnitt",
+    dre: "drehen rotation rotieren winkel",
+    dock: "andocken verbinden anlegen anschliessen",
+    fit: "anpassen einpassen passend verbinden",
+    push: "schieben einzug ueberstand verkleinern erweitern abstand",
+    mat: "material platte holz staerke farbe preis color"
+  };
+
+  return aliases[key] || "";
 }
 
 function quickHelpSearchEntries() {
@@ -1818,7 +1834,8 @@ function allCommandSearchEntries() {
     detail,
     insert: label,
     type: commandSearchType(label),
-    group: commandSearchType(label) === "Eigenschaft" ? "Eigenschaften" : "Befehle"
+    group: commandSearchType(label) === "Eigenschaft" ? "Eigenschaften" : "Befehle",
+    aliases: commandSearchAliases(label)
   }));
 
   return [
@@ -1849,7 +1866,7 @@ function filterCommandSearchEntries(query) {
   }
 
   return uniqueCommandSearchEntries(allCommandSearchEntries())
-    .filter((entry) => [entry.label, entry.detail, entry.type, entry.group]
+    .filter((entry) => [entry.label, entry.detail, entry.type, entry.group, entry.aliases]
       .join(" ")
       .toLowerCase()
       .includes(value))

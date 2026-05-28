@@ -8,6 +8,9 @@ export const baseCommands = [
   ["rw.", "Rueckwand"],
   ["eb.", "Einlegeboden"],
   ["mw.", "Mittelwand"],
+  ["dim", "Masszahlen fuer dieses Teil anzeigen"],
+  ["rw.dim", "Masszahlen fuer Rueckwand anzeigen"],
+  ["rw,sl.dim", "Masszahlen fuer Rueckwand und linke Seite anzeigen"],
   
   ["teil.", "teil.[sl,sr,bo,de,rw,fr,eb,mw]"],
   ["mat.", "mat.[staerke],[farbe],[preis],[kantenpreis]"],

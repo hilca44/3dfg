@@ -51,6 +51,10 @@ window.C3_INSPECTOR_ALIASES = {
     label: "Material",
     help: "Materialnummer aus der Projektzeile."
   },
+  dim: {
+    label: "DIMM",
+    help: "Masszahlen in der Massansicht fuer dieses Teil anzeigen."
+  },
   s: {
     label: "Staerke",
     help: "Materialstaerke des Teils."

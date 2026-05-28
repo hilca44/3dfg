@@ -4261,6 +4261,8 @@ const QUICK_HELP_ALIASES = [
   ["soc=8", "Sockel/Push 8"],
   ["leg=8", "ein Beinsatz"],
   ["dim", "Masszahlen fuer dieses Teil anzeigen"],
+  ["vi.dim", "Massansicht automatisch aktivieren"],
+  ["vi.wf", "Wireframe-Ansicht"],
   ["rw.dim", "Masszahlen fuer die Rueckwand anzeigen"],
   ["rw,sl.dim", "Masszahlen fuer Rueckwand und linke Seite anzeigen"]
 ];

@@ -857,6 +857,10 @@ function renderTransparencyFromFlags(flags) {
     return null;
 }
 
+function hasDimViewFlag(value) {
+    return renderViewFlags(value).has("dim");
+}
+
 function createMaterialForPart(mat, viewSpec = "") {
     mat = mat || window.PR?.lm?.[1] || { co: "wh", l: "m" };
     const flags = renderViewFlags(viewSpec);
@@ -2537,6 +2541,9 @@ async function renderMainWithDWGs(pr) {
 
     removeAnchorMarkers();
     fitCameraToObject(modelGroup);
+    if (projectHasDimViewFlag(pr) || editorViewMode === "measure") {
+        setEditorViewMode("measure");
+    }
 }
 
 let treeView3DScene = null;
@@ -3013,6 +3020,7 @@ function addTreeRenderPartEdgeLabel(obj, color, valueCm, localPosition, axis) {
 
 function addTreeRenderDimensions() {
     const seenKorpusDims = new Map();
+    const projectDim = projectDefaultHasDimViewFlag(window.PR);
 
     function shouldRenderKorpusDim(korpusName, axis, valueCm) {
         const value = Math.round(Number(valueCm) * 10);
@@ -3029,8 +3037,8 @@ function addTreeRenderDimensions() {
         if (obj.userData?.type !== "part") return;
         const partData = obj.userData?.partData || {};
         const korpusData = window.PR?.oks?.[obj.userData?.korpusName] || {};
-        const explicitPartDim = Boolean(partData.dim);
-        const inheritedKorpusDim = !explicitPartDim && Boolean(korpusData.dim);
+        const explicitPartDim = Boolean(partData.dim || hasDimViewFlag(partData.vi));
+        const inheritedKorpusDim = !explicitPartDim && Boolean(projectDim || korpusData.dim || hasDimViewFlag(korpusData.vi));
         if (!explicitPartDim && !inheritedKorpusDim) return;
         const bb = obj.userData.localBB;
         if (!bb) return;
@@ -3070,6 +3078,25 @@ function addTreeRenderDimensions() {
             );
         }
     });
+}
+
+function projectHasDimViewFlag(pr) {
+    if (projectDefaultHasDimViewFlag(pr)) return true;
+
+    for (const korpus of Object.values(pr?.oks || {})) {
+        if (!korpus || typeof korpus !== "object") continue;
+        if (hasDimViewFlag(korpus.vi)) return true;
+        for (const partName of korpus.jj || []) {
+            if (hasDimViewFlag(korpus[partName]?.vi)) return true;
+        }
+    }
+
+    return false;
+}
+
+function projectDefaultHasDimViewFlag(pr) {
+    if (hasDimViewFlag(pr?.vi)) return true;
+    return (pr?.projectDefaults || []).some(token => /^vi[.:=]dim$/i.test(String(token || "")));
 }
 
 function clearKorpusTreeRender() {

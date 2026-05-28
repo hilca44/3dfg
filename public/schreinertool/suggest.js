@@ -9,6 +9,8 @@ export const baseCommands = [
   ["eb.", "Einlegeboden"],
   ["mw.", "Mittelwand"],
   ["dim", "Masszahlen fuer dieses Teil anzeigen"],
+  ["vi.dim", "Massansicht automatisch aktivieren"],
+  ["vi.wf", "Wireframe-Ansicht"],
   ["rw.dim", "Masszahlen fuer Rueckwand anzeigen"],
   ["rw,sl.dim", "Masszahlen fuer Rueckwand und linke Seite anzeigen"],
   

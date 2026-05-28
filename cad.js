@@ -2135,6 +2135,13 @@ setTokenValue(obj, token){
 	        if (applyUPushSpec(o, v, keys[keys.length - 2])) return;
 	    }
 
+	    if (key === "vi") {
+	        const current = String(o[key] || "").split(/[,\s+]+/).filter(Boolean);
+	        const next = String(v || "").split(/[,\s+]+/).filter(Boolean);
+	        o[key] = [...new Set([...current, ...next])].join(" ");
+	        return;
+	    }
+
 	    if (o === obj && key === "fit") {
 	        this.applyFitSpec(obj, rawValue);
 	        return;

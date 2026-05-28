@@ -109,10 +109,8 @@ html, body {
 }
 
 .tree-panel {
-    display: grid;
+    display: block;
     gap: 12px;
-    grid-template-columns: minmax(320px, 1.2fr) 1fr;
-    align-items: start;
 }
 
 .tree-data-panels {
@@ -291,6 +289,31 @@ html, body {
         1px 0 0 var(--white),
         0 -1px 0 var(--white),
         -1px 0 0 var(--white);
+}
+
+.tree-render-dim-label {
+    color: var(--text-main);
+    font: 800 15px monospace;
+    line-height: 1;
+    pointer-events: none;
+    text-shadow:
+        0 1px 1px #000,
+        1px 0 1px #000,
+        0 -1px 1px #000,
+        -1px 0 1px #000;
+}
+
+.tree-render-dim-text {
+    display: inline-block;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.72);
+    border: 1px solid currentColor;
+}
+
+.tree-render-dim-text-vertical {
+    transform: rotate(-90deg);
+    transform-origin: center;
 }
 
 

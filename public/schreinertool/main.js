@@ -615,6 +615,7 @@ let projectLabel = null;
 let projectSummaryPanel = null;
 let treeRenderOverlay = null;
 let treeRenderDirection = "z";
+let treeRenderColoredParts = new Map();
 
 function getRenderSquareSize() {
     const host = document.getElementById("slot1") || container;
@@ -2649,6 +2650,17 @@ function getTreePointColorByPart(partName) {
     return treeViewPointColors.get(partName) || "#ffffff";
 }
 
+function treeRenderPartKey(obj) {
+    return `${obj.userData?.korpusName || "?"}.${obj.userData?.partName || "?"}`;
+}
+
+function treeRenderDistinctColor(index) {
+    const color = new THREE.Color();
+    const hue = (index * 0.61803398875) % 1;
+    color.setHSL(hue, 0.78, 0.58);
+    return `#${color.getHexString()}`;
+}
+
 function getTreePointColor(letter) {
     const entry = treeViewPointColors.get(letter);
     if (entry) return entry;
@@ -2657,19 +2669,56 @@ function getTreePointColor(letter) {
     return palette[index % palette.length];
 }
 
-function updateTreePointColorMap() {
+function restoreTreeRenderPartColors() {
+    treeRenderColoredParts.forEach((saved, obj) => {
+        if (!obj) return;
+        if (saved.material) {
+            obj.material = saved.material;
+        } else if (obj.material?.color && saved.color) {
+            obj.material.color.copy(saved.color);
+        }
+    });
+    treeRenderColoredParts = new Map();
+}
+
+function updateTreePointColorMap(useDistinctPartColors = false) {
     treeViewPointColors.clear();
     const map = new Map();
+    let colorIndex = 0;
     modelGroup?.traverse(obj => {
         if (obj.userData?.type !== "part") return;
-        const key = `${obj.userData.korpusName || "?"}.${obj.userData.partName || "?"}`;
-        if (obj.material && obj.material.color) {
+        const key = treeRenderPartKey(obj);
+        if (useDistinctPartColors && !map.has(key)) {
+            map.set(key, treeRenderDistinctColor(colorIndex++));
+        } else if (!map.has(key) && obj.material?.color) {
             map.set(key, `#${obj.material.color.getHexString()}`);
         }
     });
     for (const [key, color] of map.entries()) {
         treeViewPointColors.set(key, color);
     }
+}
+
+function applyTreeRenderPartColors() {
+    const partColors = new Map();
+    let colorIndex = 0;
+
+    modelGroup?.traverse(obj => {
+        if (obj.userData?.type !== "part") return;
+        const key = treeRenderPartKey(obj);
+        if (!partColors.has(key)) {
+            partColors.set(key, treeRenderDistinctColor(colorIndex++));
+        }
+
+        const color = partColors.get(key);
+        treeViewPointColors.set(key, color);
+
+        if (!treeRenderColoredParts.has(obj)) {
+            treeRenderColoredParts.set(obj, { material: obj.material });
+            if (obj.material?.clone) obj.material = obj.material.clone();
+        }
+        if (obj.material?.color) obj.material.color.set(color);
+    });
 }
 
 function frameTreeView3D() {
@@ -2851,7 +2900,96 @@ function addTreeView3DDimensions(points) {
     }
 }
 
+function treeRenderAxisVector(axis) {
+    if (axis === "x") return new THREE.Vector3(1, 0, 0);
+    if (axis === "y") return new THREE.Vector3(0, 1, 0);
+    return new THREE.Vector3(0, 0, 1);
+}
+
+function treeRenderVisibleAxes() {
+    if (treeRenderDirection === "x") return { horizontal: "y", vertical: "z" };
+    if (treeRenderDirection === "y") return { horizontal: "x", vertical: "z" };
+    return { horizontal: "x", vertical: "y" };
+}
+
+function treeRenderPointCoord(point, axis) {
+    return Number(point?.[axis]) || 0;
+}
+
+function collectTreeRenderDimensions(points) {
+    const EPS = 1;
+    const dimensions = [];
+    const seenValue = new Set();
+    const axes = treeRenderVisibleAxes();
+
+    function collect(axis, perpendicular, orientation) {
+        const buckets = new Map();
+        for (const point of points) {
+            const key = String(Math.round(treeRenderPointCoord(point, perpendicular) / EPS));
+            if (!buckets.has(key)) buckets.set(key, []);
+            buckets.get(key).push(point);
+        }
+
+        for (const list of buckets.values()) {
+            if (list.length < 2) continue;
+            const sorted = [...list].sort((a, b) => treeRenderPointCoord(a, axis) - treeRenderPointCoord(b, axis));
+            for (let i = 0; i < sorted.length - 1; i++) {
+                const from = sorted[i];
+                const to = sorted[i + 1];
+                const value = Math.abs(treeRenderPointCoord(to, axis) - treeRenderPointCoord(from, axis));
+                if (value <= EPS) continue;
+                const valueKey = `${axis}:${treeView3DNumber(value)}`;
+                if (seenValue.has(valueKey)) continue;
+                seenValue.add(valueKey);
+                dimensions.push({ from, to, axis, perpendicular, orientation, value });
+            }
+        }
+    }
+
+    collect(axes.horizontal, axes.vertical, "horizontal");
+    collect(axes.vertical, axes.horizontal, "vertical");
+
+    return dimensions;
+}
+
+function addTreeRenderDimensions(points) {
+    const dimensions = collectTreeRenderDimensions(points);
+
+    for (const dim of dimensions) {
+        const partName = dim.from.items?.[0]?.nme?.split(".").slice(0, 2).join(".");
+        const color = getTreePointColorByPart(partName) || getTreePointColor(dim.from.letter);
+        const offset = treeRenderAxisVector(dim.perpendicular).multiplyScalar(dim.orientation === "horizontal" ? 7 : -7);
+        const from = dim.from.point.clone().add(offset);
+        const to = dim.to.point.clone().add(offset);
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([from, to]);
+        const lineMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.95 });
+        lineMat.depthTest = false;
+        const line = new THREE.Line(lineGeo, lineMat);
+        line.renderOrder = 999;
+        line.userData.treeLetters = [dim.from.letter, dim.to.letter];
+        treeRenderOverlay.add(line);
+
+        const labelEl = document.createElement("div");
+        labelEl.className = "tree-render-dim-label";
+        labelEl.style.color = color;
+        labelEl.title = `${dim.from.letter}-${dim.to.letter}`;
+
+        const labelText = document.createElement("span");
+        labelText.className = dim.orientation === "vertical"
+            ? "tree-render-dim-text tree-render-dim-text-vertical"
+            : "tree-render-dim-text";
+        labelText.textContent = treeView3DNumber(dim.value);
+        labelEl.appendChild(labelText);
+
+        const label = new CSS2DObject(labelEl);
+        label.position.copy(from).add(to).multiplyScalar(0.5);
+        label.userData.treeLetters = [dim.from.letter, dim.to.letter];
+        treeRenderOverlay.add(label);
+    }
+}
+
 function clearKorpusTreeRender() {
+    restoreTreeRenderPartColors();
     if (!treeRenderOverlay) return;
     scene?.remove(treeRenderOverlay);
     treeRenderOverlay.traverse(obj => {
@@ -3000,12 +3138,13 @@ function restoreKorpusPerspectiveRender() {
     fitCameraToObject(modelGroup);
 }
 
-function showKorpusTreeRender(_groups = [], _edges = []) {
+function showKorpusTreeRender(_groups = [], _edges = [], options = {}) {
     if (!scene || !modelGroup) return;
 
     clearKorpusTreeRender();
     setTreeOrthographicCamera(treeRenderDirection);
-    updateTreePointColorMap();
+    updateTreePointColorMap(Boolean(options.dimensions));
+    if (options.dimensions) applyTreeRenderPartColors();
 
     const points = collectSceneAnchorTreePoints();
     treeRenderOverlay = new THREE.Group();
@@ -3042,6 +3181,8 @@ function showKorpusTreeRender(_groups = [], _edges = []) {
         treeRenderOverlay.add(letter);
     }
 
+    if (options.dimensions) addTreeRenderDimensions(points);
+
     return points.map(point => ({
         letter: point.letter,
         key: point.key,
@@ -3052,10 +3193,10 @@ function showKorpusTreeRender(_groups = [], _edges = []) {
     }));
 }
 
-function setKorpusTreeViewDirection(direction) {
+function setKorpusTreeViewDirection(direction, options = {}) {
     if (!["x", "y", "z"].includes(direction)) return [];
     treeRenderDirection = direction;
-    return showKorpusTreeRender();
+    return showKorpusTreeRender([], [], options);
 }
 
 window.showKorpusTreeRender = showKorpusTreeRender;
@@ -3070,8 +3211,14 @@ window.filterKorpusTreeLetters = function (letters) {
     const showAll = allowed.size === 0;
 
     treeRenderOverlay.traverse(obj => {
-        if (!obj.userData?.treeLetter || !obj.element) return;
-        obj.element.style.display = showAll || allowed.has(obj.userData.treeLetter) ? "" : "none";
+        const letters = obj.userData?.treeLetters || (obj.userData?.treeLetter ? [obj.userData.treeLetter] : null);
+        if (!letters) return;
+        const isVisible = showAll || letters.some(letter => allowed.has(letter));
+        if (obj.element) {
+            obj.element.style.display = isVisible ? "" : "none";
+        } else {
+            obj.visible = isVisible;
+        }
     });
 };
 

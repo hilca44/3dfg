@@ -1888,7 +1888,9 @@ function renderKorpusTreeView() {
     host.innerHTML = `<div class="tree-empty">kein Projekt geladen</div>`;
     return;
   }
-  const renderPoints = window.showKorpusTreeRender?.(groups, getTreeEdges(groups)) || groups;
+  const renderPoints = window.showKorpusTreeRender?.(groups, getTreeEdges(groups), {
+    dimensions: treeViewMode === "dim"
+  }) || groups;
   renderTreeTables(renderPoints);
 }
 
@@ -1949,11 +1951,6 @@ function renderTreeTables(renderPoints) {
 
   host.innerHTML = `
     <div class="tree-panel">
-      ${showDimView ? `
-      <div class="tree-view-3d" id="tree3dView">
-        <div class="tree-view-3d-hint">Maße</div>
-      </div>
-      ` : ""}
       <div class="tree-data-panels">
         ${showDimView ? `
         <div class="tree-dim-key">
@@ -1978,14 +1975,16 @@ function renderTreeTables(renderPoints) {
   `;
 
   if (showDimView) {
-    window.renderKorpusTree3DView?.(renderPoints, edges);
+    if (typeof disposeTreeView3D === "function") disposeTreeView3D();
   } else {
     if (typeof disposeTreeView3D === "function") disposeTreeView3D();
   }
 }
 
 function setTreeViewDirection(direction) {
-  const renderPoints = window.setKorpusTreeViewDirection?.(direction) || [];
+  const renderPoints = window.setKorpusTreeViewDirection?.(direction, {
+    dimensions: treeViewMode === "dim"
+  }) || [];
   renderTreeTables(renderPoints);
 }
 

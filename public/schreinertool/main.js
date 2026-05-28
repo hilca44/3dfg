@@ -2544,7 +2544,7 @@ async function renderMainWithDWGs(pr) {
     if (projectHasDimViewFlag(pr) || editorViewMode === "measure") {
         setEditorViewMode("measure", {
             keepBackground: projectHasDimViewFlag(pr),
-            preserveSurface: projectHasDimViewFlag(pr)
+            preserveSurface: false
         });
     }
 }

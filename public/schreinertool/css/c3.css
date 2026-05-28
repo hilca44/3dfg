@@ -327,10 +327,9 @@ html, body {
 
 .tree-render-dim-text {
     display: inline-block;
-    padding: 2px 5px;
-    border-radius: 4px;
-    background: rgba(0, 0, 0, 0.72);
-    border: 1px solid currentColor;
+    padding: 0;
+    background: transparent;
+    border: 0;
 }
 
 .tree-render-dim-text-vertical {

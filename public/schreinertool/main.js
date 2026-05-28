@@ -2738,9 +2738,7 @@ function applyTreeRenderPartColors() {
 
         if (!treeRenderColoredParts.has(obj)) {
             ensureTreeRenderSavedPart(obj);
-            if (obj.material?.clone) obj.material = obj.material.clone();
         }
-        if (obj.material?.color) obj.material.color.set(color);
         const edgeChildren = obj.isLineSegments ? [obj] : obj.children.filter(child => child.isLineSegments);
         for (const edge of edgeChildren) {
             if (edge.material?.clone && !edge.userData.treeRenderEdgeMaterial) {

@@ -3036,6 +3036,36 @@ function addTreeRenderPartEdgeLabel(obj, color, valueCm, localPosition, axis) {
     treeRenderOverlay.add(label);
 }
 
+function addTreeRenderPartOutline(obj, color) {
+    if (!treeRenderOverlay || !obj?.userData?.localBB) return;
+    const bb = obj.userData.localBB;
+    const size = new THREE.Vector3(
+        bb.max.x - bb.min.x,
+        bb.max.y - bb.min.y,
+        bb.max.z - bb.min.z
+    );
+    if (size.x <= 0 || size.y <= 0 || size.z <= 0) return;
+
+    const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+    const geometry = new THREE.EdgesGeometry(boxGeometry);
+    boxGeometry.dispose();
+    const material = new THREE.LineBasicMaterial({
+        color,
+        transparent: false,
+        opacity: 1,
+        depthTest: false,
+        depthWrite: false
+    });
+    const outline = new THREE.LineSegments(geometry, material);
+    const center = bb.getCenter(new THREE.Vector3());
+    const localCenterMatrix = new THREE.Matrix4().makeTranslation(center.x, center.y, center.z);
+    outline.matrixAutoUpdate = false;
+    outline.matrix.copy(obj.matrixWorld).multiply(localCenterMatrix);
+    outline.renderOrder = 2000;
+    outline.userData.treePartKey = treeRenderPartKey(obj);
+    treeRenderOverlay.add(outline);
+}
+
 function addTreeRenderDimensions() {
     const targetPartKeys = collectTreeRenderDimensionPartKeys();
     const seenKorpusDims = new Map();
@@ -3069,6 +3099,7 @@ function addTreeRenderDimensions() {
         const w = bb.max.x - bb.min.x;
         const d = bb.max.y - bb.min.y;
         const h = bb.max.z - bb.min.z;
+        addTreeRenderPartOutline(obj, color);
 
         if (explicitPartDim || shouldRenderKorpusDim(korpusName, "x", w)) {
             addTreeRenderPartEdgeLabel(

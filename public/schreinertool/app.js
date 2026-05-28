@@ -1680,15 +1680,21 @@ function updateToolbarStatus() {
   }
 }
 
+const TOP_TOOLBAR_ACTIONS = [
+  { label: "☰", action: toggleHelpMenu, placement: "toolbar" },
+  { labelKey: "ui.share", label: "📤 Teilen", titleKey: "ui.shareTooltip", title: "Projekt-Link per E-Mail senden", action: shareProjectByMail, placement: "menu" },
+  { label: "Hilfe", labelKey: "ui.help", action: toggleQuickHelpOverlay, placement: "menu" },
+  { label: "Ansicht", action: () => window.cycleEditorViewMode?.(), placement: "menu" },
+  { label: "Baum", to: "tree", placement: "menu" },
+  { label: "Holz", to: "wood", placement: "menu" }
+];
+
 function topToolbarButtons() {
-  return [
-    { label: "☰", action: toggleHelpMenu },
-    { labelKey: "ui.share", label: "📤 Teilen", titleKey: "ui.shareTooltip", title: "Projekt-Link per E-Mail senden", action: shareProjectByMail },
-    { label: "Hilfe", labelKey: "ui.help", action: toggleQuickHelpOverlay },
-    { label: "Ansicht", action: () => window.cycleEditorViewMode?.() },
-    { label: "Baum", label: "Baum", to: "tree" },
-    { label: "Holz", label: "Holz", to: "wood" }
-  ];
+  return TOP_TOOLBAR_ACTIONS.filter((d) => d.placement === "toolbar");
+}
+
+function topMenuButtons() {
+  return TOP_TOOLBAR_ACTIONS.filter((d) => d.placement === "menu");
 }
 
 function setButtons(defs, nuu="slot3") {
@@ -4225,21 +4231,41 @@ Object.assign(window, {
   // alles, was per onclick genutzt wird
 });
 
-function addMenuButton(label, action, className = "") {
+function addMenuButton(def, action, className = "") {
   const menu = document.getElementById("helpMenu");
   if (!menu) return;
 
+  const item = typeof def === "object"
+    ? def
+    : { label: def, action, className };
   const btn = document.createElement("button");
   btn.type = "button";
-  btn.className = ["menu-action", className].filter(Boolean).join(" ");
-  btn.textContent = label;
+  btn.className = ["menu-action", item.className || className].filter(Boolean).join(" ");
+  btn.textContent = item.labelKey ? stt(item.labelKey, item.label) : item.label;
+  btn.title = item.titleKey ? stt(item.titleKey, item.title) : (item.title || "");
+  btn.dataset.appMenuItem = "1";
   btn.addEventListener("click", (ev) => {
     ev.stopPropagation();
     menu.style.display = "none";
-    action?.();
+    if (item.to) setState(item.to);
+    else item.action?.();
   });
 
-  menu.insertBefore(btn, menu.firstChild);
+  const firstSiteItem = menu.querySelector("[data-site-menu-item]");
+  menu.insertBefore(btn, firstSiteItem || null);
+}
+
+function addMenuDivider() {
+  const menu = document.getElementById("helpMenu");
+  if (!menu) return;
+
+  const divider = document.createElement("div");
+  divider.className = "menu-divider";
+  divider.dataset.appMenuItem = "1";
+  divider.setAttribute("aria-hidden", "true");
+
+  const firstSiteItem = menu.querySelector("[data-site-menu-item]");
+  menu.insertBefore(divider, firstSiteItem || null);
 }
 
 const QUICK_HELP_KEY = "c3cad.quickHelp.visible";
@@ -4370,16 +4396,28 @@ function setupAppMenuActions() {
   if (!menu || menu.dataset.appActions === "1") return;
   menu.dataset.appActions = "1";
 
-  addMenuButton("App", () => {
-    window.location.href = "./app.html";
-  }, "menu-action-app");
+  [
+    {
+      label: "Zurück",
+      labelKey: "ui.back",
+      className: "menu-action-app",
+      action: () => {
+        if (typeof setState === "function") setState("main");
+        else window.history.back();
+      }
+    },
+    { label: "Wiederherstellen", action: restoreEditHistory, className: "menu-action-highlight" },
+    {
+      label: "App",
+      className: "menu-action-app",
+      action: () => {
+        window.location.href = "./app.html";
+      }
+    },
+    ...topMenuButtons().map((item) => ({ ...item, className: "menu-action-program" }))
+  ].forEach((item) => addMenuButton(item));
 
-  addMenuButton("Wiederherstellen", restoreEditHistory, "menu-action-highlight");
-
-  addMenuButton("Zurück", () => {
-    if (typeof setState === "function") setState("main");
-    else window.history.back();
-  }, "menu-action-app");
+  addMenuDivider();
 }
 
 function initEditToolbar() {

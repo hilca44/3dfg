@@ -840,6 +840,23 @@ html, body {
   background: #dff0bb;
 }
 
+#helpMenu .menu-action-program {
+  background: #f5f1e8;
+  color: #3e3527;
+  font-weight: 700;
+}
+
+#helpMenu .menu-action-program:hover {
+  background: #ebe2d2;
+}
+
+#helpMenu .menu-divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--border-light);
+}
+
 /* letzter Eintrag ohne Linie */
 #helpMenu a:last-child {
   border-bottom: none;

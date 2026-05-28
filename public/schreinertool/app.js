@@ -1776,6 +1776,7 @@ function commandSearchAliases(label) {
     dre: "drehen rotation rotieren winkel",
     dock: "andocken verbinden anlegen anschliessen",
     fit: "anpassen einpassen passend verbinden",
+    expl: "explosion explosionsansicht exploded view auseinander auseinanderziehen zerlegen aufziehen auseinandernehmen",
     push: "schieben einzug ueberstand verkleinern erweitern abstand",
     mat: "material platte holz staerke farbe preis color"
   };
@@ -1833,6 +1834,7 @@ function allCommandSearchEntries() {
     label,
     detail,
     insert: label,
+    projectLine: label === "expl",
     type: commandSearchType(label),
     group: commandSearchType(label) === "Eigenschaft" ? "Eigenschaften" : "Befehle",
     aliases: commandSearchAliases(label)
@@ -1912,6 +1914,40 @@ function parseCommandSearchMarkdown(md) {
   });
 
   return entries.filter((entry) => entry.label);
+}
+
+function insertProjectLineToken(token) {
+  const value = String(token || "").trim();
+  if (!value) return false;
+
+  setState("inn");
+
+  requestAnimationFrame(() => {
+    const ta = document.getElementById("inn");
+    if (!ta) return;
+
+    const lines = String(ta.value || "").split(/\r?\n/);
+    if (!lines.length || !lines[0]) lines[0] = "projekt";
+
+    const tokenPattern = new RegExp(`(^|\\s)${value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?=\\s|$)`, "i");
+    if (!tokenPattern.test(lines[0])) {
+      lines[0] = `${lines[0].trim()} ${value}`.trim();
+    }
+
+    ta.value = lines.join("\n");
+    ta.selectionStart = ta.selectionEnd = lines[0].length;
+    ta.dispatchEvent(new Event("input", { bubbles: true }));
+    window.syncInnEditorFromTextarea?.();
+    recordReloadHistory();
+    showCommandSearchToast(`"${value}" in die Projektzeile eingefuegt. Rechte Strg zeigt die Explosionsansicht.`);
+  });
+
+  return true;
+}
+
+function insertCommandSearchEntry(entry) {
+  if (entry?.projectLine) return insertProjectLineToken(entry.insert || entry.label);
+  return insertCommandSearchText(entry?.insert || entry?.label);
 }
 
 function insertCommandSearchText(text) {
@@ -2027,7 +2063,7 @@ function createCommandSearch() {
           showCommandSearchInfo(entry);
         } else {
           rememberCommandSearchEntry(entry);
-          insertCommandSearchText(entry.insert || entry.label);
+          insertCommandSearchEntry(entry);
         }
         list.hidden = true;
         input.blur();

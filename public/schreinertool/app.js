@@ -1833,7 +1833,7 @@ function allCommandSearchEntries() {
   const commandEntries = baseCommands.map(([label, detail]) => ({
     label,
     detail,
-    insert: label,
+    insert: label === "expl" ? "xy.22" : label,
     projectLine: label === "expl",
     type: commandSearchType(label),
     group: commandSearchType(label) === "Eigenschaft" ? "Eigenschaften" : "Befehle",
@@ -1929,17 +1929,23 @@ function insertProjectLineToken(token) {
     const lines = String(ta.value || "").split(/\r?\n/);
     if (!lines.length || !lines[0]) lines[0] = "projekt";
 
-    const tokenPattern = new RegExp(`(^|\\s)${value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?=\\s|$)`, "i");
-    if (!tokenPattern.test(lines[0])) {
-      lines[0] = `${lines[0].trim()} ${value}`.trim();
+    const property = value.match(/^([a-z]+)[.=]?/i)?.[1];
+    if (property) {
+      const propertyPattern = new RegExp(`(^|\\s)${property}(?:[.=]?)[+-]?\\d+(?:\\.\\d+)?(?=\\s|$)`, "ig");
+      lines[0] = lines[0].replace(propertyPattern, " ").replace(/\s+/g, " ").trim();
+    } else {
+      const tokenPattern = new RegExp(`(^|\\s)${value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?=\\s|$)`, "i");
+      if (tokenPattern.test(lines[0])) return;
     }
+
+    lines[0] = `${lines[0].trim()} ${value}`.trim();
 
     ta.value = lines.join("\n");
     ta.selectionStart = ta.selectionEnd = lines[0].length;
     ta.dispatchEvent(new Event("input", { bubbles: true }));
     window.syncInnEditorFromTextarea?.();
     recordReloadHistory();
-    showCommandSearchToast(`"${value}" in die Projektzeile eingefuegt. Rechte Strg zeigt die Explosionsansicht.`);
+    showCommandSearchToast(`"${value}" in die Projektzeile gesetzt. Rechte Strg zeigt die Explosionsansicht.`);
   });
 
   return true;

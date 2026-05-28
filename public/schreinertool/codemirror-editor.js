@@ -223,6 +223,32 @@ function setEditorText(value) {
   syncing = false;
 }
 
+function insertIntoInnEditor(text) {
+  if (!editorView || !textarea) return false;
+
+  const value = String(text ?? "");
+  if (!value) return false;
+
+  const selection = editorView.state.selection.main;
+  const before = editorView.state.sliceDoc(Math.max(0, selection.from - 1), selection.from);
+  const after = editorView.state.sliceDoc(selection.to, selection.to + 1);
+  const prefix = before && !/\s/.test(before) ? " " : "";
+  const suffix = after && !/\s/.test(after) ? " " : "";
+  const insert = `${prefix}${value}${suffix}`;
+  const anchor = selection.from + insert.length - suffix.length;
+
+  editorView.dispatch({
+    changes: { from: selection.from, to: selection.to, insert },
+    selection: { anchor },
+    userEvent: "input"
+  });
+  editorView.focus();
+  writeTextareaValue(editorView.state.doc.toString());
+  dispatchTextareaInput();
+  window.recordReloadHistory?.();
+  return true;
+}
+
 function dispatchTextareaInput() {
   textarea.dispatchEvent(new Event("input", { bubbles: true }));
 }
@@ -1368,6 +1394,7 @@ async function initCodeMirrorEditor() {
   window.showInnEditor = showInnEditor;
   window.hideInnEditor = hideInnEditor;
   window.syncInnEditorFromTextarea = () => setEditorText(readTextareaValue());
+  window.insertIntoInnEditor = insertIntoInnEditor;
 
   if (window.CURRENT_STATE === "inn" || window.currentState === "inn") {
     showInnEditor();

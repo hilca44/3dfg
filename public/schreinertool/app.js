@@ -6,6 +6,7 @@ import { urlToInn } from "./fu.js?v=dockparse1";
 import { updateAndReloadURL } from "./fu.js?v=dockparse1";
 import { ProjectEditor as pp} from "./project-editor.js?v=arrayparse34";
 import { convertLegacyToModern } from "./legacy-converter.js?v=dockparse1";
+import { baseCommands, parameterOptionsByProperty } from "./suggest.js?v=arrayparse37";
 let CURRENT_STATE = null;
 const colors = window.colors || {};
 
@@ -1681,7 +1682,8 @@ function updateToolbarStatus() {
 }
 
 const TOP_TOOLBAR_ACTIONS = [
-  { label: "☰", action: toggleHelpMenu, placement: "toolbar" },
+  { label: "☰", action: toggleHelpMenu, placement: "toolbar", className: "toolbar-menu-button" },
+  { kind: "search", placement: "toolbar" },
   { labelKey: "ui.share", label: "📤 Teilen", titleKey: "ui.shareTooltip", title: "Projekt-Link per E-Mail senden", action: shareProjectByMail, placement: "menu" },
   { label: "Hilfe", labelKey: "ui.help", action: toggleQuickHelpOverlay, placement: "menu" },
   { label: "Ansicht", action: () => window.cycleEditorViewMode?.(), placement: "menu" },
@@ -1695,6 +1697,363 @@ function topToolbarButtons() {
 
 function topMenuButtons() {
   return TOP_TOOLBAR_ACTIONS.filter((d) => d.placement === "menu");
+}
+
+const COMMAND_SEARCH_STATS_KEY = "c3cad.commandSearch.stats";
+let commandSearchHelpLoaded = false;
+let commandSearchDocEntries = [];
+
+function commandSearchStats() {
+  try {
+    return JSON.parse(localStorage.getItem(COMMAND_SEARCH_STATS_KEY) || "{}") || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveCommandSearchStats(stats) {
+  try {
+    localStorage.setItem(COMMAND_SEARCH_STATS_KEY, JSON.stringify(stats));
+  } catch {}
+}
+
+function rememberCommandSearchEntry(entry) {
+  if (!entry?.insert) return;
+  const stats = commandSearchStats();
+  const key = entry.insert;
+  const current = stats[key] || {};
+  stats[key] = {
+    label: entry.label,
+    detail: entry.detail,
+    type: entry.type,
+    insert: entry.insert,
+    count: Number(current.count || 0) + 1,
+    lastUsed: Date.now()
+  };
+  saveCommandSearchStats(stats);
+}
+
+function recentCommandSearchEntries() {
+  return Object.values(commandSearchStats())
+    .filter((entry) => entry?.insert)
+    .sort((a, b) => Number(b.lastUsed || 0) - Number(a.lastUsed || 0))
+    .slice(0, 6)
+    .map((entry) => ({ ...entry, group: "Zuletzt benutzt" }));
+}
+
+function frequentCommandSearchEntries() {
+  const stats = Object.values(commandSearchStats())
+    .filter((entry) => entry?.insert)
+    .sort((a, b) => Number(b.count || 0) - Number(a.count || 0))
+    .slice(0, 6)
+    .map((entry) => ({ ...entry, group: "Häufig benutzt" }));
+
+  if (stats.length) return stats;
+
+  return baseCommands.slice(0, 6).map(([label, detail]) => ({
+    label,
+    detail,
+    insert: label,
+    type: commandSearchType(label),
+    group: "Häufig benutzt"
+  }));
+}
+
+function commandSearchType(label) {
+  const key = String(label || "").replace(/[.=].*$/, "");
+  if (["breit", "breite", "tief", "tiefe", "hoch", "hoehe", "x", "y", "z", "anz", "co", "mat", "push"].includes(key)) {
+    return "Eigenschaft";
+  }
+  return "Befehl";
+}
+
+function quickHelpSearchEntries() {
+  const rows = [
+    ...(typeof QUICK_HELP_COMMANDS !== "undefined" ? QUICK_HELP_COMMANDS : []),
+    ...(typeof QUICK_HELP_ALIASES !== "undefined" ? QUICK_HELP_ALIASES : []),
+    ...(typeof QUICK_HELP_MODEL !== "undefined" ? QUICK_HELP_MODEL : []),
+    ...(typeof QUICK_HELP_SAVE !== "undefined" ? QUICK_HELP_SAVE : [])
+  ];
+
+  return rows.map(([label, detail]) => ({
+    label,
+    detail,
+    type: "Tipp",
+    group: "Tipps & Tricks",
+    infoOnly: true
+  }));
+}
+
+function parameterSearchEntries() {
+  return Object.entries(parameterOptionsByProperty || {}).flatMap(([property, options]) => (
+    options.map(([label, detail]) => ({
+      label: `${property}: ${label}`,
+      detail,
+      insert: label,
+      type: "Wert",
+      group: "Eigenschaftswerte"
+    }))
+  ));
+}
+
+function helpMarkdownSearchEntries() {
+  const legacyBlocks = Object.values(ohlp || {}).map((block) => ({
+    label: block.cmd || block.nme,
+    detail: block.nme || String(block.text || "").trim().split(/\r?\n/)[0] || "Info",
+    type: "Info",
+    group: "Informationen",
+    helpMark: block.cmd,
+    infoOnly: true
+  }));
+
+  return [
+    ...legacyBlocks,
+    ...commandSearchDocEntries
+  ];
+}
+
+function allCommandSearchEntries() {
+  const commandEntries = baseCommands.map(([label, detail]) => ({
+    label,
+    detail,
+    insert: label,
+    type: commandSearchType(label),
+    group: commandSearchType(label) === "Eigenschaft" ? "Eigenschaften" : "Befehle"
+  }));
+
+  return [
+    ...commandEntries,
+    ...parameterSearchEntries(),
+    ...quickHelpSearchEntries(),
+    ...helpMarkdownSearchEntries()
+  ];
+}
+
+function uniqueCommandSearchEntries(entries) {
+  const seen = new Set();
+  return entries.filter((entry) => {
+    const key = `${entry.group}|${entry.type}|${entry.label}|${entry.detail}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function filterCommandSearchEntries(query) {
+  const value = String(query || "").trim().toLowerCase();
+  if (!value) {
+    return uniqueCommandSearchEntries([
+      ...recentCommandSearchEntries(),
+      ...frequentCommandSearchEntries()
+    ]).slice(0, 12);
+  }
+
+  return uniqueCommandSearchEntries(allCommandSearchEntries())
+    .filter((entry) => [entry.label, entry.detail, entry.type, entry.group]
+      .join(" ")
+      .toLowerCase()
+      .includes(value))
+    .slice(0, 20);
+}
+
+async function ensureCommandSearchHelp() {
+  if (commandSearchHelpLoaded) return;
+  commandSearchHelpLoaded = true;
+  try {
+    const res = await fetch("./views/pages/commands.md");
+    const md = await res.text();
+    parseJumpMarkdown(md);
+    commandSearchDocEntries = parseCommandSearchMarkdown(md);
+  } catch {}
+}
+
+function parseCommandSearchMarkdown(md) {
+  const entries = [];
+  const lines = String(md || "").split(/\r?\n/);
+  let current = null;
+
+  lines.forEach((line) => {
+    const heading = line.match(/^(#{1,3})\s+(.+)$/);
+    if (heading) {
+      current = {
+        label: heading[2].trim(),
+        detail: "",
+        type: "Info",
+        group: "Informationen",
+        infoOnly: true
+      };
+      entries.push(current);
+      return;
+    }
+
+    if (!current || current.detail) return;
+    const text = line
+      .replace(/`/g, "")
+      .replace(/[*#-]/g, "")
+      .trim();
+    if (text) current.detail = text.slice(0, 140);
+  });
+
+  return entries.filter((entry) => entry.label);
+}
+
+function insertCommandSearchText(text) {
+  const value = String(text || "");
+  if (!value) return;
+
+  setState("inn");
+
+  requestAnimationFrame(() => {
+    if (window.insertIntoInnEditor?.(value)) {
+      showCommandSearchToast(`"${value}" eingefuegt. Rechte Strg uebernimmt die Aenderung.`);
+      return;
+    }
+
+    const ta = document.getElementById("inn");
+    if (!ta) return;
+
+    const start = Number.isFinite(ta.selectionStart) ? ta.selectionStart : ta.value.length;
+    const end = Number.isFinite(ta.selectionEnd) ? ta.selectionEnd : start;
+    const before = ta.value.slice(0, start);
+    const after = ta.value.slice(end);
+    const prefix = before && !/\s$/.test(before) ? " " : "";
+    const suffix = after && !/^\s/.test(after) ? " " : "";
+    const insert = `${prefix}${value}${suffix}`;
+    ta.value = before + insert + after;
+    ta.selectionStart = ta.selectionEnd = before.length + insert.length - suffix.length;
+    ta.dispatchEvent(new Event("input", { bubbles: true }));
+    window.syncInnEditorFromTextarea?.();
+    recordReloadHistory();
+    showCommandSearchToast(`"${value}" eingefuegt. Rechte Strg uebernimmt die Aenderung.`);
+  });
+}
+
+function showCommandSearchInfo(entry) {
+  if (entry.helpMark && ohlp?.[entry.helpMark]) {
+    showHelpCommand(entry.helpMark);
+  } else {
+    const box = document.getElementById("mdBox");
+    if (box) {
+      box.innerHTML = `<strong>${searchHtmlText(entry.label)}</strong><br>${searchHtmlText(entry.detail || "")}`;
+      box.style.display = "block";
+    }
+  }
+  showCommandSearchToast("Info geoeffnet.");
+}
+
+function searchHtmlText(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function showCommandSearchToast(message) {
+  let toast = document.getElementById("commandSearchToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "commandSearchToast";
+    toast.className = "command-search-toast";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add("is-visible");
+  clearTimeout(showCommandSearchToast.timer);
+  showCommandSearchToast.timer = setTimeout(() => {
+    toast.classList.remove("is-visible");
+  }, 2200);
+}
+
+function createCommandSearch() {
+  const wrap = document.createElement("div");
+  wrap.className = "command-search";
+
+  const input = document.createElement("input");
+  input.type = "search";
+  input.placeholder = "Befehl suchen";
+  input.setAttribute("aria-label", "Befehle, Eigenschaften und Tipps suchen");
+
+  const list = document.createElement("div");
+  list.className = "command-search-results";
+  list.hidden = true;
+
+  function render() {
+    const entries = filterCommandSearchEntries(input.value);
+    list.replaceChildren();
+
+    if (!entries.length) {
+      const empty = document.createElement("div");
+      empty.className = "command-search-empty";
+      empty.textContent = "Keine Treffer";
+      list.appendChild(empty);
+      list.hidden = false;
+      return;
+    }
+
+    let currentGroup = "";
+    entries.forEach((entry) => {
+      if (entry.group !== currentGroup) {
+        currentGroup = entry.group;
+        const group = document.createElement("div");
+        group.className = "command-search-group";
+        group.textContent = currentGroup;
+        list.appendChild(group);
+      }
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "command-search-item";
+      button.addEventListener("mousedown", (event) => event.preventDefault());
+      button.addEventListener("click", () => {
+        if (entry.infoOnly && !entry.insert) {
+          showCommandSearchInfo(entry);
+        } else {
+          rememberCommandSearchEntry(entry);
+          insertCommandSearchText(entry.insert || entry.label);
+        }
+        list.hidden = true;
+        input.blur();
+      });
+
+      const main = document.createElement("span");
+      main.className = "command-search-label";
+      main.textContent = entry.label;
+
+      const type = document.createElement("span");
+      type.className = "command-search-type";
+      type.textContent = entry.type;
+
+      const detail = document.createElement("span");
+      detail.className = "command-search-detail";
+      detail.textContent = entry.detail || "";
+
+      button.append(main, type, detail);
+      list.appendChild(button);
+    });
+
+    list.hidden = false;
+  }
+
+  input.addEventListener("focus", () => {
+    render();
+    ensureCommandSearchHelp().then(() => {
+      if (document.activeElement === input) render();
+    });
+  });
+  input.addEventListener("input", render);
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      list.hidden = true;
+      input.blur();
+    }
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (!wrap.contains(event.target)) list.hidden = true;
+  });
+
+  wrap.append(input, list);
+  return wrap;
 }
 
 function setButtons(defs, nuu="slot3") {
@@ -1712,8 +2071,14 @@ function setButtons(defs, nuu="slot3") {
       return;
     }
 
+    if (d?.kind === "search") {
+      slot.appendChild(createCommandSearch());
+      return;
+    }
+
     const btn = document.createElement("button");
     if (d.id) btn.id = d.id;
+    if (d.className) btn.className = d.className;
     btn.textContent = d.labelKey ? stt(d.labelKey, d.label) : d.label;
     btn.title = d.titleKey ? stt(d.titleKey, d.title) : (d.title || "");
     btn.onclick = d.to

@@ -1090,10 +1090,6 @@ function makeM(k, e1, e) {
 
         applyPartRotation(edge, e, w, d, h);
 
-        if (e.dim) {
-            addDimensionHelper(edge, w, d, h);
-        }
-
         const key = k.nme + e1;
         meshMap[key] = edge;
         state[key] = "edgeOnly";
@@ -1145,10 +1141,6 @@ function makeM(k, e1, e) {
     mesh.layers.set(lay);
 
     applyPartRotation(mesh, e, w, d, h);
-
-    if (e.dim) {
-        addDimensionHelper(mesh, w, d, h);
-    }
 
     const key = k.nme + e1;
     meshMap[key] = mesh;
@@ -1340,19 +1332,6 @@ function createK(k, nme) {
         if (!k[e1]) continue;
         if (k[e1].__skipRender) continue;
         g.add(makeM(k, e1, k[e1]));
-    }
-
-    if (k.dim) {
-        const box = g.userData.localBB.clone();
-        const center = box.getCenter(new THREE.Vector3());
-        const helper = makeDimensionHelper(
-            box.max.x - box.min.x,
-            box.max.y - box.min.y,
-            box.max.z - box.min.z
-        );
-        helper.position.copy(center);
-        g.add(helper);
-        g.userData.dimHelper = helper;
     }
 
     return g;
@@ -3021,7 +3000,7 @@ function addTreeRenderPartEdgeLabel(obj, color, valueCm, localPosition, axis) {
         ? "tree-render-dim-text tree-render-dim-text-vertical"
         : "tree-render-dim-text";
     labelText.style.color = color;
-    labelText.textContent = `${treeView3DNumber(valueCm)} mm`;
+    labelText.textContent = treeView3DNumber(valueCm);
     labelEl.appendChild(labelText);
 
     obj.updateWorldMatrix(true, false);
@@ -3035,6 +3014,8 @@ function addTreeRenderPartEdgeLabel(obj, color, valueCm, localPosition, axis) {
 function addTreeRenderDimensions() {
     modelGroup?.traverse(obj => {
         if (obj.userData?.type !== "part") return;
+        const partData = obj.userData?.partData || {};
+        if (!partData.dim) return;
         const bb = obj.userData.localBB;
         if (!bb) return;
 

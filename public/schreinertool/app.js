@@ -1916,9 +1916,10 @@ function quickHelpSearchEntries() {
     ...(typeof QUICK_HELP_SAVE !== "undefined" ? QUICK_HELP_SAVE : [])
   ];
 
-  return rows.map(([label, detail]) => ({
+  return rows.map(([label, detail, aliases]) => ({
     label,
     detail,
+    aliases,
     type: "Tipp",
     group: "Tipps & Tricks",
     infoOnly: true
@@ -4849,8 +4850,8 @@ const QUICK_HELP_MODEL = [
 ];
 
 const QUICK_HELP_SAVE = [
-  ["Teilen", "Projekt-Link an die eigene E-Mail-Adresse senden"],
-  ["Link", "Der Link enthält dein Projekt und öffnet es wieder"]
+  ["Teilen", "Projekt-Link an die eigene E-Mail-Adresse senden", "speichern save share shell senden mail email download projektlink"],
+  ["Link", "Der Link enthält dein Projekt und öffnet es wieder", "teilen speichern save share shell projektlink url"]
 ];
 
 function quickHelpRows(rows, className = "") {

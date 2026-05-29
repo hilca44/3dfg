@@ -3,7 +3,7 @@ import { EditorView, Decoration, ViewPlugin, WidgetType, hoverTooltip, keymap } 
 import { defaultKeymap, history, historyKeymap } from "https://esm.sh/@codemirror/commands@6";
 import { autocompletion, completionKeymap, completionStatus, startCompletion } from "https://esm.sh/@codemirror/autocomplete@6";
 import { baseCommands, materialSuggest, 
-  parameterOptionsByProperty } from "./suggest.js?v=arrayparse37";
+  parameterOptionsByProperty } from "./suggest.js?v=arrayparse38";
 import { splitDslList } from "./dsl-parser.js?v=dockparse1";
 
 let editorView = null;

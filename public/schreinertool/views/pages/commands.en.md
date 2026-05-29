@@ -229,6 +229,10 @@ This means:
 
 `a vi.dim vi.wf` - enable dimension view and wireframe together.
 
+`a vi.nolabel` - hide labels.
+
+`a vi.label` - show labels again, for example on one cabinet after a global `vi.nolabel`.
+
 `a fr.vi=t4` - transparency level for the front.
 
 ## Points

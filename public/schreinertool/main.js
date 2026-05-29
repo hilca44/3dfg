@@ -835,19 +835,64 @@ function resolveThreeColor(co, l) {
 function renderViewFlags(...values) {
     const flags = new Set();
 
-    for (const value of values) {
-        if (value == null) continue;
-        const parts = Array.isArray(value)
-            ? value
-            : String(value).split(/[,\s+]+/);
+    function addValue(value) {
+        if (value == null) return;
+        if (Array.isArray(value)) {
+            value.forEach(addValue);
+            return;
+        }
 
-        for (const part of parts) {
+        for (const part of String(value).split(/[,\s+]+/)) {
             const flag = String(part || "").trim().toLowerCase();
             if (flag) flags.add(flag);
         }
     }
 
+    values.forEach(addValue);
+
     return flags;
+}
+
+function renderViewFlagsFromProjectDefaults(pr) {
+    const defaults = Array.isArray(pr?.projectDefaults) ? pr.projectDefaults : [];
+    const values = [pr?.vi];
+
+    for (const token of defaults) {
+        const m = String(token || "").match(/^vi[.:=](.+)$/i);
+        if (m) values.push(m[1]);
+    }
+
+    return renderViewFlags(values);
+}
+
+function viewFlagsHaveAny(flags, names) {
+    return names.some(name => flags.has(name));
+}
+
+const LABEL_ON_FLAGS = ["label", "labels", "lbl"];
+const LABEL_OFF_FLAGS = [
+    "nolabel",
+    "nolabels",
+    "no-label",
+    "no-labels",
+    "hidelabel",
+    "hidelabels",
+    "hide-label",
+    "hide-labels",
+    "label0",
+    "labels0"
+];
+
+function shouldRenderKorpusLabel(k, pr = window.PR) {
+    const korpusFlags = renderViewFlags(k?.vi);
+
+    if (viewFlagsHaveAny(korpusFlags, LABEL_OFF_FLAGS)) return false;
+    if (viewFlagsHaveAny(korpusFlags, LABEL_ON_FLAGS)) return true;
+
+    const projectFlags = renderViewFlagsFromProjectDefaults(pr);
+    if (viewFlagsHaveAny(projectFlags, LABEL_OFF_FLAGS)) return false;
+
+    return true;
 }
 
 function renderTransparencyFromFlags(flags) {
@@ -1876,7 +1921,7 @@ function proj(pr) {
 
         const inner = createK(k, name);
         g.add(inner);
-        if (!isExpandedTextKorpus(k)) {
+        if (!isExpandedTextKorpus(k) && shouldRenderKorpusLabel(k, pr)) {
             g.add(makeL(k, g, {
                 notice: !limitNoticeShown ? limitNotice : ""
             }));
@@ -3247,8 +3292,7 @@ function projectHasDimViewFlag(pr) {
 }
 
 function projectDefaultHasDimViewFlag(pr) {
-    if (hasDimViewFlag(pr?.vi)) return true;
-    return (pr?.projectDefaults || []).some(token => /^vi[.:=]dim$/i.test(String(token || "")));
+    return renderViewFlagsFromProjectDefaults(pr).has("dim");
 }
 
 function clearKorpusTreeRender() {

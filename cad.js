@@ -1473,7 +1473,11 @@ cloneChildKorpusse(parentName, newRootName) {
     ]));
     const children = knownOrder
         .filter(name => String(name || "").startsWith(childPrefix))
-        .filter(name => this.oks[name]?.lbs?.length);
+        .filter(name => {
+            const child = this.oks[name];
+            if (!child?.lbs?.length) return false;
+            return String(child.lbs[0] || "") === String(name);
+        });
 
     if (!children.length) return;
 

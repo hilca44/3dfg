@@ -6,7 +6,7 @@ import { urlToInn } from "./fu.js?v=dockparse1";
 import { updateAndReloadURL } from "./fu.js?v=dockparse1";
 import { ProjectEditor as pp} from "./project-editor.js?v=arrayparse34";
 import { convertLegacyToModern } from "./legacy-converter.js?v=dockparse1";
-import { baseCommands, parameterOptionsByProperty } from "./suggest.js?v=arrayparse37";
+import { baseCommands, parameterOptionsByProperty } from "./suggest.js?v=arrayparse38";
 let CURRENT_STATE = null;
 const colors = window.colors || {};
 
@@ -1936,7 +1936,7 @@ function frequentCommandSearchEntries() {
 
 function commandSearchType(label) {
   const key = String(label || "").replace(/[.=].*$/, "");
-  if (["breit", "breite", "tief", "tiefe", "hoch", "hoehe", "x", "y", "z", "anz", "mat", "push"].includes(key)) {
+  if (["breit", "breite", "tief", "tiefe", "hoch", "hoehe", "x", "y", "z", "anz", "mat", "push", "vi"].includes(key)) {
     return "Eigenschaft";
   }
   return "Befehl";
@@ -1953,7 +1953,8 @@ function commandSearchAliases(label) {
     fit: "anpassen einpassen passend verbinden",
     expl: "explosion explosionsansicht exploded view auseinander auseinanderziehen zerlegen aufziehen auseinandernehmen",
     push: "schieben einzug ueberstand verkleinern erweitern abstand",
-    mat: "material platte holz staerke farbe preis color"
+    mat: "material platte holz staerke farbe preis color",
+    vi: "ansicht view wireframe drahtmodell labels label beschriftung anzeigen ausblenden"
   };
 
   return aliases[key] || "";
@@ -5511,7 +5512,9 @@ const QUICK_HELP_COMMANDS = [
   ["dock", "Verbinden/Andocken"],
   ["dre", "Drehen um x, y oder z"],
   ["vi.wf", "Wireframe-Ansicht"],
-  ["vi.dim", "Massansicht automatisch aktivieren"]
+  ["vi.dim", "Massansicht automatisch aktivieren"],
+  ["vi.label", "Labels anzeigen"],
+  ["vi.nolabel", "Labels ausblenden"]
 ];
 
 const QUICK_HELP_ALIASES = [

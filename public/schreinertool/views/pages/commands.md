@@ -348,6 +348,10 @@ Das bedeutet:
 
 `vi.dim vi.wf` - Maßansicht und Drahtmodell gemeinsam setzen.
 
+`vi.nolabel` - Labels ausblenden.
+
+`vi.label` - Labels wieder anzeigen, z.B. für einen einzelnen Korpus nach globalem `vi.nolabel`.
+
 `fr.vi=t4` - Transparenzstufe für die Front.
 
 ## Punkte

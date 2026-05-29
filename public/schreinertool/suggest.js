@@ -11,6 +11,8 @@ export const baseCommands = [
   ["dim", "Masszahlen fuer dieses Teil anzeigen"],
   ["vi.dim", "Massansicht automatisch aktivieren"],
   ["vi.wf", "Wireframe-Ansicht"],
+  ["vi.label", "Labels anzeigen"],
+  ["vi.nolabel", "Labels ausblenden"],
   ["rw.dim", "Masszahlen fuer Rueckwand anzeigen"],
   ["rw,sl.dim", "Masszahlen fuer Rueckwand und linke Seite anzeigen"],
   ["expl", "Alias fuer xy=22: Explosionsansicht in der Projektzeile aktivieren"],
@@ -62,6 +64,12 @@ export const parameterOptionsByProperty = {
     ["u", "unten an"],
     ["v", "vorne an"],
     ["h", "hinten an"]
+  ],
+  vi: [
+    ["wf", "Wireframe-Ansicht"],
+    ["dim", "Massansicht automatisch aktivieren"],
+    ["label", "Labels anzeigen"],
+    ["nolabel", "Labels ausblenden"]
   ],
 }
 

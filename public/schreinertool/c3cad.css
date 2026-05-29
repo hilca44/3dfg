@@ -1150,8 +1150,18 @@ html, body {
 }
 
 .command-search-item:hover,
-.command-search-item:focus {
+.command-search-item:focus,
+.command-search-item.is-active {
   background: var(--panel);
+}
+
+.command-search-item.is-active {
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+
+.command-search-item.is-active .command-search-type {
+  background: var(--accent);
+  color: var(--accent-contrast);
 }
 
 .command-search-label {

@@ -2183,6 +2183,9 @@ function commandSearchActionEntries(query) {
     }];
   }
 
+  const guidedEntries = guidedCorpusSearchEntries(raw);
+  if (guidedEntries.length) return guidedEntries;
+
   const number = raw.match(/\d+(?:[,.]\d+)?/)?.[0]?.replace(",", ".");
   const wantsSockel = /^(\d+(?:[,.]\d+)?)$/.test(raw) || /\b(?:soc|sock|sockel|sokel|base)\b/i.test(raw);
   if (!number || !wantsSockel) return [];
@@ -2194,6 +2197,150 @@ function commandSearchActionEntries(query) {
     type: "Aktion",
     group: "Action Manager",
     aliases: `sockel ${number} sokel soc.${number} base ${number}`
+  }];
+}
+
+const GUIDED_CORPUS_PROPERTIES = [
+  ["breit", "Breite"],
+  ["tief", "Tiefe"],
+  ["hoch", "Hoehe"],
+  ["mat", "Material"],
+  ["soc", "Sockel"],
+  ["push", "Push/Versatz"],
+  ["x", "X-Position"],
+  ["y", "Y-Position"],
+  ["z", "Z-Position"],
+  ["anz", "Anzahl"]
+];
+
+const GUIDED_PARTS = [
+  ["sl", "linke Seite"],
+  ["sr", "rechte Seite"],
+  ["bo", "Boden"],
+  ["de", "Deckel"],
+  ["rw", "Rueckwand"],
+  ["fr", "Front"],
+  ["eb", "Einlegeboden"],
+  ["mw", "Mittelwand"]
+];
+
+const GUIDED_PART_PROPERTIES = [
+  ["mat", "Material"],
+  ["push", "Push/Versatz"],
+  ["cut.x", "in X schneiden"],
+  ["cut.y", "in Y schneiden"],
+  ["cut.z", "in Z schneiden"],
+  ["dre.x", "um X drehen"],
+  ["dre.y", "um Y drehen"],
+  ["dre.z", "um Z drehen"],
+  ["reihe.x", "in X wiederholen"],
+  ["reihe.y", "in Y wiederholen"],
+  ["reihe.z", "in Z wiederholen"],
+  ["breit", "Breite"],
+  ["tief", "Tiefe"],
+  ["hoch", "Hoehe"]
+];
+
+function currentCorpusNames() {
+  const ta = document.getElementById("inn");
+  return String(ta?.value || "")
+    .split(/\r?\n/)
+    .slice(1)
+    .map((line) => line.trim().split(/\s+/)[0])
+    .filter(Boolean);
+}
+
+function knownCorpusName(name) {
+  const value = String(name || "").trim();
+  if (!value) return false;
+  const names = currentCorpusNames();
+  return names.length ? names.includes(value) : /^[a-z][a-z0-9_.-]*$/i.test(value);
+}
+
+function guidedCorpusSearchEntries(raw) {
+  const parts = String(raw || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!parts.length || !knownCorpusName(parts[0])) return [];
+
+  const corpus = parts[0];
+  const second = parts[1] || "";
+  const third = parts[2] || "";
+  const rest = parts.slice(2).join(" ");
+
+  if (parts.length === 1) {
+    return [
+      {
+        label: `${corpus}: Korpus-Eigenschaften`,
+        detail: "Breite, Tiefe, Hoehe, Material, Sockel usw. auswaehlen",
+        expandQuery: `${corpus} eigenschaften`,
+        type: "Auswahl",
+        group: `Korpus ${corpus}`,
+        aliases: `${corpus} korpus eigenschaften`
+      },
+      ...GUIDED_PARTS.map(([part, label]) => ({
+        label: `${corpus}: ${label}`,
+        detail: `Teil ${part} auswaehlen`,
+        expandQuery: `${corpus} ${part}`,
+        type: "Teil",
+        group: `Korpus ${corpus}`,
+        aliases: `${corpus} ${part} ${label}`
+      }))
+    ];
+  }
+
+  if (["eigenschaft", "eigenschaften", "korpus", "corpus", "props"].includes(second)) {
+    return GUIDED_CORPUS_PROPERTIES.map(([prop, label]) => ({
+      label: `${corpus}: ${label} aendern`,
+      detail: `setzt ${prop}. in Zeile ${corpus}`,
+      corpus,
+      lineToken: `${prop}.`,
+      type: "Eigenschaft",
+      group: `Korpus ${corpus}`,
+      aliases: `${corpus} ${prop} ${label}`
+    }));
+  }
+
+  const corpusProperty = GUIDED_CORPUS_PROPERTIES.find(([prop]) => prop === second);
+  if (corpusProperty) {
+    return [{
+      label: `${corpus}: ${corpusProperty[1]} ${third || "aendern"}`,
+      detail: `setzt ${second}${third ? `.${third}` : "."} in Zeile ${corpus}`,
+      corpus,
+      lineToken: third ? `${second}.${third}` : `${second}.`,
+      type: "Aktion",
+      group: `Korpus ${corpus}`,
+      aliases: `${corpus} ${second} ${rest}`
+    }];
+  }
+
+  const selectedPart = GUIDED_PARTS.find(([part, label]) => part === second || label.toLowerCase().includes(second));
+  if (!selectedPart) return [];
+
+  if (parts.length === 2) {
+    return GUIDED_PART_PROPERTIES.map(([prop, label]) => ({
+      label: `${corpus} ${selectedPart[0]}: ${label}`,
+      detail: `Teil-Eigenschaft ${selectedPart[0]}.${prop}. auswaehlen`,
+      expandQuery: `${corpus} ${selectedPart[0]} ${prop}`,
+      type: "Teileigenschaft",
+      group: `${corpus} ${selectedPart[1]}`,
+      aliases: `${corpus} ${selectedPart[0]} ${label} ${prop}`
+    }));
+  }
+
+  const partProperty = GUIDED_PART_PROPERTIES.find(([prop]) => prop === third || prop.replace(".", " ") === parts.slice(2, 4).join(" "));
+  if (!partProperty) return [];
+
+  const propTokenLength = partProperty[0].includes(".") ? 2 : 1;
+  const value = parts.slice(2 + propTokenLength).join(".");
+  const token = `${selectedPart[0]}.${partProperty[0]}${value ? `.${value}` : "."}`;
+
+  return [{
+    label: `${corpus} ${selectedPart[0]}: ${partProperty[1]} ${value || "aendern"}`,
+    detail: `setzt ${token} in Zeile ${corpus}`,
+    corpus,
+    lineToken: token,
+    type: "Aktion",
+    group: `${corpus} ${selectedPart[1]}`,
+    aliases: `${corpus} ${selectedPart[0]} ${partProperty[0]} ${value}`
   }];
 }
 
@@ -2537,8 +2684,35 @@ function createCommandSearch() {
   list.className = "command-search-results";
   list.hidden = true;
 
+  let renderedEntries = [];
+  let activeIndex = 0;
+
+  function selectEntry(entry) {
+    if (!entry) return;
+
+    if (entry.expandQuery) {
+      input.value = entry.expandQuery;
+      activeIndex = 0;
+      render();
+      input.focus();
+      return;
+    }
+
+    if (entry.infoOnly && !entry.insert && typeof entry.action !== "function") {
+      showCommandSearchInfo(entry);
+    } else {
+      rememberCommandSearchEntry(entry);
+      insertCommandSearchEntry(entry);
+    }
+    list.hidden = true;
+    input.value = "";
+    input.blur();
+  }
+
   function render() {
     const entries = filterCommandSearchEntries(input.value);
+    renderedEntries = entries;
+    activeIndex = Math.min(activeIndex, Math.max(0, entries.length - 1));
     list.replaceChildren();
 
     if (!entries.length) {
@@ -2551,7 +2725,7 @@ function createCommandSearch() {
     }
 
     let currentGroup = "";
-    entries.forEach((entry) => {
+    entries.forEach((entry, index) => {
       if (entry.group !== currentGroup) {
         currentGroup = entry.group;
         const group = document.createElement("div");
@@ -2562,21 +2736,14 @@ function createCommandSearch() {
 
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "command-search-item";
+      button.className = `command-search-item${index === activeIndex ? " is-active" : ""}`;
+      button.setAttribute("aria-selected", index === activeIndex ? "true" : "false");
       button.addEventListener("mousedown", (event) => event.preventDefault());
-      button.addEventListener("click", () => {
-        if (typeof entry.action === "function") {
-          rememberCommandSearchEntry(entry);
-          insertCommandSearchEntry(entry);
-        } else if (entry.infoOnly && !entry.insert) {
-          showCommandSearchInfo(entry);
-        } else {
-          rememberCommandSearchEntry(entry);
-          insertCommandSearchEntry(entry);
-        }
-        list.hidden = true;
-        input.blur();
+      button.addEventListener("mouseenter", () => {
+        activeIndex = index;
+        render();
       });
+      button.addEventListener("click", () => selectEntry(entry));
 
       const main = document.createElement("span");
       main.className = "command-search-label";
@@ -2603,7 +2770,10 @@ function createCommandSearch() {
       if (document.activeElement === input) render();
     });
   });
-  input.addEventListener("input", render);
+  input.addEventListener("input", () => {
+    activeIndex = 0;
+    render();
+  });
   input.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       list.hidden = true;
@@ -2611,20 +2781,26 @@ function createCommandSearch() {
       return;
     }
 
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      activeIndex = Math.min(activeIndex + 1, Math.max(0, renderedEntries.length - 1));
+      render();
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      activeIndex = Math.max(0, activeIndex - 1);
+      render();
+      return;
+    }
+
     if (event.key === "Enter") {
-      const entry = filterCommandSearchEntries(input.value)[0];
+      const entry = renderedEntries[activeIndex] || filterCommandSearchEntries(input.value)[0];
       if (!entry) return;
 
       event.preventDefault();
-      if (entry.infoOnly && !entry.insert && typeof entry.action !== "function") {
-        showCommandSearchInfo(entry);
-      } else {
-        rememberCommandSearchEntry(entry);
-        insertCommandSearchEntry(entry);
-      }
-      list.hidden = true;
-      input.value = "";
-      input.blur();
+      selectEntry(entry);
     }
   });
   document.addEventListener("pointerdown", (event) => {

@@ -1876,6 +1876,7 @@ function topMenuButtons() {
 const COMMAND_SEARCH_STATS_KEY = "c3cad.commandSearch.stats";
 let commandSearchHelpLoaded = false;
 let commandSearchDocEntries = [];
+let commandSearchExampleEntries = [];
 
 function commandSearchStats() {
   try {
@@ -2129,6 +2130,10 @@ function levenshteinDistance(a, b) {
 
 function commandSearchActionEntries(query) {
   const raw = String(query || "").trim();
+  if (/^(?:neu|new|start|standard|beispiel|beispiele)$/i.test(raw)) {
+    return newProjectSearchEntries();
+  }
+
   const corpusMaterial = raw.match(/^([a-z][a-z0-9_.-]*)\s+(?:m|mat|material)\.?\s*(\d+)$/i);
   if (corpusMaterial) {
     const corpus = corpusMaterial[1];
@@ -2159,6 +2164,20 @@ function commandSearchActionEntries(query) {
   }];
 }
 
+function newProjectSearchEntries() {
+  return [
+    {
+      label: "Standardkorpus",
+      detail: "neues Projekt mit dem Standard-Regal starten",
+      action: () => setCommandSearchInnText(DEFAULT_CORPUS, "Standardkorpus"),
+      type: "Neu",
+      group: "Neu",
+      aliases: "neu new start standard standardkorpus regal"
+    },
+    ...commandSearchExampleEntries
+  ];
+}
+
 async function ensureCommandSearchHelp() {
   if (commandSearchHelpLoaded) return;
   commandSearchHelpLoaded = true;
@@ -2167,6 +2186,12 @@ async function ensureCommandSearchHelp() {
     const md = await res.text();
     parseJumpMarkdown(md);
     commandSearchDocEntries = parseCommandSearchMarkdown(md);
+  } catch {}
+
+  try {
+    const res = await fetch("./views/pages/example.md");
+    const md = await res.text();
+    commandSearchExampleEntries = parseCommandSearchExamples(md);
   } catch {}
 }
 
@@ -2198,6 +2223,29 @@ function parseCommandSearchMarkdown(md) {
   });
 
   return entries.filter((entry) => entry.label);
+}
+
+function parseCommandSearchExamples(md) {
+  const entries = [];
+  const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let match;
+
+  while ((match = regex.exec(String(md || ""))) !== null) {
+    const label = match[1].trim();
+    const href = match[2].trim();
+    if (!label || !href) continue;
+
+    entries.push({
+      label,
+      detail: "Beispielprojekt laden",
+      action: () => setCommandSearchInnText(urlToInn(href), label),
+      type: "Beispiel",
+      group: "Neu",
+      aliases: `neu new start beispiel example vorlage ${label}`
+    });
+  }
+
+  return entries;
 }
 
 function insertProjectLineToken(token) {
@@ -2243,6 +2291,22 @@ function insertCommandSearchEntry(entry) {
   if (entry?.corpus && entry?.lineToken) return insertCorpusLineToken(entry.corpus, entry.lineToken);
   if (entry?.projectLine) return insertProjectLineToken(entry.insert || entry.label);
   return insertCommandSearchText(entry?.insert || entry?.label);
+}
+
+function setCommandSearchInnText(text, label = "Projekt") {
+  setState("inn");
+
+  requestAnimationFrame(() => {
+    const ta = document.getElementById("inn");
+    if (!ta) return;
+
+    ta.value = String(text || DEFAULT_CORPUS);
+    ta.selectionStart = ta.selectionEnd = ta.value.length;
+    ta.dispatchEvent(new Event("input", { bubbles: true }));
+    window.syncInnEditorFromTextarea?.();
+    recordReloadHistory();
+    showCommandSearchToast(`${label} geladen. Rechte Strg uebernimmt die Aenderung.`);
+  });
 }
 
 function insertCorpusLineToken(corpus, token) {

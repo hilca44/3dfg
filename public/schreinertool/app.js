@@ -2134,6 +2134,24 @@ function commandSearchActionEntries(query) {
     return newProjectSearchEntries();
   }
 
+  const corpusDock = raw.match(/^([a-z][a-z0-9_.-]*)\s+(?:an|andocken|dock|verbinden)\s+(?:korpus|corpus)?\s*([a-z][a-z0-9_.-]*)\s+(r|l|o|u|v|h|rechts|links|oben|unten|vorne|hinten)$/i);
+  if (corpusDock) {
+    const corpus = corpusDock[1];
+    const target = corpusDock[2];
+    const side = dockSideToken(corpusDock[3]);
+    const sideLabel = dockSideLabel(side);
+    return [{
+      label: `${corpus} an ${target} ${sideLabel} andocken`,
+      detail: `setzt dock.${target},${side} in Zeile ${corpus}`,
+      insert: `${corpus} an ${target} ${side}`,
+      corpus,
+      lineToken: `dock.${target},${side}`,
+      type: "Aktion",
+      group: "Action Manager",
+      aliases: `${corpus} an ${target} ${side} ${sideLabel} andocken dock verbinden`
+    }];
+  }
+
   const corpusCopy = raw.match(/^([a-z][a-z0-9_.-]*)\s+(?:kop|kopie|kopieren|copy|duplizieren)$/i);
   if (corpusCopy) {
     const corpus = corpusCopy[1];
@@ -2177,6 +2195,29 @@ function commandSearchActionEntries(query) {
     group: "Action Manager",
     aliases: `sockel ${number} sokel soc.${number} base ${number}`
   }];
+}
+
+function dockSideToken(value) {
+  const key = String(value || "").toLowerCase();
+  return {
+    rechts: "r",
+    links: "l",
+    oben: "o",
+    unten: "u",
+    vorne: "v",
+    hinten: "h"
+  }[key] || key.slice(0, 1);
+}
+
+function dockSideLabel(side) {
+  return {
+    r: "rechts",
+    l: "links",
+    o: "oben",
+    u: "unten",
+    v: "vorne",
+    h: "hinten"
+  }[side] || side;
 }
 
 function newProjectSearchEntries() {
@@ -2485,6 +2526,13 @@ function createCommandSearch() {
   input.title = "Ctrl+K oder / fokussiert die Suche";
   input.setAttribute("aria-label", "Befehle, Eigenschaften und Tipps suchen");
 
+  const voiceButton = document.createElement("button");
+  voiceButton.type = "button";
+  voiceButton.className = "command-search-voice";
+  voiceButton.textContent = "Mic";
+  voiceButton.title = "Spracheingabe starten";
+  voiceButton.setAttribute("aria-label", "Spracheingabe fuer Suche starten");
+
   const list = document.createElement("div");
   list.className = "command-search-results";
   list.hidden = true;
@@ -2583,8 +2631,69 @@ function createCommandSearch() {
     if (!wrap.contains(event.target)) list.hidden = true;
   });
 
-  wrap.append(input, list);
+  setupCommandSearchVoice(input, voiceButton, render);
+  wrap.append(input, voiceButton, list);
   return wrap;
+}
+
+function setupCommandSearchVoice(input, button, render) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    button.hidden = true;
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = String(document.documentElement.lang || window.ST_LANG || "de-DE");
+  recognition.interimResults = true;
+  recognition.continuous = false;
+  recognition.maxAlternatives = 3;
+
+  let listening = false;
+
+  recognition.addEventListener("start", () => {
+    listening = true;
+    button.classList.add("is-listening");
+    button.title = "Spracheingabe laeuft";
+  });
+
+  recognition.addEventListener("end", () => {
+    listening = false;
+    button.classList.remove("is-listening");
+    button.title = "Spracheingabe starten";
+  });
+
+  recognition.addEventListener("result", (event) => {
+    const result = Array.from(event.results)
+      .map((item) => item[0]?.transcript || "")
+      .join(" ")
+      .trim();
+    if (!result) return;
+
+    input.value = result;
+    input.focus();
+    render();
+  });
+
+  recognition.addEventListener("error", () => {
+    listening = false;
+    button.classList.remove("is-listening");
+    showCommandSearchToast("Spracheingabe nicht verfuegbar.");
+  });
+
+  button.addEventListener("click", () => {
+    input.focus();
+    if (listening) {
+      recognition.stop();
+      return;
+    }
+
+    try {
+      recognition.start();
+    } catch {
+      recognition.stop();
+    }
+  });
 }
 
 function focusCommandSearch() {

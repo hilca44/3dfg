@@ -2043,12 +2043,120 @@ function filterCommandSearchEntries(query) {
     ]).slice(0, 12);
   }
 
-  return uniqueCommandSearchEntries(allCommandSearchEntries())
-    .filter((entry) => [entry.label, entry.detail, entry.type, entry.group, entry.aliases]
-      .join(" ")
-      .toLowerCase()
-      .includes(value))
+  return uniqueCommandSearchEntries([
+      ...commandSearchActionEntries(value),
+      ...allCommandSearchEntries()
+  ])
+    .map((entry) => ({ entry, score: commandSearchScore(entry, value) }))
+    .filter((row) => row.score >= 0.35)
+    .sort((a, b) => b.score - a.score)
+    .map((row) => row.entry)
     .slice(0, 20);
+}
+
+function commandSearchText(entry) {
+  return [entry.label, entry.detail, entry.type, entry.group, entry.aliases, entry.insert]
+    .join(" ")
+    .toLowerCase()
+    .replace(/[.=,;:_-]+/g, " ");
+}
+
+function commandSearchTokens(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[.=,;:_-]+/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function commandSearchScore(entry, query) {
+  const text = commandSearchText(entry);
+  const queryText = String(query || "").toLowerCase().replace(/[.=,;:_-]+/g, " ").trim();
+  const queryTokens = commandSearchTokens(query);
+  if (!queryTokens.length) return 0;
+
+  let score = entry.group === "Action Manager" ? 0.25 : 0;
+  if (text.includes(queryText)) score += 1;
+  if (String(entry.label || "").toLowerCase().startsWith(queryText)) score += 0.4;
+
+  const textTokens = commandSearchTokens(text);
+  const tokenScore = queryTokens.reduce((sum, queryToken) => {
+    const best = textTokens.reduce((max, textToken) => Math.max(max, fuzzyTokenScore(queryToken, textToken)), 0);
+    return sum + best;
+  }, 0) / queryTokens.length;
+
+  return score + tokenScore;
+}
+
+function fuzzyTokenScore(queryToken, textToken) {
+  if (!queryToken || !textToken) return 0;
+  if (queryToken === textToken) return 1;
+  if (textToken.startsWith(queryToken) || queryToken.startsWith(textToken)) return 0.86;
+  if (textToken.includes(queryToken) || queryToken.includes(textToken)) return 0.72;
+  if (isSubsequence(queryToken, textToken)) return 0.58;
+
+  const distance = levenshteinDistance(queryToken, textToken);
+  const maxLength = Math.max(queryToken.length, textToken.length);
+  if (maxLength <= 2) return 0;
+  return Math.max(0, 1 - distance / maxLength);
+}
+
+function isSubsequence(needle, haystack) {
+  let index = 0;
+  for (const char of haystack) {
+    if (char === needle[index]) index += 1;
+    if (index === needle.length) return true;
+  }
+  return false;
+}
+
+function levenshteinDistance(a, b) {
+  const prev = Array.from({ length: b.length + 1 }, (_, index) => index);
+  const cur = Array(b.length + 1).fill(0);
+
+  for (let i = 1; i <= a.length; i++) {
+    cur[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = a[i - 1] === b[j - 1]
+        ? prev[j - 1]
+        : Math.min(prev[j - 1], prev[j], cur[j - 1]) + 1;
+    }
+    prev.splice(0, prev.length, ...cur);
+  }
+
+  return prev[b.length];
+}
+
+function commandSearchActionEntries(query) {
+  const raw = String(query || "").trim();
+  const corpusMaterial = raw.match(/^([a-z][a-z0-9_.-]*)\s+(?:m|mat|material)\.?\s*(\d+)$/i);
+  if (corpusMaterial) {
+    const corpus = corpusMaterial[1];
+    const material = corpusMaterial[2];
+    return [{
+      label: `${corpus} Material ${material}`,
+      detail: `setzt mat.${material} in Zeile ${corpus}`,
+      insert: `${corpus} m${material}`,
+      corpus,
+      lineToken: `mat.${material}`,
+      type: "Aktion",
+      group: "Action Manager",
+      aliases: `${corpus} mat.${material} ${corpus} material ${material}`
+    }];
+  }
+
+  const number = raw.match(/\d+(?:[,.]\d+)?/)?.[0]?.replace(",", ".");
+  const wantsSockel = /^(\d+(?:[,.]\d+)?)$/.test(raw) || /\b(?:soc|sock|sockel|sokel|base)\b/i.test(raw);
+  if (!number || !wantsSockel) return [];
+
+  return [{
+    label: `Sockel ${number} cm`,
+    detail: `setzt soc.${number} im Moebel-Editor`,
+    insert: `soc.${number}`,
+    type: "Aktion",
+    group: "Action Manager",
+    aliases: `sockel ${number} sokel soc.${number} base ${number}`
+  }];
 }
 
 async function ensureCommandSearchHelp() {
@@ -2132,8 +2240,50 @@ function insertCommandSearchEntry(entry) {
     entry.action();
     return true;
   }
+  if (entry?.corpus && entry?.lineToken) return insertCorpusLineToken(entry.corpus, entry.lineToken);
   if (entry?.projectLine) return insertProjectLineToken(entry.insert || entry.label);
   return insertCommandSearchText(entry?.insert || entry?.label);
+}
+
+function insertCorpusLineToken(corpus, token) {
+  const corpusName = String(corpus || "").trim();
+  const value = String(token || "").trim();
+  if (!corpusName || !value) return false;
+
+  setState("inn");
+
+  requestAnimationFrame(() => {
+    const ta = document.getElementById("inn");
+    if (!ta) return;
+
+    const lines = String(ta.value || "").split(/\r?\n/);
+    const lineIndex = lines.findIndex((line) => line.trim().split(/\s+/)[0] === corpusName);
+    const targetIndex = lineIndex >= 0 ? lineIndex : lines.length;
+    const currentLine = lineIndex >= 0 ? lines[lineIndex].trim() : corpusName;
+    const property = value.match(/^([a-z]+)[.=]?/i)?.[1];
+    let nextLine = currentLine;
+
+    if (property) {
+      const propertyPattern = new RegExp(`(^|\\s)${property}(?:[.=]?)[^\\s]+(?=\\s|$)`, "ig");
+      nextLine = nextLine.replace(propertyPattern, " ").replace(/\s+/g, " ").trim();
+    } else {
+      const tokenPattern = new RegExp(`(^|\\s)${value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?=\\s|$)`, "i");
+      if (tokenPattern.test(nextLine)) return;
+    }
+
+    lines[targetIndex] = `${nextLine} ${value}`.trim();
+    ta.value = lines.join("\n");
+
+    const start = lines.slice(0, targetIndex).reduce((sum, line) => sum + line.length + 1, 0);
+    const end = start + lines[targetIndex].length;
+    ta.selectionStart = ta.selectionEnd = end;
+    ta.dispatchEvent(new Event("input", { bubbles: true }));
+    window.syncInnEditorFromTextarea?.();
+    recordReloadHistory();
+    showCommandSearchToast(`"${value}" in Zeile ${corpusName} gesetzt. Rechte Strg uebernimmt die Aenderung.`);
+  });
+
+  return true;
 }
 
 function insertCommandSearchText(text) {
@@ -2211,6 +2361,7 @@ function createCommandSearch() {
   const input = document.createElement("input");
   input.type = "search";
   input.placeholder = "Befehl suchen";
+  input.title = "Ctrl+K oder / fokussiert die Suche";
   input.setAttribute("aria-label", "Befehle, Eigenschaften und Tipps suchen");
 
   const list = document.createElement("div");
@@ -2288,6 +2439,23 @@ function createCommandSearch() {
     if (event.key === "Escape") {
       list.hidden = true;
       input.blur();
+      return;
+    }
+
+    if (event.key === "Enter") {
+      const entry = filterCommandSearchEntries(input.value)[0];
+      if (!entry) return;
+
+      event.preventDefault();
+      if (entry.infoOnly && !entry.insert && typeof entry.action !== "function") {
+        showCommandSearchInfo(entry);
+      } else {
+        rememberCommandSearchEntry(entry);
+        insertCommandSearchEntry(entry);
+      }
+      list.hidden = true;
+      input.value = "";
+      input.blur();
     }
   });
   document.addEventListener("pointerdown", (event) => {
@@ -2297,6 +2465,32 @@ function createCommandSearch() {
   wrap.append(input, list);
   return wrap;
 }
+
+function focusCommandSearch() {
+  const input = document.querySelector(".command-search input");
+  if (!input) return false;
+
+  input.focus();
+  input.select();
+  input.dispatchEvent(new Event("focus"));
+  return true;
+}
+
+function isTypingTarget(target) {
+  const el = target instanceof Element ? target : null;
+  if (!el) return false;
+  return Boolean(el.closest("input, textarea, select, [contenteditable='true'], .cm-editor"));
+}
+
+document.addEventListener("keydown", (event) => {
+  const isSearchShortcut = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k";
+  const isSlashShortcut = event.key === "/" && !event.ctrlKey && !event.metaKey && !event.altKey && !isTypingTarget(event.target);
+
+  if (!isSearchShortcut && !isSlashShortcut) return;
+  if (!focusCommandSearch()) return;
+
+  event.preventDefault();
+});
 
 function setButtons(defs, nuu="slot3") {
   if (typeof defs === "function") defs = defs();

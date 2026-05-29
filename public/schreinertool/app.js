@@ -2134,6 +2134,21 @@ function commandSearchActionEntries(query) {
     return newProjectSearchEntries();
   }
 
+  const corpusCopy = raw.match(/^([a-z][a-z0-9_.-]*)\s+(?:kop|kopie|kopieren|copy|duplizieren)$/i);
+  if (corpusCopy) {
+    const corpus = corpusCopy[1];
+    const copyName = nextCorpusCopyName(corpus);
+    return [{
+      label: `${corpus} kopieren -> ${copyName}`,
+      detail: `legt die neue Moebelzeile ${copyName} an`,
+      insert: copyName,
+      copyName,
+      type: "Aktion",
+      group: "Action Manager",
+      aliases: `${corpus} kopie ${corpus} kopieren ${corpus} copy ${copyName}`
+    }];
+  }
+
   const corpusMaterial = raw.match(/^([a-z][a-z0-9_.-]*)\s+(?:m|mat|material)\.?\s*(\d+)$/i);
   if (corpusMaterial) {
     const corpus = corpusMaterial[1];
@@ -2288,9 +2303,51 @@ function insertCommandSearchEntry(entry) {
     entry.action();
     return true;
   }
+  if (entry?.copyName) return insertCorpusCopyLine(entry.copyName);
   if (entry?.corpus && entry?.lineToken) return insertCorpusLineToken(entry.corpus, entry.lineToken);
   if (entry?.projectLine) return insertProjectLineToken(entry.insert || entry.label);
   return insertCommandSearchText(entry?.insert || entry?.label);
+}
+
+function nextCorpusCopyName(corpus) {
+  const base = String(corpus || "").trim();
+  if (!base) return "";
+
+  const ta = document.getElementById("inn");
+  const names = new Set(String(ta?.value || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim().split(/\s+/)[0])
+    .filter(Boolean));
+
+  let index = 1;
+  while (names.has(`${base}${index}`)) index += 1;
+  return `${base}${index}`;
+}
+
+function insertCorpusCopyLine(copyName) {
+  const name = String(copyName || "").trim();
+  if (!name) return false;
+
+  setState("inn");
+
+  requestAnimationFrame(() => {
+    const ta = document.getElementById("inn");
+    if (!ta) return;
+
+    const lines = String(ta.value || "").split(/\r?\n/);
+    if (!lines.some((line) => line.trim().split(/\s+/)[0] === name)) {
+      lines.push(name);
+      ta.value = lines.join("\n");
+    }
+
+    ta.selectionStart = ta.selectionEnd = ta.value.length;
+    ta.dispatchEvent(new Event("input", { bubbles: true }));
+    window.syncInnEditorFromTextarea?.();
+    recordReloadHistory();
+    showCommandSearchToast(`"${name}" angelegt. Rechte Strg uebernimmt die Aenderung.`);
+  });
+
+  return true;
 }
 
 function setCommandSearchInnText(text, label = "Projekt") {

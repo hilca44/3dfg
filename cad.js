@@ -4439,13 +4439,20 @@ applyInteriorLayout(k) {
 	        };
 	        if (!hasPoint(p1) || !hasPoint(p2)) return false;
 
-	        const a = this.corners(p1);
-	        const b = this.corners(p2);
-	        if (!a || !b) return false;
+	        const distanceExpr = `(${refs[0]}_${refs[1]})`;
+	        let w = this.resolvePointDistanceExpression(ko, distanceExpr, "x");
+	        let d = this.resolvePointDistanceExpression(ko, distanceExpr, "y");
+	        let h = this.resolvePointDistanceExpression(ko, distanceExpr, "z");
 
-	        const w = Math.abs(Number(b[0]) - Number(a[0]));
-	        const d = Math.abs(Number(b[1]) - Number(a[1]));
-	        const h = Math.abs(Number(b[2]) - Number(a[2]));
+	        if (![w, d, h].every(Number.isFinite)) {
+	            const a = this.corners(p1);
+	            const b = this.corners(p2);
+	            if (!a || !b) return false;
+
+	            w = Math.abs(Number(b[0]) - Number(a[0]));
+	            d = Math.abs(Number(b[1]) - Number(a[1]));
+	            h = Math.abs(Number(b[2]) - Number(a[2]));
+	        }
 	        const before = JSON.stringify({
 	            w: ko.w,
 	            d: ko.d,

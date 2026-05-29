@@ -2687,6 +2687,14 @@ function createCommandSearch() {
   let renderedEntries = [];
   let activeIndex = 0;
 
+  function updateActiveSearchItems() {
+    list.querySelectorAll(".command-search-item").forEach((button, index) => {
+      const active = index === activeIndex;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-selected", active ? "true" : "false");
+    });
+  }
+
   function selectEntry(entry) {
     if (!entry) return;
 
@@ -2739,9 +2747,10 @@ function createCommandSearch() {
       button.className = `command-search-item${index === activeIndex ? " is-active" : ""}`;
       button.setAttribute("aria-selected", index === activeIndex ? "true" : "false");
       button.addEventListener("mousedown", (event) => event.preventDefault());
-      button.addEventListener("mouseenter", () => {
+      button.addEventListener("pointermove", () => {
+        if (activeIndex === index) return;
         activeIndex = index;
-        render();
+        updateActiveSearchItems();
       });
       button.addEventListener("click", () => selectEntry(entry));
 
@@ -2764,6 +2773,44 @@ function createCommandSearch() {
     list.hidden = false;
   }
 
+  function handleCommandSearchKeydown(event) {
+    if (event.key === "Escape") {
+      list.hidden = true;
+      input.blur();
+      event.preventDefault();
+      event.stopPropagation();
+      return true;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      event.stopPropagation();
+      activeIndex = Math.min(activeIndex + 1, Math.max(0, renderedEntries.length - 1));
+      updateActiveSearchItems();
+      return true;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      event.stopPropagation();
+      activeIndex = Math.max(0, activeIndex - 1);
+      updateActiveSearchItems();
+      return true;
+    }
+
+    if (event.key === "Enter") {
+      const entry = renderedEntries[activeIndex] || filterCommandSearchEntries(input.value)[0];
+      if (!entry) return false;
+
+      event.preventDefault();
+      event.stopPropagation();
+      selectEntry(entry);
+      return true;
+    }
+
+    return false;
+  }
+
   input.addEventListener("focus", () => {
     render();
     ensureCommandSearchHelp().then(() => {
@@ -2774,35 +2821,11 @@ function createCommandSearch() {
     activeIndex = 0;
     render();
   });
-  input.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      list.hidden = true;
-      input.blur();
-      return;
-    }
-
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      activeIndex = Math.min(activeIndex + 1, Math.max(0, renderedEntries.length - 1));
-      render();
-      return;
-    }
-
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      activeIndex = Math.max(0, activeIndex - 1);
-      render();
-      return;
-    }
-
-    if (event.key === "Enter") {
-      const entry = renderedEntries[activeIndex] || filterCommandSearchEntries(input.value)[0];
-      if (!entry) return;
-
-      event.preventDefault();
-      selectEntry(entry);
-    }
-  });
+  input.addEventListener("keydown", handleCommandSearchKeydown);
+  document.addEventListener("keydown", (event) => {
+    if (document.activeElement !== input) return;
+    handleCommandSearchKeydown(event);
+  }, true);
   document.addEventListener("pointerdown", (event) => {
     if (!wrap.contains(event.target)) list.hidden = true;
   });

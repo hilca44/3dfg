@@ -1447,11 +1447,20 @@ isRepeatCommandToken(cmd) {
     return lhs === "n" || /^n[xyz]$/.test(lhs);
 }
 
+isPositionCommandToken(cmd) {
+    const text = String(cmd || "").trim();
+    const lhs = text.split(/[=:]/)[0].toLowerCase();
+    return /^[xyz]$/.test(lhs);
+}
+
 parentLbsForChild(parentLbs, ko) {
     const isIntegratedChild = String(ko?.nme || "").includes(".");
     const inherited = Array.isArray(parentLbs) ? parentLbs.slice(1) : [];
     if (!isIntegratedChild) return inherited;
-    return inherited.filter(cmd => !this.isRepeatCommandToken(cmd));
+    return inherited.filter(cmd =>
+        !this.isRepeatCommandToken(cmd) &&
+        !this.isPositionCommandToken(cmd)
+    );
 }
 
 

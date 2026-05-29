@@ -1029,6 +1029,16 @@ function rotationPivotOffsetZ(localBB, angleRad, corner) {
     return pivot.sub(rotatedPivot);
 }
 
+function rotationPivotOffset(localBB, euler, pivot) {
+    if (!localBB || !euler) return new THREE.Vector3();
+    if (!euler.x && !euler.y && !euler.z) return new THREE.Vector3();
+
+    const point = pivot || localBB.getCenter(new THREE.Vector3());
+    const rotatedPoint = point.clone().applyEuler(euler);
+
+    return point.sub(rotatedPoint);
+}
+
 function applyPartRotation(mesh, part, w, d, h) {
     const localBB = makePartLocalBB(w, d, h);
     const oz = rotationDeg(part?.oz);
@@ -1866,12 +1876,17 @@ function proj(pr) {
 	    }
 
 	    function korpusRotationPivotOffset(mesh, k) {
-	        const corner = k?.ozc;
-	        const angle = Number(k?.oz) || 0;
 	        const bb = mesh?.userData?.localBB;
-	        if (corner == null || !angle || !bb) return new THREE.Vector3();
+	        if (!bb) return new THREE.Vector3();
 
-	        return rotationPivotOffsetZ(bb, THREE.MathUtils.degToRad(angle), corner);
+	        const euler = new THREE.Euler(
+	            THREE.MathUtils.degToRad(Number(k?.ox) || 0),
+	            THREE.MathUtils.degToRad(Number(k?.oy) || 0),
+	            THREE.MathUtils.degToRad(Number(k?.oz) || 0)
+	        );
+	        const pivot = k?.ozc == null ? null : cornerFromBB(bb, [k.ozc]);
+
+	        return rotationPivotOffset(bb, euler, pivot);
 	    }
 
 	    function korpusBasePosition(mesh, k) {
@@ -1956,7 +1971,11 @@ function proj(pr) {
         const mesh = meshMap[name];
         if (!mesh || !k) continue;
 
-	        mesh.rotation.z = THREE.MathUtils.degToRad(Number(k.oz) || 0);
+	        mesh.rotation.set(
+	            THREE.MathUtils.degToRad(Number(k.ox) || 0),
+	            THREE.MathUtils.degToRad(Number(k.oy) || 0),
+	            THREE.MathUtils.degToRad(Number(k.oz) || 0)
+	        );
 	        mesh.position.copy(korpusRotationPivotOffset(mesh, k));
 	    }
 

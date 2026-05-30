@@ -2374,7 +2374,11 @@ function naturalChangeNumber(raw, property) {
   if (!Number.isFinite(number)) return "";
 
   const tail = text.slice(match.index + match[0].length, match.index + match[0].length + 8).toLowerCase();
-  if (property !== "mat" && /\bmm\b/.test(tail)) number = number / 10;
+  if (property !== "mat" && /\bmm\b/.test(tail)) {
+    number = number / 10;
+  } else if (property !== "mat" && /\bm\b/.test(tail) && !/\bcm\b/.test(tail)) {
+    number = number * 100;
+  }
   return String(Math.round(number * 1000) / 1000).replace(",", ".");
 }
 

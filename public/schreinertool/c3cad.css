@@ -1987,7 +1987,7 @@ display: flex;;
   align-items: stretch;
   gap: 0;
   padding: 0;
-  background: var(--accent);
+  background: var(--bar);
 }
 
 #slot0.action-grid > button,
@@ -1998,10 +1998,10 @@ display: flex;;
   margin: 0;
   padding: 8px 10px;
   border: 0;
-  border-left: 1px solid color-mix(in srgb, var(--white) 22%, transparent);
+  border-left: 1px solid var(--border-soft);
   border-radius: 0;
-  background: var(--accent);
-  color: var(--white);
+  background: var(--card);
+  color: var(--text-main);
   box-shadow: none;
   display: flex;
   align-items: center;
@@ -2020,12 +2020,12 @@ display: flex;;
 
 #slot0.action-grid > button:hover,
 #slot3.action-grid > button:hover {
-  background: var(--accent-hover);
+  background: var(--card-5);
 }
 
 #slot0.action-grid > button:active,
 #slot3.action-grid > button:active {
-  background: var(--accent-active);
+  background: var(--card-7);
 }
 
 #slot0 .toolbar-menu-button,

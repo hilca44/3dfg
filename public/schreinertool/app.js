@@ -1858,6 +1858,7 @@ const TOP_TOOLBAR_ACTIONS = [
   { label: "☰", action: toggleHelpMenu, placement: "toolbar", className: "toolbar-menu-button" },
   { id: "toolbarUndo", label: "< 0", title: "Rueckgaengig", action: undoProjectText, placement: "toolbar", className: "toolbar-history-button" },
   { kind: "search", placement: "toolbar" },
+  { kind: "naturalChange", placement: "toolbar" },
   { id: "toolbarRedo", label: "0 >", title: "Wiederholen", action: redoProjectText, placement: "toolbar", className: "toolbar-history-button" },
   { labelKey: "ui.share", label: "📤 Teilen", titleKey: "ui.shareTooltip", title: "Projekt-Link per E-Mail senden", action: shareProjectByMail, placement: "menu" },
   { label: "Tutor", title: "Autoplay im Editor starten", action: toggleTutorAutoplay, placement: "menu", className: "menu-action-tutor" },
@@ -2251,6 +2252,192 @@ function currentCorpusNames() {
     .slice(1)
     .map((line) => line.trim().split(/\s+/)[0])
     .filter(Boolean);
+}
+
+const NATURAL_CHANGE_SYNONYMS = {
+  corpusProperties: [
+    ["breit", "breite breit width wide weit breiter schmal schmaler"],
+    ["tief", "tiefe tief depth tiefer weniger tief"],
+    ["hoch", "hoehe höhe hoch height höher hoeher niedriger"],
+    ["mat", "material mat platte holz dekor farbe"],
+    ["soc", "sockel sokel soc base fuss fuß"],
+    ["push", "push versatz einzug ueberstand überstand kleiner luft spalt"],
+    ["x", "x links rechts position xpos"],
+    ["y", "y vorne hinten tiefe-position ypos"],
+    ["z", "z oben unten hoehe-position höhe-position zpos"],
+    ["anz", "anzahl menge stueck stück count"]
+  ],
+  partProperties: [
+    ["mat", "material mat platte holz dekor farbe"],
+    ["push", "push versatz einzug ueberstand überstand kleiner luft spalt"],
+    ["cut.x", "x schneiden teilen spalten horizontal frontteilung"],
+    ["cut.y", "y schneiden teilen tiefe teilen"],
+    ["cut.z", "z schneiden teilen faecher fächer vertikal hoehe teilen höhe teilen"],
+    ["dre.x", "x drehen kippen"],
+    ["dre.y", "y drehen"],
+    ["dre.z", "z drehen rotation winkel"],
+    ["reihe.x", "x wiederholen kopieren reihe serie"],
+    ["reihe.y", "y wiederholen kopieren reihe serie"],
+    ["reihe.z", "z wiederholen kopieren reihe serie"],
+    ["breit", "breite breit width"],
+    ["tief", "tiefe tief depth"],
+    ["hoch", "hoehe höhe hoch height"]
+  ],
+  parts: [
+    ["sl", "linke seite links seite linkswand linke wand"],
+    ["sr", "rechte seite rechts seite rechtswand rechte wand"],
+    ["bo", "boden unterboden unten"],
+    ["de", "deckel top oben oberboden"],
+    ["rw", "rueckwand rückwand back hinten"],
+    ["fr", "front tuer tür tuere türe schubladenfront vorne"],
+    ["eb", "einlegeboden fachboden boden fach boeden böden"],
+    ["mw", "mittelwand mittelseite trennwand"]
+  ]
+};
+
+function normalizeNaturalChangeText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ß/g, "ss")
+    .replace(/[^\p{L}\p{N}.,_-]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function naturalAliasWords(value) {
+  return normalizeNaturalChangeText(value).split(/\s+/).filter(Boolean);
+}
+
+function findNaturalAlias(text, rows) {
+  const normalized = ` ${normalizeNaturalChangeText(text)} `;
+  const matches = rows
+    .map(([key, aliases]) => {
+      const score = naturalAliasWords(`${key} ${aliases}`).reduce((sum, word) => (
+        normalized.includes(` ${normalizeNaturalChangeText(word)} `) ? sum + 1 : sum
+      ), 0);
+      return { key, score };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  if (!matches.length) return { key: "", ambiguous: false };
+  const best = matches[0].score;
+  const tied = matches.filter((entry) => entry.score === best);
+  return { key: tied.length === 1 ? tied[0].key : "", ambiguous: tied.length > 1, choices: tied.map((entry) => entry.key) };
+}
+
+function askNaturalChange(question, fallback = "") {
+  return String(window.prompt(question, fallback) || "").trim();
+}
+
+function resolveNaturalCorpus(raw) {
+  const names = currentCorpusNames();
+  const normalizedRaw = ` ${normalizeNaturalChangeText(raw)} `;
+  const named = names.filter((name) => normalizedRaw.includes(` ${normalizeNaturalChangeText(name)} `));
+  if (named.length === 1) return named[0];
+  if (named.length > 1) {
+    const answer = askNaturalChange(`Welcher Korpus? (${named.join(", ")})`, named[0]);
+    return names.includes(answer) ? answer : "";
+  }
+  if (names.length === 1) return names[0];
+  const answer = askNaturalChange(`Welcher Korpus soll geaendert werden? (${names.join(", ")})`, names[0] || "");
+  return names.includes(answer) ? answer : answer;
+}
+
+function naturalChangeNumber(raw, property) {
+  const text = String(raw || "");
+  const match = text.match(/[+-]?\d+(?:[,.]\d+)?/);
+  if (!match) return "";
+
+  let number = Number(match[0].replace(",", "."));
+  if (!Number.isFinite(number)) return "";
+
+  const tail = text.slice(match.index + match[0].length, match.index + match[0].length + 8).toLowerCase();
+  if (property !== "mat" && /\bmm\b/.test(tail)) number = number / 10;
+  return String(Math.round(number * 1000) / 1000).replace(",", ".");
+}
+
+function resolveNaturalProperty(raw, part) {
+  const rows = part ? NATURAL_CHANGE_SYNONYMS.partProperties : NATURAL_CHANGE_SYNONYMS.corpusProperties;
+  const found = findNaturalAlias(raw, rows);
+  if (found.key) return found.key;
+
+  const choices = rows.map(([key]) => key).join(", ");
+  const hint = found.ambiguous ? `Mehrdeutig: ${found.choices.join(", ")}. ` : "";
+  const answer = askNaturalChange(`${hint}Welche Eigenschaft? (${choices})`, part ? "push" : "breit");
+  return findNaturalAlias(answer, rows).key || answer;
+}
+
+function resolveNaturalPart(raw) {
+  const found = findNaturalAlias(raw, NATURAL_CHANGE_SYNONYMS.parts);
+  if (found.key) return found.key;
+  if (!found.ambiguous) return "";
+
+  const answer = askNaturalChange(`Welches Teil? (${found.choices.join(", ")})`, found.choices[0]);
+  return findNaturalAlias(answer, NATURAL_CHANGE_SYNONYMS.parts).key || answer;
+}
+
+function setCorpusLineTokenNow(corpus, token, propertyPrefix = "") {
+  const ta = document.getElementById("inn");
+  if (!ta || !corpus || !token) return false;
+
+  const lines = String(ta.value || "").split(/\r?\n/);
+  const lineIndex = lines.findIndex((line, index) => index > 0 && line.trim().split(/\s+/)[0] === corpus);
+  const targetIndex = lineIndex >= 0 ? lineIndex : lines.length;
+  const currentLine = lineIndex >= 0 ? lines[lineIndex].trim() : corpus;
+  const prefix = String(propertyPrefix || token).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const propertyPattern = new RegExp(`(^|\\s)${prefix}(?:[.=])[^\\s]+(?=\\s|$)`, "ig");
+  const nextLine = `${currentLine.replace(propertyPattern, " ").replace(/\s+/g, " ").trim()} ${token}`.trim();
+
+  lines[targetIndex] = nextLine;
+  ta.value = lines.join("\n");
+
+  const start = lines.slice(0, targetIndex).reduce((sum, line) => sum + line.length + 1, 0);
+  ta.selectionStart = ta.selectionEnd = start + nextLine.length;
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+  window.syncInnEditorFromTextarea?.();
+  recordReloadHistory();
+  renderLineButtonsFromInn();
+  return true;
+}
+
+async function applyNaturalTextChange(raw) {
+  const text = String(raw || "").trim();
+  if (!text) return false;
+
+  const corpus = resolveNaturalCorpus(text);
+  if (!corpus) {
+    showCommandSearchToast("Kein Korpus gefunden.");
+    return false;
+  }
+
+  const part = resolveNaturalPart(text);
+  const property = resolveNaturalProperty(text, part);
+  if (!property) {
+    showCommandSearchToast("Keine Eigenschaft gefunden.");
+    return false;
+  }
+
+  let value = naturalChangeNumber(text, property);
+  if (!value) value = askNaturalChange(`Welcher Wert fuer ${part ? `${part}.` : ""}${property}?`, "");
+  if (!value) {
+    showCommandSearchToast("Kein Wert angegeben.");
+    return false;
+  }
+
+  const token = part ? `${part}.${property}.${value}` : `${property}.${value}`;
+  const propertyPrefix = part ? `${part}.${property}` : property;
+  setState("inn");
+
+  requestAnimationFrame(async () => {
+    if (!setCorpusLineTokenNow(corpus, token, propertyPrefix)) return;
+    await applyInnTextChanges();
+    showCommandSearchToast(`${corpus}: ${token} gesetzt.`);
+  });
+
+  return true;
 }
 
 function knownCorpusName(name) {
@@ -2838,6 +3025,32 @@ function createCommandSearch() {
   return wrap;
 }
 
+function createNaturalChangeInput() {
+  const form = document.createElement("form");
+  form.className = "natural-change";
+
+  const input = document.createElement("input");
+  input.type = "search";
+  input.placeholder = "Aenderung per Text";
+  input.title = "Beispiel: Korpus a Breite 80 oder Front 3 mm kleiner";
+  input.setAttribute("aria-label", "Aenderung als freien Text eingeben");
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const value = input.value.trim();
+    if (!value) return;
+
+    input.disabled = true;
+    const ok = await applyNaturalTextChange(value);
+    input.disabled = false;
+    if (ok) input.value = "";
+    input.focus();
+  });
+
+  form.append(input);
+  return form;
+}
+
 function setupCommandSearchVoice(input, button, render) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
@@ -2941,6 +3154,11 @@ function setButtons(defs, nuu="slot3") {
 
     if (d?.kind === "search") {
       slot.appendChild(createCommandSearch());
+      return;
+    }
+
+    if (d?.kind === "naturalChange") {
+      slot.appendChild(createNaturalChangeInput());
       return;
     }
 

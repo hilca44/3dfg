@@ -3295,6 +3295,19 @@ function createNaturalChangeInput() {
   return form;
 }
 
+async function submitNaturalChangeInputIfFilled() {
+  const input = document.querySelector(".natural-change input");
+  const value = String(input?.value || "").trim();
+  if (!input || !value) return false;
+
+  input.disabled = true;
+  const ok = await applyNaturalTextChange(value);
+  input.disabled = false;
+  if (ok) input.value = "";
+  input.focus();
+  return true;
+}
+
 function setupCommandSearchVoice(input, button, render) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
@@ -6136,7 +6149,9 @@ async function loadVisitorCounter() {
   } catch {}
 }
 
-function triggerCentralReload() {
+async function triggerCentralReload() {
+  if (await submitNaturalChangeInputIfFilled()) return;
+
   recordReloadHistory();
 
   if (typeof window.onRenderClicked === "function") {

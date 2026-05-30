@@ -1994,6 +1994,7 @@ display: flex;;
 #slot3.action-grid > button {
   flex: 1 1 0;
   min-width: 0;
+  max-width: 150px;
   min-height: 44px;
   margin: 0;
   padding: 8px 10px;

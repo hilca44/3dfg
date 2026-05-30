@@ -11,6 +11,7 @@ import { NATURAL_CHANGE_SYNONYMS } from "./natural-change-synonyms.js?v=4";
 let CURRENT_STATE = null;
 const colors = window.colors || {};
 
+const ENABLE_COMMAND_SEARCH = false;
 const ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 if (window.freeLimitsReady) await window.freeLimitsReady;
 const FREE_LIMITS = window.FREE_LIMITS || {
@@ -2282,21 +2283,34 @@ function naturalAliasWords(value) {
 }
 
 function findNaturalAlias(text, rows) {
-  const normalized = ` ${normalizeNaturalChangeText(text)} `;
+  const textWords = naturalAliasWords(text);
   const matches = rows
     .map(([key, aliases]) => {
       const score = naturalAliasWords(`${key} ${aliases}`).reduce((sum, word) => (
-        normalized.includes(` ${normalizeNaturalChangeText(word)} `) ? sum + 1 : sum
+        sum + naturalAliasWordScore(word, textWords)
       ), 0);
       return { key, score };
     })
-    .filter((entry) => entry.score > 0)
+    .filter((entry) => entry.score >= 0.78)
     .sort((a, b) => b.score - a.score);
 
   if (!matches.length) return { key: "", ambiguous: false };
   const best = matches[0].score;
-  const tied = matches.filter((entry) => entry.score === best);
+  const tied = matches.filter((entry) => Math.abs(entry.score - best) < 0.12);
   return { key: tied.length === 1 ? tied[0].key : "", ambiguous: tied.length > 1, choices: tied.map((entry) => entry.key) };
+}
+
+function naturalAliasWordScore(aliasWord, textWords) {
+  const word = normalizeNaturalChangeText(aliasWord);
+  if (!word || !textWords.length) return 0;
+
+  return textWords.reduce((best, textWord) => {
+    if (word === textWord) return Math.max(best, 1);
+    if (word.length <= 2 || textWord.length <= 2) return best;
+
+    const score = fuzzyTokenScore(textWord, word);
+    return Math.max(best, score >= 0.78 ? score : 0);
+  }, 0);
 }
 
 function askNaturalChange(question, fallback = "") {
@@ -3369,6 +3383,8 @@ function setupCommandSearchVoice(input, button, render) {
 }
 
 function focusCommandSearch() {
+  if (!ENABLE_COMMAND_SEARCH) return false;
+
   const input = document.querySelector(".command-search input");
   if (!input) return false;
 
@@ -3410,6 +3426,8 @@ function setButtons(defs, nuu="slot3") {
     }
 
     if (d?.kind === "search") {
+      if (!ENABLE_COMMAND_SEARCH) return;
+
       slot.appendChild(createCommandSearch());
       return;
     }

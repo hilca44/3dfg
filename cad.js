@@ -2008,8 +2008,7 @@ setTokenValue(obj, token){
             const sides = match[2].toLowerCase();
 
             if (!partName && (sides.includes("g") || sides.includes("u")) && sides.includes("s")) {
-                target.ug = Number(amount);
-                target.leg = 0;
+                this.handleSockel(target, Number(amount));
                 if (Array.isArray(target.jj) && !target.jj.includes("gg")) {
                     target.jj.push("gg");
                 }
@@ -3477,6 +3476,28 @@ resolvePar(ko, str) {
         }
     }
 
+    handleSockel(k, height) {
+        if (k._h_before_leg == null) {
+            k._h_before_leg = k.h
+        } else {
+            k.h = k._h_before_leg
+        }
+
+        const amount = Number(height);
+        k.leg = 0
+        k.legCount = 0
+        k.roll = 0
+        k.rollCount = 0
+
+        if (!Number.isFinite(amount) || amount <= 0) {
+            k.ug = 0
+            return
+        }
+
+        k.ug = amount
+        k.h -= amount
+    }
+
     handleLegs(k, height, count = 4) {
 
         // -------------------------------------------------
@@ -3511,6 +3532,7 @@ resolvePar(ko, str) {
         k.rollCount = 0
         k.leg = height
         k.legCount = count
+        k.h -= height
         const legs = count === 2 ? ["g0", "g3"] : ["g0", "g3", "g4", "g7"]
         const legSize = 4
 
@@ -3583,6 +3605,7 @@ resolvePar(ko, str) {
         k.legCount = count
         k.roll = height
         k.rollCount = count
+        k.h -= height
 
         const rollers = count === 2 ? ["g0", "g3"] : ["g0", "g3", "g4", "g7"]
         const rollSize = 5

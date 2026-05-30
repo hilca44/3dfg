@@ -7,6 +7,7 @@ import { updateAndReloadURL } from "./fu.js?v=dockparse1";
 import { ProjectEditor as pp} from "./project-editor.js?v=arrayparse34";
 import { convertLegacyToModern } from "./legacy-converter.js?v=dockparse1";
 import { baseCommands, parameterOptionsByProperty } from "./suggest.js?v=arrayparse38";
+import { NATURAL_CHANGE_SYNONYMS } from "./natural-change-synonyms.js?v=1";
 let CURRENT_STATE = null;
 const colors = window.colors || {};
 
@@ -2254,54 +2255,15 @@ function currentCorpusNames() {
     .filter(Boolean);
 }
 
-const NATURAL_CHANGE_SYNONYMS = {
-  corpusProperties: [
-    ["breit", "breite breit width wide weit breiter schmal schmaler"],
-    ["tief", "tiefe tief depth tiefer weniger tief"],
-    ["hoch", "hoehe höhe hoch height höher hoeher niedriger"],
-    ["mat", "material mat platte holz dekor farbe"],
-    ["soc", "sockel sokel soc base fuss fuß"],
-    ["push", "push versatz einzug ueberstand überstand kleiner luft spalt"],
-    ["x", "x links rechts position xpos"],
-    ["y", "y vorne hinten tiefe-position ypos"],
-    ["z", "z oben unten hoehe-position höhe-position zpos"],
-    ["anz", "anzahl menge stueck stück count"]
-  ],
-  partProperties: [
-    ["mat", "material mat platte holz dekor farbe"],
-    ["push", "push versatz einzug ueberstand überstand kleiner luft spalt"],
-    ["cut.x", "x schneiden teilen spalten horizontal frontteilung"],
-    ["cut.y", "y schneiden teilen tiefe teilen"],
-    ["cut.z", "z schneiden teilen faecher fächer vertikal hoehe teilen höhe teilen"],
-    ["dre.x", "x drehen kippen"],
-    ["dre.y", "y drehen"],
-    ["dre.z", "z drehen rotation winkel"],
-    ["reihe.x", "x wiederholen kopieren reihe serie"],
-    ["reihe.y", "y wiederholen kopieren reihe serie"],
-    ["reihe.z", "z wiederholen kopieren reihe serie"],
-    ["breit", "breite breit width"],
-    ["tief", "tiefe tief depth"],
-    ["hoch", "hoehe höhe hoch height"]
-  ],
-  parts: [
-    ["sl", "linke seite links seite linkswand linke wand"],
-    ["sr", "rechte seite rechts seite rechtswand rechte wand"],
-    ["bo", "boden unterboden unten"],
-    ["de", "deckel top oben oberboden"],
-    ["rw", "rueckwand rückwand back hinten"],
-    ["fr", "front tuer tür tuere türe schubladenfront vorne"],
-    ["eb", "einlegeboden fachboden boden fach boeden böden"],
-    ["mw", "mittelwand mittelseite trennwand"]
-  ]
-};
-
 function normalizeNaturalChangeText(value) {
   return String(value || "")
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/ß/g, "ss")
-    .replace(/[^\p{L}\p{N}.,_-]+/gu, " ")
+    .replace(/\bpunkt\b/g, ".")
+    .replace(/[._-]+/g, " ")
+    .replace(/[^\p{L}\p{N},]+/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -2347,7 +2309,12 @@ function resolveNaturalCorpus(raw) {
 }
 
 function naturalChangeNumber(raw, property) {
-  const text = String(raw || "");
+  const text = String(raw || "")
+    .replace(/\bein(?:e[mnrs]?|s)?\b/gi, "1")
+    .replace(/\bzwei\b/gi, "2")
+    .replace(/\bdrei\b/gi, "3")
+    .replace(/\bvier\b/gi, "4")
+    .replace(/\b(?:fuenf|fünf)\b/gi, "5");
   const match = text.match(/[+-]?\d+(?:[,.]\d+)?/);
   if (!match) return "";
 
@@ -2357,6 +2324,75 @@ function naturalChangeNumber(raw, property) {
   const tail = text.slice(match.index + match[0].length, match.index + match[0].length + 8).toLowerCase();
   if (property !== "mat" && /\bmm\b/.test(tail)) number = number / 10;
   return String(Math.round(number * 1000) / 1000).replace(",", ".");
+}
+
+function splitDslComment(line) {
+  const text = String(line || "");
+  const hash = text.indexOf("#");
+  if (hash < 0) return { code: text.trim(), comment: "" };
+  return {
+    code: text.slice(0, hash).trim(),
+    comment: text.slice(hash).trim()
+  };
+}
+
+function findCorpusLine(corpus) {
+  const ta = document.getElementById("inn");
+  if (!ta) return null;
+
+  const lines = String(ta.value || "").split(/\r?\n/);
+  const lineIndex = lines.findIndex((line, index) => {
+    const { code } = splitDslComment(line);
+    return index > 0 && code.split(/\s+/)[0] === corpus;
+  });
+
+  if (lineIndex < 0) return { ta, lines, lineIndex: lines.length, code: corpus, comment: "" };
+
+  return {
+    ta,
+    lines,
+    lineIndex,
+    ...splitDslComment(lines[lineIndex])
+  };
+}
+
+function currentCorpusTokenValue(corpus, propertyPrefix) {
+  const current = findCorpusLine(corpus);
+  if (!current) return "";
+
+  const prefix = String(propertyPrefix || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = current.code.match(new RegExp(`(?:^|\\s)${prefix}(?:[.=])([^\\s]+)`, "i"));
+  return match?.[1] || "";
+}
+
+function naturalRelativeDirection(raw) {
+  const text = normalizeNaturalChangeText(raw);
+  if (/\b(mehr|plus|eins drauf|dazu|zusaetzlich|zusatzlich|erhoehen|hoeher|breiter|tiefer)\b/.test(text)) return 1;
+  if (/\b(weniger|minus|weg|entfernen|reduzieren|niedriger|schmaler|kuerzer|kurzer)\b/.test(text)) return -1;
+  return 0;
+}
+
+function resolveNaturalPartProperty(raw, part, property) {
+  const text = normalizeNaturalChangeText(raw);
+
+  if ((part === "eb" || /\beinlegeboden|einlegeboeden|fachboden|fachboeden\b/.test(text))
+    && (property === "anz" || /\banzahl|mehr|weniger|reihe z|reihe\b/.test(text))) {
+    return "reihe.z";
+  }
+
+  return property;
+}
+
+function naturalChangeValue(raw, property, corpus, propertyPrefix) {
+  const number = naturalChangeNumber(raw, property);
+  const direction = naturalRelativeDirection(raw);
+  if (!direction || !number) return number;
+
+  const current = Number(String(currentCorpusTokenValue(corpus, propertyPrefix)).match(/[+-]?\d+(?:[,.]\d+)?/)?.[0]?.replace(",", "."));
+  if (!Number.isFinite(current)) return number;
+
+  const next = current + direction * Number(number);
+  return String(Math.round(next * 1000) / 1000).replace(",", ".");
 }
 
 function resolveNaturalProperty(raw, part) {
@@ -2380,22 +2416,22 @@ function resolveNaturalPart(raw) {
 }
 
 function setCorpusLineTokenNow(corpus, token, propertyPrefix = "") {
-  const ta = document.getElementById("inn");
-  if (!ta || !corpus || !token) return false;
+  if (!corpus || !token) return false;
 
-  const lines = String(ta.value || "").split(/\r?\n/);
-  const lineIndex = lines.findIndex((line, index) => index > 0 && line.trim().split(/\s+/)[0] === corpus);
-  const targetIndex = lineIndex >= 0 ? lineIndex : lines.length;
-  const currentLine = lineIndex >= 0 ? lines[lineIndex].trim() : corpus;
+  const current = findCorpusLine(corpus);
+  if (!current) return false;
+
+  const { ta, lines, lineIndex: targetIndex, code, comment } = current;
   const prefix = String(propertyPrefix || token).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const propertyPattern = new RegExp(`(^|\\s)${prefix}(?:[.=])[^\\s]+(?=\\s|$)`, "ig");
-  const nextLine = `${currentLine.replace(propertyPattern, " ").replace(/\s+/g, " ").trim()} ${token}`.trim();
+  const nextCode = `${code.replace(propertyPattern, " ").replace(/\s+/g, " ").trim()} ${token}`.trim();
+  const nextLine = comment ? `${nextCode} ${comment}` : nextCode;
 
   lines[targetIndex] = nextLine;
   ta.value = lines.join("\n");
 
   const start = lines.slice(0, targetIndex).reduce((sum, line) => sum + line.length + 1, 0);
-  ta.selectionStart = ta.selectionEnd = start + nextLine.length;
+  ta.selectionStart = ta.selectionEnd = start + nextCode.length;
   ta.dispatchEvent(new Event("input", { bubbles: true }));
   window.syncInnEditorFromTextarea?.();
   recordReloadHistory();
@@ -2414,13 +2450,15 @@ async function applyNaturalTextChange(raw) {
   }
 
   const part = resolveNaturalPart(text);
-  const property = resolveNaturalProperty(text, part);
+  let property = resolveNaturalProperty(text, part);
+  property = resolveNaturalPartProperty(text, part, property);
   if (!property) {
     showCommandSearchToast("Keine Eigenschaft gefunden.");
     return false;
   }
 
-  let value = naturalChangeNumber(text, property);
+  const propertyPrefix = part ? `${part}.${property}` : property;
+  let value = naturalChangeValue(text, property, corpus, propertyPrefix);
   if (!value) value = askNaturalChange(`Welcher Wert fuer ${part ? `${part}.` : ""}${property}?`, "");
   if (!value) {
     showCommandSearchToast("Kein Wert angegeben.");
@@ -2428,7 +2466,6 @@ async function applyNaturalTextChange(raw) {
   }
 
   const token = part ? `${part}.${property}.${value}` : `${property}.${value}`;
-  const propertyPrefix = part ? `${part}.${property}` : property;
   setState("inn");
 
   requestAnimationFrame(async () => {

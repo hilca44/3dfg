@@ -1872,7 +1872,12 @@ const TOP_TOOLBAR_ACTIONS = [
 ];
 
 function topToolbarButtons() {
-  return TOP_TOOLBAR_ACTIONS.filter((d) => d.placement === "toolbar");
+  return TOP_TOOLBAR_ACTIONS
+    .filter((d) => d.placement === "toolbar" || d.placement === "menu")
+    .map((d) => d.placement === "menu"
+      ? { ...d, inlineMenu: true, className: [d.className, "toolbar-inline-menu-action"].filter(Boolean).join(" ") }
+      : d
+    );
 }
 
 function topMenuButtons() {
@@ -3408,6 +3413,7 @@ function setButtons(defs, nuu="slot3") {
     const btn = document.createElement("button");
     if (d.id) btn.id = d.id;
     if (d.className) btn.className = d.className;
+    if (d.inlineMenu) btn.dataset.inlineMenu = "1";
     btn.textContent = d.labelKey ? stt(d.labelKey, d.label) : d.label;
     btn.title = d.titleKey ? stt(d.titleKey, d.title) : (d.title || "");
     btn.onclick = d.to
@@ -3417,7 +3423,36 @@ function setButtons(defs, nuu="slot3") {
   });
 
   updateToolbarStatus();
+  if (nuu === "slot0") layoutInlineToolbarMenu(slot);
 }
+
+function layoutInlineToolbarMenu(slot) {
+  if (!slot) return;
+
+  requestAnimationFrame(() => {
+    const inlineButtons = [...slot.querySelectorAll("[data-inline-menu='1']")];
+    if (!inlineButtons.length) return;
+
+    inlineButtons.forEach((button) => {
+      button.hidden = false;
+    });
+
+    const minRegularButtonWidth = 58;
+    const minInlineButtonWidth = 92;
+    const regularCount = [...slot.children].filter((child) => child.tagName === "BUTTON" && !child.dataset.inlineMenu).length;
+    const capacity = Math.max(0, slot.clientWidth - regularCount * minRegularButtonWidth);
+    const visibleInlineCount = Math.max(0, Math.floor(capacity / minInlineButtonWidth));
+
+    inlineButtons.forEach((button, index) => {
+      button.hidden = index >= visibleInlineCount;
+    });
+  });
+}
+
+window.addEventListener("resize", () => layoutInlineToolbarMenu(document.getElementById("slot0")));
+window.addEventListener("orientationchange", () => {
+  setTimeout(() => layoutInlineToolbarMenu(document.getElementById("slot0")), 80);
+});
 
 function treeNum(value) {
   const n = Number(value);

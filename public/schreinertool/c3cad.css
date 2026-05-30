@@ -2016,6 +2016,11 @@ display: flex;;
   text-overflow: ellipsis;
 }
 
+#slot0.action-grid > button[hidden],
+#slot3.action-grid > button[hidden] {
+  display: none;
+}
+
 #slot0.action-grid > button:first-child,
 #slot3.action-grid > button:first-child {
   border-left: 0;

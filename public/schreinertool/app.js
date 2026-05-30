@@ -2261,6 +2261,7 @@ function normalizeNaturalChangeText(value) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/ß/g, "ss")
+    .replace(/\b(schrank|korpus|regal|moebel|mobel)(breite|tiefe|hoehe|hohe|hoch|breit|tief)\b/g, "$1 $2")
     .replace(/\bpunkt\b/g, ".")
     .replace(/[._-]+/g, " ")
     .replace(/[^\p{L}\p{N},]+/gu, " ")

@@ -6,8 +6,8 @@ import { urlToInn } from "./fu.js?v=dockparse1";
 import { updateAndReloadURL } from "./fu.js?v=dockparse1";
 import { ProjectEditor as pp} from "./project-editor.js?v=arrayparse34";
 import { convertLegacyToModern } from "./legacy-converter.js?v=dockparse1";
-import { baseCommands, parameterOptionsByProperty } from "./suggest.js?v=arrayparse38";
-import { NATURAL_CHANGE_SYNONYMS } from "./natural-change-synonyms.js?v=4";
+import { baseCommands, parameterOptionsByProperty } from "./suggest.js?v=arrayparse39";
+import { NATURAL_CHANGE_SYNONYMS } from "./natural-change-synonyms.js?v=5";
 import { findNaturalAlias, naturalAliasWords, normalizeNaturalChangeText } from "./natural-change-similarity.js?v=1";
 let CURRENT_STATE = null;
 const colors = window.colors || {};
@@ -1947,7 +1947,7 @@ function frequentCommandSearchEntries() {
 
 function commandSearchType(label) {
   const key = String(label || "").replace(/[.=].*$/, "");
-  if (["breit", "breite", "tief", "tiefe", "hoch", "hoehe", "x", "y", "z", "anz", "mat", "push", "vi"].includes(key)) {
+  if (["breit", "breite", "tief", "tiefe", "hoch", "hoehe", "x", "y", "z", "anz", "mat", "push", "soc", "leg", "roll", "vi"].includes(key)) {
     return "Eigenschaft";
   }
   return "Befehl";
@@ -1964,6 +1964,9 @@ function commandSearchAliases(label) {
     fit: "anpassen einpassen passend verbinden",
     expl: "explosion explosionsansicht exploded view auseinander auseinanderziehen zerlegen aufziehen auseinandernehmen",
     push: "schieben einzug ueberstand verkleinern erweitern abstand",
+    soc: "sockel sokel base fuss fuß",
+    leg: "bein beine fuss fueße fuesse fuß füße",
+    roll: "rolle rollen caster wheel rad raeder räder fahrbar mobil",
     mat: "material platte holz staerke farbe preis color",
     vi: "ansicht view wireframe drahtmodell labels label beschriftung anzeigen ausblenden"
   };
@@ -2199,16 +2202,44 @@ function commandSearchActionEntries(query) {
   if (guidedEntries.length) return guidedEntries;
 
   const number = raw.match(/\d+(?:[,.]\d+)?/)?.[0]?.replace(",", ".");
+  const wantsLegs = /\b(?:leg|bein|beine|fuss|fuß|fuesse|fueße|füße|standfuss|standfuß)\b/i.test(raw);
+  if (wantsLegs) {
+    const value = number ? `${number},4` : "8,4";
+    return [{
+      label: `Beine ${value}`,
+      detail: `setzt leg.${value} im Moebel-Editor`,
+      insert: `leg.${value}`,
+      type: "Aktion",
+      group: "Action Manager",
+      aliases: `beine bein leg.${value} fuss fuß`
+    }];
+  }
+
+  const wantsRollers = /\b(?:roll|rolle|rollen|caster|wheel|rad|raeder|räder|fahrbar|mobil)\b/i.test(raw);
+  if (wantsRollers) {
+    const value = number ? `${number},4` : "8,4";
+    return [{
+      label: `Rollen ${value}`,
+      detail: `setzt roll.${value} im Moebel-Editor`,
+      insert: `roll.${value}`,
+      type: "Aktion",
+      group: "Action Manager",
+      aliases: `rollen rolle roll.${value} caster wheel rad`
+    }];
+  }
+
   const wantsSockel = /^(\d+(?:[,.]\d+)?)$/.test(raw) || /\b(?:soc|sock|sockel|sokel|base)\b/i.test(raw);
-  if (!number || !wantsSockel) return [];
+  if (!wantsSockel) return [];
+
+  const sockelValue = number || "8";
 
   return [{
-    label: `Sockel ${number} cm`,
-    detail: `setzt soc.${number} im Moebel-Editor`,
-    insert: `soc.${number}`,
+    label: `Sockel ${sockelValue} cm`,
+    detail: `setzt soc.${sockelValue} im Moebel-Editor`,
+    insert: `soc.${sockelValue}`,
     type: "Aktion",
     group: "Action Manager",
-    aliases: `sockel ${number} sokel soc.${number} base ${number}`
+    aliases: `sockel ${sockelValue} sokel soc.${sockelValue} base ${sockelValue}`
   }];
 }
 
@@ -2218,6 +2249,8 @@ const GUIDED_CORPUS_PROPERTIES = [
   ["hoch", "Hoehe"],
   ["mat", "Material"],
   ["soc", "Sockel"],
+  ["leg", "Beine"],
+  ["roll", "Rollen"],
   ["push", "Push/Versatz"],
   ["x", "X-Position"],
   ["y", "Y-Position"],
@@ -2457,6 +2490,11 @@ function naturalRepeatProperty(raw, part = "") {
 
 function naturalChangeValue(raw, property, corpus, propertyPrefix) {
   const number = naturalChangeNumber(raw, property);
+  if (!number) {
+    if (property === "soc") return "8";
+    if (property === "leg" || property === "roll") return "8,4";
+  }
+
   const direction = naturalRelativeDirection(raw);
   if (!direction || !number) return number;
 
@@ -2615,7 +2653,7 @@ function isDslBlockToken(token) {
   if (!value || /\s/.test(value)) return false;
 
   const name = "[a-z][a-z0-9_-]*";
-  const number = "[+-]?\\d+(?:[,.]\\d+)?";
+  const number = "[+-]?\\d+(?:[,.]\\d+)?(?:,\\d+)?";
   const property = "[a-z][a-z0-9_-]*(?:\\.[a-z0-9_-]+)?";
   return new RegExp(`^(?:${name}\\.)?${property}\\.${number}$`, "i").test(value)
     || new RegExp(`^(?:${name}\\.)?mat\\.\\d+$`, "i").test(value);
@@ -6007,6 +6045,7 @@ const QUICK_HELP_COMMANDS = [
   ["reihe", "Wiederholen, z.B. reihe.x.3,55r"],
   ["cut", "Teile schneiden, z.B. fr.cut.x.2"],
   ["push", "Schieben, Abstand, Fugen und Sockel"],
+  ["roll", "Rollen setzen, z.B. roll.8,4"],
   ["dock", "Verbinden/Andocken"],
   ["dre", "Drehen um x, y oder z"],
   ["vi.wf", "Wireframe-Ansicht"],
@@ -6019,6 +6058,7 @@ const QUICK_HELP_ALIASES = [
   ["sk.base,14,3", "Sockel-Korpus am Boden andocken"],
   ["soc.8", "Sockel/Push 8"],
   ["leg.8", "ein Beinsatz"],
+  ["roll.8,4", "vier Rollen unter den Schrank"],
   ["dim", "Masszahlen fuer dieses Teil anzeigen"],
   ["rw.dim", "Masszahlen fuer die Rueckwand anzeigen"],
   ["rw,sl.dim", "Masszahlen fuer Rueckwand und linke Seite anzeigen"]

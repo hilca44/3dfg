@@ -29,6 +29,9 @@ export const baseCommands = [
   ["z.", "z.[zahl|(formel)|eigenschaft|Korpus.eigenschaft|GLOBALE_VAR]"],
 
   ["push.", "push.[wert]"],
+  ["soc.", "soc.[hoehe] Sockel unter den Schrank setzen"],
+  ["leg.", "leg.[hoehe],[2|4] Beine unter den Schrank setzen"],
+  ["roll.", "roll.[hoehe],[2|4] Rollen unter den Schrank setzen"],
   ["cut.", "cut.[x|y|z].[anzahl,[abstand:<zahl>a|raster:<zahl>r]]"],
   ["dre.", "dre.[x|y|z].[grad]"],
   ["reihe.", "reihe.[x|y|z].[anzahl,[abstand]]"],
@@ -70,6 +73,21 @@ export const parameterOptionsByProperty = {
     ["dim", "Massansicht automatisch aktivieren"],
     ["label", "Labels anzeigen"],
     ["nolabel", "Labels ausblenden"]
+  ],
+  soc: [
+    ["6", "6 cm Sockel"],
+    ["8", "8 cm Sockel"],
+    ["10", "10 cm Sockel"]
+  ],
+  leg: [
+    ["8,4", "vier Beine, 8 cm"],
+    ["10,4", "vier Beine, 10 cm"],
+    ["8,2", "zwei Beine, 8 cm"]
+  ],
+  roll: [
+    ["6,4", "vier Rollen, 6 cm"],
+    ["8,4", "vier Rollen, 8 cm"],
+    ["8,2", "zwei Rollen, 8 cm"]
   ],
 }
 

@@ -852,7 +852,7 @@ export class Proj {
             "dim",
             "nx", "ny", "nz", "sx", "sy", "sz",
             "i", "cur", "tar", "o", "ox", "oy", "oz",
-            "layout", "cols", "fit", "vi", "leg", "wdh",
+            "layout", "cols", "fit", "vi", "leg", "roll", "rolle", "rollen", "wdh",
             "co", "n", "sc", "box", "l", "r", "g", "t", "b", "f", "c", "v"
         ]);
         const parts = new Set(["l", "r", "g", "t", "b", "f", "c", "v", "gg"]);
@@ -2138,11 +2138,19 @@ setTokenValue(obj, token){
         if (!obj.nn.includes(spec)) obj.nn.push(spec);
     }
 
-    if (o === obj && key === "i") {
-        o[key] = this.parseIValue(rawValue, obj);
-        this.syncConnectionFromI(obj);
-        return;
-    }
+	    if (o === obj && key === "i") {
+	        o[key] = this.parseIValue(rawValue, obj);
+	        this.syncConnectionFromI(obj);
+	        return;
+	    }
+
+	    if (o === obj && /^(?:roll|rolle|rollen)$/i.test(key)) {
+	        const [heightRaw, countRaw = "4"] = String(rawValue || "").split(",").map(value => value.trim());
+	        const height = Number(this.replaceDimensions(heightRaw));
+	        const count = Number(countRaw);
+	        if (Number.isFinite(height)) this.handleRollers(obj, Math.abs(height), count === 2 ? 2 : 4);
+	        return;
+	    }
 
     // ==================================================
     // u shortcut:
@@ -3491,12 +3499,16 @@ resolvePar(ko, str) {
         if (!height || height <= 0) {
             k.leg = 0
             k.legCount = 0
+            k.roll = 0
+            k.rollCount = 0
             return
         }
 
         // -------------------------------------------------
         // Neue Beine setzen
         // -------------------------------------------------
+        k.roll = 0
+        k.rollCount = 0
         k.leg = height
         k.legCount = count
         k.h -= height
@@ -3547,6 +3559,76 @@ resolvePar(ko, str) {
         // -------------------------------------------------
         // falls du eigenes Material willst:
         // k.m_leg = k.m
+    }
+
+    handleRollers(k, height, count = 4) {
+        const oldLegs = ["g0", "g3", "g4", "g7"]
+        k.jj = k.jj.filter(p => !oldLegs.includes(p))
+        for (const oldLeg of oldLegs) delete k[oldLeg]
+
+        if (k._h_before_leg == null) {
+            k._h_before_leg = k.h
+        } else {
+            k.h = k._h_before_leg
+        }
+
+        if (!height || height <= 0) {
+            k.leg = 0
+            k.legCount = 0
+            k.roll = 0
+            k.rollCount = 0
+            return
+        }
+
+        k.leg = height
+        k.legCount = count
+        k.roll = height
+        k.rollCount = count
+        k.h -= height
+
+        const rollers = count === 2 ? ["g0", "g3"] : ["g0", "g3", "g4", "g7"]
+        const rollSize = 5
+
+        for (let part of rollers) {
+            if (!k.jj.includes(part)) k.jj.push(part)
+        }
+
+        const rollerParts = {
+            g0: {
+                w: rollSize, d: rollSize, h: height,
+                x: 0, y: 0, z: 0,
+                m: k.m,
+                s: rollSize,
+                roll: 1
+            },
+            g3: {
+                w: rollSize, d: rollSize, h: height,
+                x: (Number(k.w) || 0) - rollSize, y: 0, z: 0,
+                m: k.m,
+                s: rollSize,
+                roll: 1
+            },
+            g4: {
+                w: rollSize, d: rollSize, h: height,
+                x: 0, y: (Number(k.d) || 0) - rollSize, z: 0,
+                m: k.m,
+                s: rollSize,
+                roll: 1
+            },
+            g7: {
+                w: rollSize, d: rollSize, h: height,
+                x: (Number(k.w) || 0) - rollSize,
+                y: (Number(k.d) || 0) - rollSize,
+                z: 0,
+                m: k.m,
+                s: rollSize,
+                roll: 1
+            }
+        }
+
+        for (const part of rollers) {
+            k[part] = rollerParts[part]
+        }
     }
 
     applyLegSpec(k) {
@@ -3968,6 +4050,8 @@ applyInteriorLayout(k) {
         let aug = k?.ug ?? 0;
         let leg = k?.leg ?? 0;
         let legCount = k?.legCount ?? (leg > 0 ? 4 : 0);
+        let isRoller = Number(k?.roll ?? 0) > 0;
+        let supportSize = isRoller ? 5 : 4;
 
         let base = leg > 0 ? leg : aug;
         aug = base
@@ -4047,43 +4131,47 @@ applyInteriorLayout(k) {
             },
 
             g0: leg > 0 && legCount >= 2 ? {
-                w: 4,
-                d: 4,
+                w: supportSize,
+                d: supportSize,
                 h: leg,
                 x: 0,
                 y: 0,
                 z: 0,
-                s: 4
+                s: supportSize,
+                roll: isRoller ? 1 : 0
             } : null,
 
             g3: leg > 0 && legCount >= 2 ? {
-                w: 4,
-                d: 4,
+                w: supportSize,
+                d: supportSize,
                 h: leg,
-                x: aul + k.w + aur - 4,
+                x: aul + k.w + aur - supportSize,
                 y: 0,
                 z: 0,
-                s: 4
+                s: supportSize,
+                roll: isRoller ? 1 : 0
             } : null,
 
             g4: leg > 0 && legCount >= 4 ? {
-                w: 4,
-                d: 4,
+                w: supportSize,
+                d: supportSize,
                 h: leg,
                 x: 0,
-                y: k.d - 4,
+                y: k.d - supportSize,
                 z: 0,
-                s: 4
+                s: supportSize,
+                roll: isRoller ? 1 : 0
             } : null,
 
             g7: leg > 0 && legCount >= 4 ? {
-                w: 4,
-                d: 4,
+                w: supportSize,
+                d: supportSize,
                 h: leg,
-                x: aul + k.w + aur - 4,
-                y: k.d - 4,
+                x: aul + k.w + aur - supportSize,
+                y: k.d - supportSize,
                 z: 0,
-                s: 4
+                s: supportSize,
+                roll: isRoller ? 1 : 0
             } : null,
             // beine unten
             gl: {

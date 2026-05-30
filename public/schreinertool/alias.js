@@ -115,6 +115,20 @@ const ALIASES = {
     return [`leg.${height}${count}`];
   },
 
+  roll(args) {
+    const height = args[0] || "8";
+    const count = args[1] ? `,${args[1]}` : "";
+    return [`roll.${height}${count}`];
+  },
+
+  rolle(args) {
+    return ALIASES.roll(args);
+  },
+
+  rollen(args) {
+    return ALIASES.roll(args);
+  },
+
   dim(args) {
     return ["dim=1"];
   },

@@ -5,6 +5,8 @@ export const NATURAL_CHANGE_SYNONYMS = {
     ["hoch", "hoehe höhe hoch height höher hoeher niedriger"],
     ["mat", "material mat platte holz dekor farbe"],
     ["soc", "sockel sokel soc base fuss fuß"],
+    ["leg", "bein beine leg legs fuss fuß fueße fuesse füße standfuss standfuß"],
+    ["roll", "rolle rollen roll rollenfuss rollenfuß caster wheel wheels rad raeder räder fahrbar mobil"],
     ["push", "push versatz einzug ueberstand überstand kleiner luft spalt"],
     ["reihe.x", "x wiederholen kopieren kopie copy duplizieren reihe serie links rechts seitlich horizontal"],
     ["reihe.y", "y wiederholen kopieren kopie copy duplizieren reihe serie vorne hinten tiefe"],

@@ -1120,6 +1120,74 @@ function addDimensionHelper(object3d, w, d, h) {
     object3d.userData.dimHelper = helper;
 }
 
+function makeRollerPart(k, e1, e, w, d, h) {
+    const g = new THREE.Group();
+    const radius = Math.max(1.2, Math.min(w, d, h) * 0.38);
+    const wheelWidth = Math.max(0.8, Math.min(w, d) * 0.42);
+    const forkHeight = Math.max(0.8, h - radius * 2);
+
+    const wheelMat = resTracker.track(new THREE.MeshLambertMaterial({ color: 0x1f2933 }));
+    const metalMat = resTracker.track(new THREE.MeshLambertMaterial({ color: 0xb8bec6 }));
+
+    const wheelGeo = resTracker.track(new THREE.CylinderGeometry(radius, radius, wheelWidth, 24));
+    wheelGeo.rotateZ(Math.PI / 2);
+    const wheel = resTracker.track(new THREE.Mesh(wheelGeo, wheelMat));
+    wheel.position.set(0, 0, -h * 0.5 + radius);
+    wheel.castShadow = true;
+    wheel.receiveShadow = true;
+
+    const stemRadius = Math.max(0.35, radius * 0.22);
+    const stemGeo = resTracker.track(new THREE.CylinderGeometry(stemRadius, stemRadius, forkHeight, 12));
+    stemGeo.rotateX(Math.PI / 2);
+    const stem = resTracker.track(new THREE.Mesh(stemGeo, metalMat));
+    stem.position.set(0, 0, h * 0.5 - forkHeight * 0.5);
+    stem.castShadow = true;
+    stem.receiveShadow = true;
+
+    const plateGeo = resTracker.track(new THREE.BoxGeometry(Math.max(1.4, w * 0.72), Math.max(1.4, d * 0.72), Math.max(0.35, h * 0.08)));
+    const plate = resTracker.track(new THREE.Mesh(plateGeo, metalMat));
+    plate.position.set(0, 0, h * 0.5 - Math.max(0.2, h * 0.04));
+    plate.castShadow = true;
+    plate.receiveShadow = true;
+
+    for (const mesh of [wheel, stem, plate]) {
+        mesh.name = e1;
+        mesh.userData.type = "part";
+        mesh.userData.korpusName = k.nme;
+        mesh.userData.partName = e1;
+        mesh.userData.partData = e;
+        mesh.userData.partGroup = g;
+        mesh.layers.set(2);
+        g.add(mesh);
+    }
+
+    g.userData.type = "partGroup";
+    g.userData.korpusName = k.nme;
+    g.userData.partName = e1;
+    g.userData.partData = e;
+    g.userData.mesh = wheel;
+
+    const key = k.nme + e1;
+    meshMap[key] = wheel;
+    state[key] = "free";
+
+    const baseX = e1 == null ? 0 : cc(k.x);
+    const baseY = e1 == null ? 0 : cc(k.y);
+    const baseZ = e1 == null ? 0 : cc(k.z);
+
+    g.position.set(
+        (w * 0.5) + cc(e.x) - baseX,
+        (d * 0.5) + cc(e.y) - baseY,
+        (h * 0.5) + cc(e.z) - baseZ
+    );
+
+    bb.x = Math.max(bb.x, w + k.x);
+    bb.y = Math.max(bb.y, d + k.y);
+    bb.z = Math.max(bb.z, h + k.z);
+
+    return g;
+}
+
 function makeM(k, e1, e) {
     e = normalizeRenderablePart(e);
     if (e.__skipRender) return new THREE.Group();
@@ -1129,6 +1197,10 @@ function makeM(k, e1, e) {
     const w = partDim(e.w, `${k.nme}.${e1}.w`),
         d = partDim(e.d, `${k.nme}.${e1}.d`),
         h = partDim(e.h, `${k.nme}.${e1}.h`);
+
+    if (Number(e.roll) > 0) {
+        return makeRollerPart(k, e1, e, w, d, h);
+    }
 
     const geo = resTracker.track(
         new THREE.BoxGeometry(w, d, h)

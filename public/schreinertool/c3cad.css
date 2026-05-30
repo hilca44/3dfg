@@ -1440,8 +1440,9 @@ html, body {
 }
 
 #centralReloadButton {
+  position: absolute;
   right: 18px;
-  bottom: calc(env(safe-area-inset-bottom) + var(--keyboard-inset) + 48px);
+  bottom: 18px;
 }
 
 .corner-action-button {

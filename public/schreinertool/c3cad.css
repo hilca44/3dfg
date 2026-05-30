@@ -1980,3 +1980,56 @@ display: flex;;
 .range input{
   width:70px;
 }
+
+#slot0.action-grid,
+#slot3.action-grid {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  background: var(--accent);
+}
+
+#slot0.action-grid > button,
+#slot3.action-grid > button {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 0;
+  border-left: 1px solid color-mix(in srgb, var(--white) 22%, transparent);
+  border-radius: 0;
+  background: var(--accent);
+  color: var(--white);
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  white-space: normal;
+}
+
+#slot0.action-grid > button:first-child,
+#slot3.action-grid > button:first-child {
+  border-left: 0;
+}
+
+#slot0.action-grid > button:hover,
+#slot3.action-grid > button:hover {
+  background: var(--accent-hover);
+}
+
+#slot0.action-grid > button:active,
+#slot3.action-grid > button:active {
+  background: var(--accent-active);
+}
+
+#slot0 .toolbar-menu-button,
+#slot0 .toolbar-history-button {
+  flex: 1 1 0;
+  min-width: 0;
+}

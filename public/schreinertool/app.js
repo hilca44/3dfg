@@ -7,7 +7,7 @@ import { updateAndReloadURL } from "./fu.js?v=dockparse1";
 import { ProjectEditor as pp} from "./project-editor.js?v=arrayparse34";
 import { convertLegacyToModern } from "./legacy-converter.js?v=dockparse1";
 import { baseCommands, parameterOptionsByProperty } from "./suggest.js?v=arrayparse38";
-import { NATURAL_CHANGE_SYNONYMS } from "./natural-change-synonyms.js?v=1";
+import { NATURAL_CHANGE_SYNONYMS } from "./natural-change-synonyms.js?v=2";
 let CURRENT_STATE = null;
 const colors = window.colors || {};
 
@@ -2269,6 +2269,14 @@ function normalizeNaturalChangeText(value) {
     .trim();
 }
 
+function fixedNaturalCorpusProperty(raw) {
+  const text = normalizeNaturalChangeText(raw);
+  if (/\b(?:schrank|korpus|regal|moebel|mobel)\s*(?:hoehe|hohe|hoch)\b/.test(text)) return "hoch";
+  if (/\b(?:schrank|korpus|regal|moebel|mobel)\s*(?:breite|breit)\b/.test(text)) return "breit";
+  if (/\b(?:schrank|korpus|regal|moebel|mobel)\s*(?:tiefe|tief)\b/.test(text)) return "tief";
+  return "";
+}
+
 function naturalAliasWords(value) {
   return normalizeNaturalChangeText(value).split(/\s+/).filter(Boolean);
 }
@@ -2440,6 +2448,11 @@ function naturalChangeValue(raw, property, corpus, propertyPrefix) {
 }
 
 async function resolveNaturalProperty(raw, part) {
+  if (!part) {
+    const fixed = fixedNaturalCorpusProperty(raw);
+    if (fixed) return fixed;
+  }
+
   const rows = part ? NATURAL_CHANGE_SYNONYMS.partProperties : NATURAL_CHANGE_SYNONYMS.corpusProperties;
   const found = findNaturalAlias(raw, rows);
   if (found.key) return found.key;

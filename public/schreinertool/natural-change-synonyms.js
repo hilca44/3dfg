@@ -6,9 +6,9 @@ export const NATURAL_CHANGE_SYNONYMS = {
     ["mat", "material mat platte holz dekor farbe"],
     ["soc", "sockel sokel soc base fuss fuß"],
     ["push", "push versatz einzug ueberstand überstand kleiner luft spalt"],
-    ["x", "x links rechts position xpos"],
-    ["y", "y vorne hinten tiefe-position ypos"],
-    ["z", "z oben unten hoehe-position höhe-position zpos"],
+    ["x", "x xposition x-pos xpos links-schieben rechts-schieben seitlich schieben horizontal sitzen position verschieben"],
+    ["y", "y yposition y-pos ypos vor-schieben zurueck-schieben zurück-schieben vorne-schieben hinten-schieben tiefe schieben sitzen position verschieben"],
+    ["z", "z zposition z-pos zpos hochschieben runter-schieben oben-schieben unten-schieben vertikal schieben sitzen position verschieben"],
     ["anz", "anzahl menge stueck stück count"]
   ],
   partProperties: [

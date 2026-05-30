@@ -7,7 +7,7 @@ import { updateAndReloadURL } from "./fu.js?v=dockparse1";
 import { ProjectEditor as pp} from "./project-editor.js?v=arrayparse34";
 import { convertLegacyToModern } from "./legacy-converter.js?v=dockparse1";
 import { baseCommands, parameterOptionsByProperty } from "./suggest.js?v=arrayparse38";
-import { NATURAL_CHANGE_SYNONYMS } from "./natural-change-synonyms.js?v=3";
+import { NATURAL_CHANGE_SYNONYMS } from "./natural-change-synonyms.js?v=4";
 let CURRENT_STATE = null;
 const colors = window.colors || {};
 
@@ -2472,6 +2472,18 @@ function resolveNaturalPartProperty(raw, part, property) {
   return property;
 }
 
+function naturalRepeatProperty(raw, part = "") {
+  const text = normalizeNaturalChangeText(raw);
+  if (!/\b(?:kop|kopie|kopieren|copy|duplizieren|vervielfaeltigen|vervielfaltigen)\b/.test(text)) return "";
+
+  const words = new Set(naturalAliasWords(text));
+  if (words.has("z") || /\b(?:oben|unten|hoch|hoehe|hohe|vertikal|anzahl|menge|stueck|stuck|mehr|weniger)\b/.test(text)) return "reihe.z";
+  if (words.has("y") || /\b(?:vorne|hinten|tiefe|tief)\b/.test(text)) return "reihe.y";
+  if (words.has("x") || /\b(?:links|rechts|breite|breit|seitlich|horizontal)\b/.test(text)) return "reihe.x";
+  if (part === "eb") return "reihe.z";
+  return "reihe.x";
+}
+
 function naturalChangeValue(raw, property, corpus, propertyPrefix) {
   const number = naturalChangeNumber(raw, property);
   const direction = naturalRelativeDirection(raw);
@@ -2486,6 +2498,9 @@ function naturalChangeValue(raw, property, corpus, propertyPrefix) {
 
 async function resolveNaturalProperty(raw, part) {
   if (part && naturalColorToken(raw)) return "mat";
+
+  const repeatProperty = naturalRepeatProperty(raw, part);
+  if (repeatProperty) return repeatProperty;
 
   if (!part) {
     const fixed = fixedNaturalCorpusProperty(raw);

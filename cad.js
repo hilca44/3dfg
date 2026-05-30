@@ -3511,7 +3511,6 @@ resolvePar(ko, str) {
         k.rollCount = 0
         k.leg = height
         k.legCount = count
-        k.h -= height
         const legs = count === 2 ? ["g0", "g3"] : ["g0", "g3", "g4", "g7"]
         const legSize = 4
 
@@ -3584,7 +3583,6 @@ resolvePar(ko, str) {
         k.legCount = count
         k.roll = height
         k.rollCount = count
-        k.h -= height
 
         const rollers = count === 2 ? ["g0", "g3"] : ["g0", "g3", "g4", "g7"]
         const rollSize = 5

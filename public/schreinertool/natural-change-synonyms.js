@@ -22,7 +22,7 @@ export const NATURAL_CHANGE_SYNONYMS = {
     ["dre.z", "z drehen rotation winkel"],
     ["reihe.x", "x wiederholen kopieren reihe serie"],
     ["reihe.y", "y wiederholen kopieren reihe serie"],
-    ["reihe.z", "z wiederholen kopieren reihe serie anzahl menge stueck stück einlegeboeden einlegeböden fachboeden fachböden boeden böden mehr weniger"],
+    ["reihe.z", "z wiederholen kopieren reihe serie anzahl menge stueck stück mehr weniger"],
     ["breit", "breite breit width"],
     ["tief", "tiefe tief depth"],
     ["hoch", "hoehe höhe hoch height"]

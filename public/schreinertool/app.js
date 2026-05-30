@@ -7,7 +7,7 @@ import { updateAndReloadURL } from "./fu.js?v=dockparse1";
 import { ProjectEditor as pp} from "./project-editor.js?v=arrayparse34";
 import { convertLegacyToModern } from "./legacy-converter.js?v=dockparse1";
 import { baseCommands, parameterOptionsByProperty } from "./suggest.js?v=arrayparse38";
-import { NATURAL_CHANGE_SYNONYMS } from "./natural-change-synonyms.js?v=2";
+import { NATURAL_CHANGE_SYNONYMS } from "./natural-change-synonyms.js?v=3";
 let CURRENT_STATE = null;
 const colors = window.colors || {};
 
@@ -2428,8 +2428,41 @@ function naturalRelativeDirection(raw) {
   return 0;
 }
 
+function naturalColorToken(raw) {
+  const text = ` ${normalizeNaturalChangeText(raw)} `;
+  const aliases = [
+    ["cornflowerblue", "blau blaue blauer blaues blauen blauem kornblumenblau mittelblau"],
+    ["lightblue", "hellblau hellblaue hellblauer hellblaues hellblauen hellblauem"],
+    ["darkblue", "dunkelblau dunkelblaue dunkelblauer dunkelblaues dunkelblauen dunkelblauem"],
+    ["white", "weiss weisse weisser weisses weissen weissem weiß weiße weißer weißes weißen weißem"],
+    ["snow", "schneeweiss schneeweiß"],
+    ["gray", "grau graue grauer graues grauen grauem"],
+    ["lightgray", "hellgrau hellgraue hellgrauer hellgraues hellgrauen hellgrauem"],
+    ["anthracite", "anthrazit"],
+    ["anthracite", "schwarz"],
+    ["indianred", "rot rote roter rotes roten rotem"],
+    ["palegreen", "gruen gruene gruener gruenes gruenen gruenem grün grüne grüner grünes grünen grünem"],
+    ["khaki", "gelb gelbe gelber gelbes gelben gelbem"],
+    ["oak", "eiche"],
+    ["beech", "buche"],
+    ["maple", "ahorn"]
+  ];
+
+  for (const [color, words] of aliases) {
+    if (naturalAliasWords(`${color} ${words}`).some((word) => text.includes(` ${word} `))) return color;
+  }
+
+  const knownColors = window.colors || colors || {};
+  const found = Object.entries(knownColors).find(([key, info]) => {
+    const label = normalizeNaturalChangeText(info?.de || "");
+    return text.includes(` ${normalizeNaturalChangeText(key)} `) || (label && text.includes(` ${label} `));
+  });
+  return found?.[0] || "";
+}
+
 function resolveNaturalPartProperty(raw, part, property) {
   const text = normalizeNaturalChangeText(raw);
+  if (part && naturalColorToken(raw)) return "mat";
 
   if ((part === "eb" || /\beinlegeboden|einlegeboeden|fachboden|fachboeden\b/.test(text))
     && (property === "anz" || /\banzahl|mehr|weniger|reihe z|reihe\b/.test(text))) {
@@ -2452,6 +2485,8 @@ function naturalChangeValue(raw, property, corpus, propertyPrefix) {
 }
 
 async function resolveNaturalProperty(raw, part) {
+  if (part && naturalColorToken(raw)) return "mat";
+
   if (!part) {
     const fixed = fixedNaturalCorpusProperty(raw);
     if (fixed) return fixed;
@@ -2497,6 +2532,98 @@ function setCorpusLineTokenNow(corpus, token, propertyPrefix = "") {
   return true;
 }
 
+function projectMaterialRows() {
+  const ta = document.getElementById("inn");
+  if (!ta) return [];
+
+  const lines = String(ta.value || "").split(/\r?\n/);
+  const { code } = splitDslComment(lines[0] || "");
+  return [...code.matchAll(/(?:^|\s)mat\.([^\s]+)/gi)].map((match, index) => ({
+    index: index + 1,
+    token: match[0].trim(),
+    value: match[1],
+    parts: match[1].split(",")
+  }));
+}
+
+function setProjectMaterialColor(materialIndex, color) {
+  const ta = document.getElementById("inn");
+  if (!ta || !materialIndex || !color) return false;
+
+  const lines = String(ta.value || "").split(/\r?\n/);
+  const first = splitDslComment(lines[0] || "projekt");
+  let seen = 0;
+  const nextCode = first.code.replace(/(^|\s)mat\.([^\s]+)/gi, (all, lead, value) => {
+    seen += 1;
+    if (seen !== Number(materialIndex)) return all;
+    const parts = value.split(",");
+    parts[1] = color;
+    return `${lead}mat.${parts.join(",")}`;
+  });
+  if (seen < Number(materialIndex)) return false;
+
+  lines[0] = first.comment ? `${nextCode.trim()} ${first.comment}` : nextCode.trim();
+  ta.value = lines.join("\n");
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+  window.syncInnEditorFromTextarea?.();
+  recordReloadHistory();
+  return true;
+}
+
+function addProjectMaterialFromBase(color, baseMaterialIndex = 1) {
+  const ta = document.getElementById("inn");
+  if (!ta || !color) return "";
+
+  const lines = String(ta.value || "").split(/\r?\n/);
+  if (!lines.length || !lines[0]) lines[0] = "projekt";
+
+  const first = splitDslComment(lines[0]);
+  const rows = projectMaterialRows();
+  const base = rows.find((row) => row.index === Number(baseMaterialIndex)) || rows[0];
+  const parts = [...(base?.parts || ["19", "white", "14", "1"])];
+  parts[1] = color;
+  const nextIndex = rows.length + 1;
+  const nextCode = `${first.code.trim()} mat.${parts.join(",")}`.trim();
+
+  lines[0] = first.comment ? `${nextCode} ${first.comment}` : nextCode;
+  ta.value = lines.join("\n");
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+  window.syncInnEditorFromTextarea?.();
+  recordReloadHistory();
+  return String(nextIndex);
+}
+
+function naturalMaterialColorKey(value) {
+  const text = String(value || "");
+  return naturalColorToken(text) || normalizeColorKey(normalizeNaturalChangeText(text));
+}
+
+function findProjectMaterialByColor(color) {
+  const wanted = naturalMaterialColorKey(color);
+  if (!wanted) return null;
+
+  return projectMaterialRows().find((row) => {
+    const materialColor = naturalMaterialColorKey(row.parts?.[1] || "");
+    return materialColor === wanted;
+  }) || null;
+}
+
+async function applyNaturalMaterialColorChange(corpus, part, color) {
+  if (!corpus || !part || !color) return false;
+
+  const materialValue = currentCorpusTokenValue(corpus, `${part}.mat`) || currentCorpusTokenValue(corpus, "mat") || "1";
+  const materialIndex = Number(String(materialValue).match(/\d+/)?.[0] || 1);
+  const existingMaterial = findProjectMaterialByColor(color);
+  const targetIndex = existingMaterial?.index || addProjectMaterialFromBase(color, materialIndex);
+  if (!targetIndex) return false;
+  if (!setCorpusLineTokenNow(corpus, `${part}.mat.${targetIndex}`, `${part}.mat`)) return false;
+
+  renderLineButtonsFromInn();
+  await applyInnTextChanges();
+  showCommandSearchToast(`${part}: Material ${targetIndex} (${color}) gesetzt.`);
+  return true;
+}
+
 async function applyNaturalTextChange(raw) {
   const text = String(raw || "").trim();
   if (!text) return false;
@@ -2513,6 +2640,13 @@ async function applyNaturalTextChange(raw) {
   if (!property) {
     showCommandSearchToast("Keine Eigenschaft gefunden.");
     return false;
+  }
+
+  const color = naturalColorToken(text);
+  if (part && property === "mat" && color) {
+    setState("inn");
+    requestAnimationFrame(() => applyNaturalMaterialColorChange(corpus, part, color));
+    return true;
   }
 
   const propertyPrefix = part ? `${part}.${property}` : property;

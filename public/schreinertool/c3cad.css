@@ -1420,8 +1420,7 @@ html, body {
   opacity: .45;
 }
 
-.corner-action-button,
-#centralReloadButton {
+.corner-action-button {
   position: fixed;
   z-index: 20000;
   width: 62px;
@@ -1441,8 +1440,37 @@ html, body {
 
 #centralReloadButton {
   position: absolute;
-  right: 18px;
-  bottom: 18px;
+  z-index: 20000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 34px;
+  height: auto;
+  margin: 0;
+  border: 0;
+  border-left: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border-soft));
+  border-radius: 0;
+  background: var(--accent);
+  color: var(--white);
+  box-shadow: -4px 0 14px color-mix(in srgb, var(--shadow-stronger) 55%, transparent);
+  font-size: 18pt;
+  line-height: 1;
+}
+
+body[data-state="inn"] #centralReloadButton,
+body.inn-editor-active #centralReloadButton {
+  display: flex;
+}
+
+body[data-state="inn"] #inn,
+body[data-state="inn"] #innEditor,
+body.inn-editor-active #inn,
+body.inn-editor-active #innEditor {
+  right: 34px;
+  width: auto;
 }
 
 .corner-action-button {

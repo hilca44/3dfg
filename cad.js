@@ -2143,6 +2143,14 @@ setTokenValue(obj, token){
 	        return;
 	    }
 
+	    if (o === obj && /^leg$/i.test(key)) {
+	        const [heightRaw, countRaw = "4"] = String(rawValue || "").split(",").map(value => value.trim());
+	        const height = Number(this.replaceDimensions(heightRaw));
+	        const count = Number(countRaw);
+	        if (Number.isFinite(height)) this.handleLegs(obj, Math.abs(height), count === 2 ? 2 : 4);
+	        return;
+	    }
+
 	    if (o === obj && /^(?:roll|rolle|rollen)$/i.test(key)) {
 	        const [heightRaw, countRaw = "4"] = String(rawValue || "").split(",").map(value => value.trim());
 	        const height = Number(this.replaceDimensions(heightRaw));
@@ -3490,10 +3498,12 @@ resolvePar(ko, str) {
         k.rollCount = 0
 
         if (!Number.isFinite(amount) || amount <= 0) {
+            k.soc = 0
             k.ug = 0
             return
         }
 
+        k.soc = amount
         k.ug = amount
         k.h -= amount
     }
@@ -3530,6 +3540,7 @@ resolvePar(ko, str) {
         // -------------------------------------------------
         k.roll = 0
         k.rollCount = 0
+        k.soc = 0
         k.leg = height
         k.legCount = count
         k.h -= height
@@ -3605,6 +3616,7 @@ resolvePar(ko, str) {
         k.legCount = count
         k.roll = height
         k.rollCount = count
+        k.soc = 0
         k.h -= height
 
         const rollers = count === 2 ? ["g0", "g3"] : ["g0", "g3", "g4", "g7"]
@@ -3676,8 +3688,9 @@ buildParts(k){
   const W = Number(k.w) || 0;
   const D = Number(k.d) || 0;
   const H = Number(k.h) || 0;
-  const baseZ = Number(k.leg) > 0 ? Number(k.leg) : 0;
   const rel = v => !v ? 0 : Number(v);
+  const soc = rel(k.soc) > 0 ? rel(k.soc) : 0;
+  const baseZ = Number(k.leg) > 0 ? Number(k.leg) : soc;
   const explodeX = Math.max(0, rel(k.xx));
   const explodeY = Math.max(0, rel(k.xy));
   const explodeZ = Math.max(0, rel(k.xz));
@@ -3689,7 +3702,7 @@ buildParts(k){
     r: rel(k.ur),
     f: rel(k.uf),
     b: rel(k.ub),
-    g: rel(k.ug),
+    g: soc > 0 ? 0 : rel(k.ug),
     t: rel(k.ut)
   };
 
@@ -3817,7 +3830,7 @@ if (k.c && k.c.n != null) {
       Object.assign(o, {
         w: W,
         d: S,
-        h: rel(k.ug),
+        h: soc > 0 ? soc : rel(k.ug),
         x: 0,
         y: 0,
         z: 0

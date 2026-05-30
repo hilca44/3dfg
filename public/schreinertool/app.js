@@ -1856,7 +1856,9 @@ function updateToolbarStatus() {
 
 const TOP_TOOLBAR_ACTIONS = [
   { label: "☰", action: toggleHelpMenu, placement: "toolbar", className: "toolbar-menu-button" },
+  { id: "toolbarUndo", label: "< 0", title: "Rueckgaengig", action: undoProjectText, placement: "toolbar", className: "toolbar-history-button" },
   { kind: "search", placement: "toolbar" },
+  { id: "toolbarRedo", label: "0 >", title: "Wiederholen", action: redoProjectText, placement: "toolbar", className: "toolbar-history-button" },
   { labelKey: "ui.share", label: "📤 Teilen", titleKey: "ui.shareTooltip", title: "Projekt-Link per E-Mail senden", action: shareProjectByMail, placement: "menu" },
   { label: "Tutor", title: "Autoplay im Editor starten", action: toggleTutorAutoplay, placement: "menu", className: "menu-action-tutor" },
   { label: "Hilfe", labelKey: "ui.help", action: toggleQuickHelpOverlay, placement: "menu" },
@@ -5656,10 +5658,6 @@ function setupAppMenuActions() {
 function initEditToolbar() {
   document.getElementById("cornerMenuButton")
     ?.addEventListener("click", toggleHelpMenu);
-  document.getElementById("toolbarUndo")
-    ?.addEventListener("click", undoProjectText);
-  document.getElementById("toolbarRedo")
-    ?.addEventListener("click", redoProjectText);
 
   restoreEditHistory();
   updateToolbarStatus();

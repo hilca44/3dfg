@@ -1053,6 +1053,11 @@ html, body {
   min-width: 52px;
 }
 
+#slot0 .toolbar-history-button {
+  flex: 0 0 56px;
+  min-width: 56px;
+}
+
 .command-search {
   position: relative;
   flex: 1 1 auto;

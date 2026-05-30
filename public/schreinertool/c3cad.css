@@ -1093,6 +1093,56 @@ html, body {
   outline-offset: -2px;
 }
 
+.natural-change-choices {
+  position: fixed;
+  left: 50%;
+  top: calc(env(safe-area-inset-top) + 58px);
+  z-index: 30000;
+  display: none;
+  width: min(520px, calc(100vw - 24px));
+  transform: translateX(-50%);
+  padding: 10px;
+  border: 1px solid var(--border-soft);
+  background: var(--card);
+  box-shadow: 0 12px 28px var(--shadow-stronger);
+}
+
+.natural-change-choices.is-visible {
+  display: block;
+}
+
+.natural-change-choices-title {
+  margin-bottom: 8px;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.natural-change-choices-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.natural-change-choices button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border-soft);
+  background: color-mix(in srgb, var(--accent) 10%, var(--card));
+  color: var(--text-main);
+  font: inherit;
+  font-weight: 700;
+}
+
+.natural-change-choices button:hover {
+  background: color-mix(in srgb, var(--accent) 18%, var(--card));
+}
+
+.natural-change-choices .natural-change-choices-cancel {
+  margin-top: 8px;
+  background: transparent;
+  color: var(--text-muted);
+}
+
 .command-search input {
   width: 100%;
   min-height: 44px;

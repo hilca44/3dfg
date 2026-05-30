@@ -2294,18 +2294,61 @@ function askNaturalChange(question, fallback = "") {
   return String(window.prompt(question, fallback) || "").trim();
 }
 
-function resolveNaturalCorpus(raw) {
+function chooseNaturalChangeOption(title, options = []) {
+  const cleanOptions = [...new Set(options.filter(Boolean))];
+  if (!cleanOptions.length) return Promise.resolve("");
+
+  return new Promise((resolve) => {
+    let box = document.getElementById("naturalChangeChoices");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "naturalChangeChoices";
+      box.className = "natural-change-choices";
+      document.body.appendChild(box);
+    }
+
+    const label = document.createElement("div");
+    label.className = "natural-change-choices-title";
+    label.textContent = title;
+
+    const buttons = document.createElement("div");
+    buttons.className = "natural-change-choices-buttons";
+
+    const close = (value = "") => {
+      box.classList.remove("is-visible");
+      box.replaceChildren();
+      resolve(value);
+    };
+
+    cleanOptions.forEach((option) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = option;
+      btn.addEventListener("click", () => close(option));
+      buttons.appendChild(btn);
+    });
+
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.className = "natural-change-choices-cancel";
+    cancel.textContent = "Abbrechen";
+    cancel.addEventListener("click", () => close(""));
+
+    box.replaceChildren(label, buttons, cancel);
+    box.classList.add("is-visible");
+  });
+}
+
+async function resolveNaturalCorpus(raw) {
   const names = currentCorpusNames();
   const normalizedRaw = ` ${normalizeNaturalChangeText(raw)} `;
   const named = names.filter((name) => normalizedRaw.includes(` ${normalizeNaturalChangeText(name)} `));
   if (named.length === 1) return named[0];
   if (named.length > 1) {
-    const answer = askNaturalChange(`Welcher Korpus? (${named.join(", ")})`, named[0]);
-    return names.includes(answer) ? answer : "";
+    return chooseNaturalChangeOption("Welcher Korpus?", named);
   }
   if (names.length === 1) return names[0];
-  const answer = askNaturalChange(`Welcher Korpus soll geaendert werden? (${names.join(", ")})`, names[0] || "");
-  return names.includes(answer) ? answer : answer;
+  return chooseNaturalChangeOption("Welcher Korpus soll geaendert werden?", names);
 }
 
 function naturalChangeNumber(raw, property) {
@@ -2395,24 +2438,21 @@ function naturalChangeValue(raw, property, corpus, propertyPrefix) {
   return String(Math.round(next * 1000) / 1000).replace(",", ".");
 }
 
-function resolveNaturalProperty(raw, part) {
+async function resolveNaturalProperty(raw, part) {
   const rows = part ? NATURAL_CHANGE_SYNONYMS.partProperties : NATURAL_CHANGE_SYNONYMS.corpusProperties;
   const found = findNaturalAlias(raw, rows);
   if (found.key) return found.key;
 
-  const choices = rows.map(([key]) => key).join(", ");
-  const hint = found.ambiguous ? `Mehrdeutig: ${found.choices.join(", ")}. ` : "";
-  const answer = askNaturalChange(`${hint}Welche Eigenschaft? (${choices})`, part ? "push" : "breit");
-  return findNaturalAlias(answer, rows).key || answer;
+  const choices = found.ambiguous ? found.choices : rows.map(([key]) => key);
+  return chooseNaturalChangeOption("Welche Eigenschaft?", choices);
 }
 
-function resolveNaturalPart(raw) {
+async function resolveNaturalPart(raw) {
   const found = findNaturalAlias(raw, NATURAL_CHANGE_SYNONYMS.parts);
   if (found.key) return found.key;
   if (!found.ambiguous) return "";
 
-  const answer = askNaturalChange(`Welches Teil? (${found.choices.join(", ")})`, found.choices[0]);
-  return findNaturalAlias(answer, NATURAL_CHANGE_SYNONYMS.parts).key || answer;
+  return chooseNaturalChangeOption("Welches Teil?", found.choices);
 }
 
 function setCorpusLineTokenNow(corpus, token, propertyPrefix = "") {
@@ -2443,14 +2483,14 @@ async function applyNaturalTextChange(raw) {
   const text = String(raw || "").trim();
   if (!text) return false;
 
-  const corpus = resolveNaturalCorpus(text);
+  const corpus = await resolveNaturalCorpus(text);
   if (!corpus) {
     showCommandSearchToast("Kein Korpus gefunden.");
     return false;
   }
 
-  const part = resolveNaturalPart(text);
-  let property = resolveNaturalProperty(text, part);
+  const part = await resolveNaturalPart(text);
+  let property = await resolveNaturalProperty(text, part);
   property = resolveNaturalPartProperty(text, part, property);
   if (!property) {
     showCommandSearchToast("Keine Eigenschaft gefunden.");

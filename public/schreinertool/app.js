@@ -8,6 +8,7 @@ import { ProjectEditor as pp} from "./project-editor.js?v=arrayparse34";
 import { convertLegacyToModern } from "./legacy-converter.js?v=dockparse1";
 import { baseCommands, parameterOptionsByProperty } from "./suggest.js?v=arrayparse38";
 import { NATURAL_CHANGE_SYNONYMS } from "./natural-change-synonyms.js?v=4";
+import { findNaturalAlias, naturalAliasWords, normalizeNaturalChangeText } from "./natural-change-similarity.js?v=1";
 let CURRENT_STATE = null;
 const colors = window.colors || {};
 
@@ -2256,61 +2257,12 @@ function currentCorpusNames() {
     .filter(Boolean);
 }
 
-function normalizeNaturalChangeText(value) {
-  return String(value || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/ß/g, "ss")
-    .replace(/\b(schrank|korpus|regal|moebel|mobel)(breite|tiefe|hoehe|hohe|hoch|breit|tief)\b/g, "$1 $2")
-    .replace(/\bpunkt\b/g, ".")
-    .replace(/[._-]+/g, " ")
-    .replace(/[^\p{L}\p{N},]+/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 function fixedNaturalCorpusProperty(raw) {
   const text = normalizeNaturalChangeText(raw);
   if (/\b(?:schrank|korpus|regal|moebel|mobel)\s*(?:hoehe|hohe|hoch)\b/.test(text)) return "hoch";
   if (/\b(?:schrank|korpus|regal|moebel|mobel)\s*(?:breite|breit)\b/.test(text)) return "breit";
   if (/\b(?:schrank|korpus|regal|moebel|mobel)\s*(?:tiefe|tief)\b/.test(text)) return "tief";
   return "";
-}
-
-function naturalAliasWords(value) {
-  return normalizeNaturalChangeText(value).split(/\s+/).filter(Boolean);
-}
-
-function findNaturalAlias(text, rows) {
-  const textWords = naturalAliasWords(text);
-  const matches = rows
-    .map(([key, aliases]) => {
-      const score = naturalAliasWords(`${key} ${aliases}`).reduce((sum, word) => (
-        sum + naturalAliasWordScore(word, textWords)
-      ), 0);
-      return { key, score };
-    })
-    .filter((entry) => entry.score >= 0.78)
-    .sort((a, b) => b.score - a.score);
-
-  if (!matches.length) return { key: "", ambiguous: false };
-  const best = matches[0].score;
-  const tied = matches.filter((entry) => Math.abs(entry.score - best) < 0.12);
-  return { key: tied.length === 1 ? tied[0].key : "", ambiguous: tied.length > 1, choices: tied.map((entry) => entry.key) };
-}
-
-function naturalAliasWordScore(aliasWord, textWords) {
-  const word = normalizeNaturalChangeText(aliasWord);
-  if (!word || !textWords.length) return 0;
-
-  return textWords.reduce((best, textWord) => {
-    if (word === textWord) return Math.max(best, 1);
-    if (word.length <= 2 || textWord.length <= 2) return best;
-
-    const score = fuzzyTokenScore(textWord, word);
-    return Math.max(best, score >= 0.78 ? score : 0);
-  }, 0);
 }
 
 function askNaturalChange(question, fallback = "") {
@@ -2653,6 +2605,17 @@ async function applyNaturalMaterialColorChange(corpus, part, color) {
   return true;
 }
 
+function isDslBlockToken(token) {
+  const value = String(token || "").trim();
+  if (!value || /\s/.test(value)) return false;
+
+  const name = "[a-z][a-z0-9_-]*";
+  const number = "[+-]?\\d+(?:[,.]\\d+)?";
+  const property = "[a-z][a-z0-9_-]*(?:\\.[a-z0-9_-]+)?";
+  return new RegExp(`^(?:${name}\\.)?${property}\\.${number}$`, "i").test(value)
+    || new RegExp(`^(?:${name}\\.)?mat\\.\\d+$`, "i").test(value);
+}
+
 async function applyNaturalTextChange(raw) {
   const text = String(raw || "").trim();
   if (!text) return false;
@@ -2687,6 +2650,11 @@ async function applyNaturalTextChange(raw) {
   }
 
   const token = part ? `${part}.${property}.${value}` : `${property}.${value}`;
+  if (!isDslBlockToken(token)) {
+    showCommandSearchToast("Keine gueltige Block-Aenderung erkannt.");
+    return false;
+  }
+
   setState("inn");
 
   requestAnimationFrame(async () => {

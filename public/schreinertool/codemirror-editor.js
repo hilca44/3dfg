@@ -63,6 +63,57 @@ const axisOptions = [
   ["z.", "Z-Richtung"]
 ];
 
+const actionAxisParameterOptions = {
+  reihe: [
+    ["2", "Anzahl: 2 Wiederholungen"],
+    ["3", "Anzahl: 3 Wiederholungen"],
+    ["3,5", "Anzahl 3, Abstand 5 cm"],
+    ["3,55r", "Anzahl 3, Raster/Abstand 55r"]
+  ],
+  wid: [
+    ["2", "Anzahl: 2 Wiederholungen"],
+    ["3", "Anzahl: 3 Wiederholungen"],
+    ["3,5", "Anzahl 3, Abstand 5 cm"],
+    ["3,55r", "Anzahl 3, Raster/Abstand 55r"]
+  ],
+  copy: [
+    ["2", "Anzahl: 2 Kopien"],
+    ["3", "Anzahl: 3 Kopien"],
+    ["3,5", "Anzahl 3, Abstand 5 cm"],
+    ["3,55r", "Anzahl 3, Raster/Abstand 55r"]
+  ],
+  kop: [
+    ["2", "Anzahl: 2 Kopien"],
+    ["3", "Anzahl: 3 Kopien"],
+    ["3,5", "Anzahl 3, Abstand 5 cm"],
+    ["3,55r", "Anzahl 3, Raster/Abstand 55r"]
+  ],
+  cut: [
+    ["2", "in 2 Teile schneiden"],
+    ["3", "in 3 Teile schneiden"],
+    ["3,5", "3 Teile, Abstand 5 cm"],
+    ["3,55r", "3 Teile, Raster/Abstand 55r"]
+  ],
+  teilen: [
+    ["2", "in 2 Teile schneiden"],
+    ["3", "in 3 Teile schneiden"],
+    ["3,5", "3 Teile, Abstand 5 cm"],
+    ["3,55r", "3 Teile, Raster/Abstand 55r"]
+  ],
+  tei: [
+    ["2", "in 2 Teile schneiden"],
+    ["3", "in 3 Teile schneiden"],
+    ["3,5", "3 Teile, Abstand 5 cm"],
+    ["3,55r", "3 Teile, Raster/Abstand 55r"]
+  ],
+  dre: [
+    ["90", "90 Grad drehen"],
+    ["45", "45 Grad drehen"],
+    ["-45", "-45 Grad drehen"],
+    ["180", "180 Grad drehen"]
+  ]
+};
+
 const propertyOptions = [
   ["mat.", "mat.[nummer]"],
   ["push.", "push.[wert]"],
@@ -376,6 +427,28 @@ function axisCompletionOptions() {
       requestAnimationFrame(() => startCompletion(view));
     }
   }));
+}
+
+function actionAxisParameterCompletion(word) {
+  const actionMatch = word.text.match(/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(cut|teilen|tei|dre|reihe|wid|copy|kop)\.([xyz])\.([A-Za-z0-9.,+\-]*)$/i);
+  if (!actionMatch) return null;
+
+  const action = actionMatch[1].toLowerCase();
+  const options = actionAxisParameterOptions[action] || defaultParameterOptions;
+  const value = actionMatch[3] || "";
+
+  return {
+    from: word.to - value.length,
+    to: word.to,
+    options: options.map(([label, detail], index) => ({
+      label,
+      detail,
+      type: "constant",
+      boost: 1000 - index,
+      apply: label
+    })),
+    validFor: /^[A-Za-z0-9.,+\-]*$/
+  };
 }
 
 function partListCompletionOptions(token) {
@@ -962,6 +1035,9 @@ function completionSource(context) {
     };
   }
 
+  const actionParameter = actionAxisParameterCompletion(word);
+  if (actionParameter) return actionParameter;
+
   const valueSeparatorMatch = token.text.match(/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?([a-z]+)[=.]/i);
   const valueSeparatorIndex = valueSeparatorMatch ? valueSeparatorMatch[0].length - 1 : -1;
   if (valueSeparatorIndex >= 0 && token.cursor > valueSeparatorIndex) {
@@ -1352,6 +1428,7 @@ function tokenHasCompletionContext() {
   if (/^(?:m|mat)\.[^ \t]*$/i.test(token.text.slice(0, token.cursor))) return true;
   if (/^(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.[a-z]*$/i.test(token.text.slice(0, token.cursor))) return true;
   if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.)?(?:cut|teilen|tei|dre|reihe|wid|copy|kop|sta|aus|zen)\.[xyz]*$/i.test(token.text.slice(0, token.cursor))) return true;
+  if (/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)\.)?(?:cut|teilen|tei|dre|reihe|wid|copy|kop)\.[xyz]\.[^ \t]*$/i.test(token.text.slice(0, token.cursor))) return true;
 
   const before = editorView.state.sliceDoc(Math.max(0, pos - 1), pos);
   return /\s/.test(before);

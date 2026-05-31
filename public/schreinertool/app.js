@@ -18,7 +18,8 @@ if (window.freeLimitsReady) await window.freeLimitsReady;
 const FREE_LIMITS = window.FREE_LIMITS || {
   projectParts: { free: 100, pro: 600 },
   holzliste: { insideFreeLines: 60, exportFreeLines: 100, freeLines: 100 },
-  cutplan: { freePlates: 1 }
+  cutplan: { freePlates: 1 },
+  wireframe: { freeMaxElements: 10 }
 };
 const PROJECT_PART_LIMITS = FREE_LIMITS.projectParts || { free: 100, pro: 600 };
 window.PROJECT_PART_LIMITS = PROJECT_PART_LIMITS;

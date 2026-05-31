@@ -10,5 +10,8 @@
   },
   "cutplan": {
     "freePlates": 1
+  },
+  "wireframe": {
+    "freeMaxElements": 500
   }
 }

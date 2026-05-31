@@ -481,6 +481,7 @@ function markLimitedRenderableParts(pr, limit) {
     const names = pr.jj?.length ? pr.jj : Object.keys(pr.oks || {});
     let solidCount = 0;
     let edgeOnlyCount = 0;
+    const maxEdgeOnly = limitedEdgePreviewCount();
 
     for (const name of names) {
         const k = pr.oks[name];
@@ -489,7 +490,7 @@ function markLimitedRenderableParts(pr, limit) {
         if (k.type === "part" || isExpandedTextKorpus(k)) {
             if (solidCount < max) {
                 solidCount++;
-            } else if (edgeOnlyCount < LIMITED_EDGE_PREVIEW_COUNT) {
+            } else if (edgeOnlyCount < maxEdgeOnly) {
                 k.__edgeOnly = true;
                 edgeOnlyCount++;
             } else {
@@ -504,7 +505,7 @@ function markLimitedRenderableParts(pr, limit) {
             if (!k[partName]) continue;
             if (solidCount < max) {
                 solidCount++;
-            } else if (edgeOnlyCount < LIMITED_EDGE_PREVIEW_COUNT) {
+            } else if (edgeOnlyCount < maxEdgeOnly) {
                 k[partName].__edgeOnly = true;
                 edgeOnlyCount++;
             } else {
@@ -932,7 +933,14 @@ function createMaterialForPart(mat, viewSpec = "") {
 
 let edgmat = new THREE.LineBasicMaterial({ color: 0x000000 });
 let limitedEdgeMat = new THREE.LineBasicMaterial({ color: 0x777777, transparent: true, opacity: 0.7 });
-const LIMITED_EDGE_PREVIEW_COUNT = 10;
+const DEFAULT_LIMITED_EDGE_PREVIEW_COUNT = 10;
+
+function limitedEdgePreviewCount() {
+    const value = Number(window.FREE_LIMITS?.wireframe?.freeMaxElements);
+    return Number.isFinite(value) && value >= 0
+        ? Math.floor(value)
+        : DEFAULT_LIMITED_EDGE_PREVIEW_COUNT;
+}
 
 
 function makeL(k, ownerGroup = null, options = {}) {

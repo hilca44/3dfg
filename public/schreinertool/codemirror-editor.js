@@ -18,6 +18,10 @@ let syntaxErrorMessage = "";
 let syntaxErrorToken = "";
 let colorPaletteEl = null;
 
+function shouldContinueCompletionAfterInsert(label) {
+  return /[.=]$/.test(String(label || ""));
+}
+
 const modernPartOptions = [
   ["sl", "linke Seite"],
   ["sr", "rechte Seite"],
@@ -275,11 +279,12 @@ async function loadCommands() {
     type: "keyword",
     boost: 1000 - index,
     apply(view, completion, from, to) {
+      const insert = completion.label;
       view.dispatch({
-        changes: { from, to, insert: completion.label },
-        selection: { anchor: from + completion.label.length }
+        changes: { from, to, insert },
+        selection: { anchor: from + insert.length }
       });
-      if (completion.label === "mat.") {
+      if (shouldContinueCompletionAfterInsert(insert)) {
         requestAnimationFrame(() => startCompletion(view));
       }
     }
@@ -936,6 +941,27 @@ function completionSource(context) {
     return partListCompletionOptions(token);
   }
 
+  const modernPartMatch = word.text.match(/^((?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*)\.([a-z]*)$/i);
+  if (modernPartMatch) {
+    return {
+      from: word.from + modernPartMatch[1].length + 1,
+      options: [
+        ...modernActionCompletionOptions(),
+        ...propertyCompletionOptions(modernPartMatch[1].toLowerCase())
+      ],
+      validFor: /^[a-z]*$/i
+    };
+  }
+
+  const modernAxisMatch = word.text.match(/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(cut|teilen|tei|dre|reihe|wid|copy|kop|sta|aus|zen)\.([xyz]?)$/i);
+  if (modernAxisMatch) {
+    return {
+      from: word.from + word.text.lastIndexOf(".") + 1,
+      options: axisCompletionOptions(),
+      validFor: /^[xyz]*$/i
+    };
+  }
+
   const valueSeparatorMatch = token.text.match(/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?([a-z]+)[=.]/i);
   const valueSeparatorIndex = valueSeparatorMatch ? valueSeparatorMatch[0].length - 1 : -1;
   if (valueSeparatorIndex >= 0 && token.cursor > valueSeparatorIndex) {
@@ -957,27 +983,6 @@ function completionSource(context) {
       from: word.from,
       options: corpusNameCompletionOptions(word.text),
       validFor: /^[A-Za-z0-9_.-]*$/
-    };
-  }
-
-  const modernPartMatch = word.text.match(/^((?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*)\.([a-z]*)$/i);
-  if (modernPartMatch) {
-    return {
-      from: word.from + modernPartMatch[1].length + 1,
-      options: [
-        ...modernActionCompletionOptions(),
-        ...propertyCompletionOptions(modernPartMatch[1].toLowerCase())
-      ],
-      validFor: /^[a-z]*$/i
-    };
-  }
-
-  const modernAxisMatch = word.text.match(/^(?:(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw)(?:,(?:sl|sr|ls|rs|bo|de|rw|fr|eb|mw))*\.)?(cut|teilen|tei|dre|reihe|wid|copy|kop|sta|aus|zen)\.([xyz]?)$/i);
-  if (modernAxisMatch) {
-    return {
-      from: word.from + word.text.lastIndexOf(".") + 1,
-      options: axisCompletionOptions(),
-      validFor: /^[xyz]*$/i
     };
   }
 

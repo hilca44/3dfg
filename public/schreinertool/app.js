@@ -5329,7 +5329,8 @@ function resetToDefaultProject() {
       let s = sks
         .replace(/\+/g, "_P_")   // echte Zeilenumbrüche durch __NL__ ersetzen
         .replace(/\n/g, "_N_")   // echte Zeilenumbrüche durch __NL__ ersetzen
-        .replace(/[ \t]+/g, "~"); // Leerzeichen lesbar in der URL halten
+        .replace(/,/g, "~")
+        .replace(/[ \t]+/g, "__");
 
       let zuu = encodeURI(s);
       let u0 = "index.html";

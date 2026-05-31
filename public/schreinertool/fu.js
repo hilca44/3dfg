@@ -136,7 +136,8 @@ async function loadURLfromDWG(dwgName) {
           let decoded = decodeURI(t);
           decoded = decoded
             .replace(/_N_/g, "\n")
-            .replace(/~/g, " ")
+            .replace(/__/g, " ")
+            .replace(/~/g, ",")
             .replace(/_S_/g, " ")
             .replace(/_P_/g, "+");
           
@@ -162,7 +163,7 @@ function decodeTNew(name, value) {
 
   const lines = value
     .split("--")
-    .map(l => l.split("~").join(" "))
+    .map(decodeReadableUrlLine)
     .filter(Boolean);
 
   if (!lines.length) return null;
@@ -180,11 +181,27 @@ function decodeTNew(name, value) {
 function decodeT(txt) {
   return decodeURI(
     txt
-      .replace(/~/g, " ")
+      .replace(/__/g, " ")
+      .replace(/~/g, ",")
       .replace(/_S_/g, " ")
       .replace(/_N_/g, "\n")
       .replace(/_P_/g, "+")
   );
+}
+
+function encodeReadableUrlLine(line) {
+  return String(line || "")
+    .trim()
+    .replace(/\+/g, "_P_")
+    .replace(/,/g, "~")
+    .replace(/[ \t]+/g, "__");
+}
+
+function decodeReadableUrlLine(line) {
+  return String(line || "")
+    .replace(/__/g, " ")
+    .replace(/~/g, ",")
+    .replace(/_P_/g, "+");
 }
 
 ///////////////////////////////
@@ -222,7 +239,7 @@ function innToUrl(inn) {
   ];
 
   const value = valueLines
-    .map(line => line.split(/\s+/).join("~"))
+    .map(encodeReadableUrlLine)
     .join("--");
 
   return `${location.origin}${location.pathname}?${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
@@ -261,8 +278,8 @@ function urlToInn(url) {
 
   const value = safeDecode(valueParam);
 
-  // 🔵 Neue Mini-DSL (-- trennt Zeilen, ~ trennt Tokens)
-  if (value.includes("--") || value.includes("~")) {
+  // 🔵 Neue Mini-DSL (-- trennt Zeilen, __ trennt Tokens, ~ steht fuer Komma)
+  if (value.includes("--") || value.includes("__") || value.includes("~")) {
     return decodeTNew(name, value);
     // const lines = value
     //   .split("--")
@@ -314,14 +331,13 @@ function encodeTOld(txt) {
 }
 
 function encodeTNew(inn) {
-  inn = inn.replace(/\+/g, "_P_")
   const lines = inn.trim().split("\n").map(l => l.trim()).filter(Boolean);
   if (!lines.length) return location.origin + location.pathname;
 
   const name = lines[0].split(/\s+/)[0];
 
   const value = lines
-    .map(line => line.split(/\s+/).join("~"))
+    .map(encodeReadableUrlLine)
     .join("--");
 
   // ✅ bleibt auf /index.html wenn du auf /index.html bist
@@ -333,7 +349,8 @@ function encodeT(txt) {
     txt
       .replace(/\+/g, "_P_")
       .replace(/\n/g, "_N_")
-      .replace(/[ \t]+/g, "~")
+      .replace(/,/g, "~")
+      .replace(/[ \t]+/g, "__")
   );
 }
 

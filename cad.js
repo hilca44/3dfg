@@ -1410,8 +1410,15 @@ keepLastCommandsStable(lbs) {
     const multi = new Set(["u", "c"]);
     const singles = new Map();
     const out = [];
+    const fullKeyCommands = new Set([
+        "nx", "ny", "nz",
+        "sx", "sy", "sz",
+        "ox", "oy", "oz", "oxc", "oyc", "ozc"
+    ]);
     const commandKey = cmd => {
         const lhs = String(cmd).split(/[=:]/)[0];
+        const normalized = lhs.toLowerCase();
+        if (fullKeyCommands.has(normalized)) return normalized;
         return lhs.includes(".") ? lhs : String(cmd)[0];
     };
     const removeCommandKey = key => {

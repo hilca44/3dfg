@@ -7,10 +7,11 @@ Die persönliche Galerie nutzt serverseitige Benutzer mit Passwort-Hash.
 Die Datei liegt hier:
 
 ```text
-public/schreinertool/gallery/users.json
+data/schreinertool/gallery/users.json
 ```
 
 Wenn sie fehlt, legt der Server beim ersten Login-Versuch automatisch einen Admin an.
+Der Ordner `data/` ist serverlokal und wird nicht per Git synchronisiert.
 
 ## Admin-Zugang
 
@@ -75,7 +76,7 @@ Beim ersten erfolgreichen Login wird `plain:...` automatisch durch einen PBKDF2-
 Normale Benutzer können sich nur anmelden, wenn ihre PayPal-E-Mail zusätzlich in dieser Datei steht:
 
 ```text
-public/schreinertool/gallery/paid-emails.json
+data/schreinertool/gallery/paid-emails.json
 ```
 
 Beispiel:
@@ -93,3 +94,7 @@ Beispiel:
 `until` ist optional. Ohne `until` gilt die E-Mail als unbegrenzt freigeschaltet. Benutzer mit `"role": "admin"` sind von dieser Zahlungsliste ausgenommen.
 
 Aktuell gibt es noch keine Admin-Oberfläche zum Erzeugen neuer Benutzer; Benutzer werden in dieser Datei verwaltet.
+
+## Sync-Sicherheit
+
+Zugangs- und Zahlungsdaten dürfen nicht in `public/schreinertool/gallery` gepflegt werden. Dieser Ordner gehört zum Git-Checkout und kann beim Sync überschrieben werden. Beim Deploy kopiert `sync.sh` vorhandene alte Dateien einmalig nach `data/schreinertool/gallery`, bevor `git pull` läuft.

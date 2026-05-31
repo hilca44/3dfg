@@ -19,12 +19,14 @@ const __dirname  = path.dirname(__filename);
 /* -------------------------------------------------- */
 /* Pfade                                              */
 /* -------------------------------------------------- */
-const GALLERY_DIR = path.join(__dirname, "public", "schreinertool", "gallery");
-const DB_PATH = path.join(GALLERY_DIR, "db.json");
-const USER_GALLERY_DIR = path.join(GALLERY_DIR, "users");
-const USER_DB_PATH = path.join(GALLERY_DIR, "users.json");
-const PAID_EMAILS_PATH = path.join(GALLERY_DIR, "paid-emails.json");
-const Q_PATH = path.join(GALLERY_DIR, ".q.json");
+const PUBLIC_GALLERY_DIR = path.join(__dirname, "public", "schreinertool", "gallery");
+const SERVER_DATA_DIR = process.env.ST_DATA_DIR || path.join(__dirname, "data", "schreinertool");
+const GALLERY_DATA_DIR = path.join(SERVER_DATA_DIR, "gallery");
+const DB_PATH = path.join(GALLERY_DATA_DIR, "db.json");
+const USER_GALLERY_DIR = path.join(GALLERY_DATA_DIR, "users");
+const USER_DB_PATH = path.join(GALLERY_DATA_DIR, "users.json");
+const PAID_EMAILS_PATH = path.join(GALLERY_DATA_DIR, "paid-emails.json");
+const Q_PATH = path.join(GALLERY_DATA_DIR, ".q.json");
 const FREE_LIMITS_PATH = path.join(__dirname, "public", "schreinertool", "free-limits.json");
 const DEFAULT_LANG = "de";
 const SUPPORTED_LANGS = ["de", "en", "fr", "nl", "pl", "it"];
@@ -78,6 +80,30 @@ function readJSON(file, fallback = {}) {
   } catch {
     return fallback;
   }
+}
+
+function copyLegacyDataFile(name) {
+  const source = path.join(PUBLIC_GALLERY_DIR, name);
+  const target = path.join(GALLERY_DATA_DIR, name);
+  if (!fs.existsSync(source) || fs.existsSync(target)) return;
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.copyFileSync(source, target);
+}
+
+function copyLegacyDataDir(name) {
+  const source = path.join(PUBLIC_GALLERY_DIR, name);
+  const target = path.join(GALLERY_DATA_DIR, name);
+  if (!fs.existsSync(source) || fs.existsSync(target)) return;
+  fs.cpSync(source, target, { recursive: true });
+}
+
+function ensureServerDataFiles() {
+  fs.mkdirSync(GALLERY_DATA_DIR, { recursive: true });
+  fs.mkdirSync(USER_GALLERY_DIR, { recursive: true });
+  for (const name of ["db.json", "users.json", "paid-emails.json", ".q.json"]) {
+    copyLegacyDataFile(name);
+  }
+  copyLegacyDataDir("users");
 }
 
 function readCookie(req, name) {
@@ -137,7 +163,7 @@ function loadGalleryUsers() {
   fs.mkdirSync(path.dirname(USER_DB_PATH), { recursive: true });
   fs.writeFileSync(USER_DB_PATH, JSON.stringify(initial, null, 2));
   if (!process.env.ST_ADMIN_PASSWORD) {
-    console.warn("WARN: Galerie-Admin wurde mit Standardpasswort 'admin' angelegt. Bitte public/schreinertool/gallery/users.json ändern.");
+    console.warn(`WARN: Galerie-Admin wurde mit Standardpasswort 'admin' angelegt. Bitte ${USER_DB_PATH} ändern.`);
   }
   return initial;
 }
@@ -253,7 +279,7 @@ function qLoad() {
 }
 
 function qSave(data) {
-  if (!fs.existsSync(GALLERY_DIR)) fs.mkdirSync(GALLERY_DIR, { recursive: true });
+  if (!fs.existsSync(GALLERY_DATA_DIR)) fs.mkdirSync(GALLERY_DATA_DIR, { recursive: true });
   const tmp = Q_PATH + ".tmp";
   fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
   fs.renameSync(tmp, Q_PATH);
@@ -483,8 +509,9 @@ stt.get("/q", (req, res) => {
 /* -------------------------------------------------- */
 /* Gallery                                            */
 /* -------------------------------------------------- */
-if (!fs.existsSync(GALLERY_DIR)) {
-  fs.mkdirSync(GALLERY_DIR, { recursive: true });
+ensureServerDataFiles();
+if (!fs.existsSync(PUBLIC_GALLERY_DIR)) {
+  fs.mkdirSync(PUBLIC_GALLERY_DIR, { recursive: true });
 }
 if (!fs.existsSync(USER_GALLERY_DIR)) {
   fs.mkdirSync(USER_GALLERY_DIR, { recursive: true });
@@ -610,7 +637,7 @@ function loginPageContent() {
       <input type="hidden" name="no_note" value="1">
       <button type="submit" class="paypalButton">Mit PayPal 12 EUR/Jahr bezahlen</button>
     </form>
-    <p class="hint">Nach der Zahlung muss die PayPal-E-Mail serverseitig in <code>gallery/paid-emails.json</code> eingetragen sein. Erst dann ist der Login freigeschaltet.</p>
+    <p class="hint">Nach der Zahlung muss die PayPal-E-Mail serverseitig in <code>data/schreinertool/gallery/paid-emails.json</code> eingetragen sein. Erst dann ist der Login freigeschaltet.</p>
   </section>
   <section>
     <h2>Login</h2>
@@ -628,14 +655,14 @@ function loginPageContent() {
       <li>Du wirst zu deiner persönlichen Galerie weitergeleitet.</li>
       <li>Dort kannst du deine Einträge laden, Beschreibung/Text ändern und Einträge löschen.</li>
       <li>Private Speichervorgänge landen in deiner eigenen Galerie.</li>
-      <li>Nur Benutzer, die in der Server-Datei <code>gallery/users.json</code> angelegt sind, können sich anmelden.</li>
-      <li>Für normale Benutzer muss die PayPal-E-Mail zusätzlich in <code>gallery/paid-emails.json</code> stehen.</li>
+      <li>Nur Benutzer, die in der Server-Datei <code>data/schreinertool/gallery/users.json</code> angelegt sind, können sich anmelden.</li>
+      <li>Für normale Benutzer muss die PayPal-E-Mail zusätzlich in <code>data/schreinertool/gallery/paid-emails.json</code> stehen.</li>
       <li>Neue Benutzer können serverseitig mit <code>plain:startpasswort</code> angelegt werden; nach dem ersten Login wird daraus automatisch ein Hash.</li>
     </ul>
   </section>
   <section>
     <h2>Admin-Modus</h2>
-    <p>Wenn dein Benutzer in <code>gallery/users.json</code> die Rolle <code>admin</code> hat, bearbeitest du die öffentliche Galerie.</p>
+    <p>Wenn dein Benutzer in <code>data/schreinertool/gallery/users.json</code> die Rolle <code>admin</code> hat, bearbeitest du die öffentliche Galerie.</p>
     <p class="hint">Für normale Benutzer bleibt die öffentliche Galerie unverändert.</p>
   </section>
   <p><a href="/gallery">Zur öffentlichen Galerie</a></p>
@@ -775,8 +802,8 @@ stt.post("/publish-image", (req, res) => {
 
     // 🔹 Ordner sicherstellen
 
-    if (!fs.existsSync(GALLERY_DIR)) {
-      fs.mkdirSync(GALLERY_DIR, { recursive: true });
+    if (!fs.existsSync(PUBLIC_GALLERY_DIR)) {
+      fs.mkdirSync(PUBLIC_GALLERY_DIR, { recursive: true });
     }
 
     // 🔹 ID
@@ -790,7 +817,7 @@ stt.post("/publish-image", (req, res) => {
     const base64 = img.replace(/^data:image\/\w+;base64,/, "");
 
     const fileName = `${id}.${ext}`;
-    const filePath = path.join(GALLERY_DIR, fileName);
+    const filePath = path.join(PUBLIC_GALLERY_DIR, fileName);
 
     fs.writeFileSync(filePath, base64, "base64");
 

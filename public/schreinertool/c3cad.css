@@ -1392,6 +1392,7 @@ html, body {
   line-height: 1.2;
   text-align: center;
   white-space: nowrap;
+  position: relative;
 }
 
 .top-status strong,
@@ -1408,6 +1409,83 @@ html, body {
 .top-status span {
   color: var(--white);
   flex: 1 1 auto;
+}
+
+.top-status-account {
+  position: relative;
+  margin-left: auto;
+}
+
+.top-status-account-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 6px;
+  background: rgba(255,255,255,.08);
+  color: var(--white);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.top-status-account-button:hover,
+.top-status-account-button:focus-visible {
+  background: rgba(255,255,255,.18);
+  outline: none;
+}
+
+.top-status-account-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 21000;
+  display: grid;
+  gap: 8px;
+  min-width: 220px;
+  padding: 10px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--card-4);
+  color: var(--text-main);
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+  text-align: left;
+  white-space: normal;
+}
+
+.top-status-account-menu[hidden] {
+  display: none;
+}
+
+.top-status-user {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.top-status-login,
+.top-status-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  background: var(--bar);
+  color: var(--white);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.top-status-login:hover,
+.top-status-logout:hover {
+  background: var(--accent);
+  color: var(--bar);
 }
 
 #toolbarUndo,

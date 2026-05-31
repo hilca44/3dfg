@@ -25,6 +25,7 @@ const PROJECT_PART_LIMITS = FREE_LIMITS.projectParts || { free: 100, pro: 600 };
 window.PROJECT_PART_LIMITS = PROJECT_PART_LIMITS;
 let projectAccessPromise = null;
 let projectAccessPlan = null;
+let topStatusAuth = { loaded: false, user: "", isAdmin: false };
 var temp0
 function stt(key, fallback = "") {
   const value = key.split(".").reduce((obj, part) => obj?.[part], window.ST_I18N);
@@ -1431,7 +1432,7 @@ function setTutorStatus(text) {
   if (!topStatus) return;
 
   if (text) {
-    topStatus.innerHTML = `<a class="top-status-home" href="/">3dfg</a><span>${htmlText(text)}</span>`;
+    topStatus.innerHTML = renderTopStatusContent(text);
   } else {
     updateToolbarStatus();
   }
@@ -1836,13 +1837,34 @@ function toolbarStatusText() {
   return `${visitorCounterText} | ${currentLanguageCode()} | ${currentProjectPartsText()} | ${currentProjectPriceText()}`;
 }
 
+function renderTopStatusContent(text) {
+  const user = topStatusAuth.user || "";
+  const userText = user
+    ? `Angemeldet als ${user}${topStatusAuth.isAdmin ? " (Admin)" : ""}`
+    : (topStatusAuth.loaded ? "Nicht angemeldet" : "Login wird geprueft...");
+  const authAction = user
+    ? `<button type="button" class="top-status-logout" data-top-status-logout>Logout</button>`
+    : `<a class="top-status-login" href="/login">Login</a>`;
+
+  return `
+    <a class="top-status-home" href="/">3dfg</a>
+    <span>${htmlText(text)}</span>
+    <div class="top-status-account">
+      <button type="button" class="top-status-account-button" data-top-status-account aria-haspopup="true" aria-expanded="false" title="Account">☰ @</button>
+      <div class="top-status-account-menu" data-top-status-menu hidden>
+        <div class="top-status-user">${htmlText(userText)}</div>
+        ${authAction}
+      </div>
+    </div>`;
+}
+
 function updateToolbarStatus() {
   const status = document.getElementById("toolbarStatus");
   if (status) status.textContent = toolbarStatusText();
 
   const topStatus = document.getElementById("topStatus");
   if (topStatus) {
-    topStatus.innerHTML = `<a class="top-status-home" href="/">3dfg</a><span>${toolbarStatusText()}</span>`;
+    topStatus.innerHTML = renderTopStatusContent(toolbarStatusText());
   }
 
   const undo = document.getElementById("toolbarUndo");
@@ -1857,6 +1879,57 @@ function updateToolbarStatus() {
     redo.disabled = editHistoryRendering || redoStepCount() <= 0;
   }
 }
+
+async function loadTopStatusAuth() {
+  try {
+    const res = await fetch("/auth/me", { cache: "no-store" });
+    const auth = res.ok ? await res.json() : {};
+    topStatusAuth = {
+      loaded: true,
+      user: auth?.user || auth?.email || "",
+      isAdmin: Boolean(auth?.isAdmin)
+    };
+  } catch {
+    topStatusAuth = { loaded: true, user: "", isAdmin: false };
+  }
+  updateToolbarStatus();
+}
+
+function toggleTopStatusAccountMenu(forceOpen) {
+  const menu = document.querySelector("[data-top-status-menu]");
+  const button = document.querySelector("[data-top-status-account]");
+  if (!menu || !button) return;
+  const open = typeof forceOpen === "boolean" ? forceOpen : menu.hidden;
+  menu.hidden = !open;
+  button.setAttribute("aria-expanded", String(open));
+}
+
+document.addEventListener("click", async (event) => {
+  const accountButton = event.target.closest?.("[data-top-status-account]");
+  if (accountButton) {
+    event.preventDefault();
+    toggleTopStatusAccountMenu();
+    return;
+  }
+
+  if (event.target.closest?.("[data-top-status-logout]")) {
+    event.preventDefault();
+    await fetch("/logout", { method: "POST" });
+    topStatusAuth = { loaded: true, user: "", isAdmin: false };
+    projectAccessPromise = null;
+    projectAccessPlan = null;
+    updateToolbarStatus();
+    return;
+  }
+
+  if (!event.target.closest?.(".top-status-account")) {
+    toggleTopStatusAccountMenu(false);
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") toggleTopStatusAccountMenu(false);
+});
 
 const TOP_TOOLBAR_ACTIONS = [
   { label: "☰", action: toggleHelpMenu, placement: "toolbar", className: "toolbar-menu-button" },
@@ -6198,6 +6271,7 @@ function initEditToolbar() {
 
   restoreEditHistory();
   updateToolbarStatus();
+  loadTopStatusAuth();
 }
 
 async function loadVisitorCounter() {

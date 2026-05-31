@@ -5258,7 +5258,7 @@ document.getElementById("c3cadFileInput").addEventListener("change", (e) => {
 
 
 async function copyProjectLink(){
-  const u = await getCurrentProjectUrl();
+  const u = getCurrentProjectUrl();
   try{
     await navigator.clipboard.writeText(u);
     // optional: toast
@@ -5267,35 +5267,15 @@ async function copyProjectLink(){
   }
 }
 
-async function createShortProjectUrl(inn) {
-  const text = String(inn || "").trim();
-  if (!text) return location.href.split("#")[0];
-
-  try {
-    const res = await fetch("/short-url", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ inn: text })
-    });
-    const data = await res.json().catch(() => ({}));
-    if (res.ok && data?.url) return data.url;
-    console.warn("Kurzlink konnte nicht erzeugt werden", data);
-  } catch (err) {
-    console.warn("Kurzlink konnte nicht erzeugt werden", err);
-  }
-
-  return innToUrl(text);
-}
-
-async function getCurrentProjectUrl() {
+function getCurrentProjectUrl() {
   const inn = document.getElementById("inn")?.value;
-  return inn ? await createShortProjectUrl(inn) : location.href.split("#")[0];
+  return inn ? innToUrl(inn) : location.href.split("#")[0];
 }
 
-async function shareProjectByMail() {
+function shareProjectByMail() {
   const projectName = window.PR?.nme || "projekt";
   const subject = `3dfg projekt: ${projectName}`;
-  const body = await getCurrentProjectUrl();
+  const body = getCurrentProjectUrl();
 
   window.location.href =
     "mailto:" +

@@ -1467,6 +1467,8 @@ html, body {
 }
 
 .top-status-login,
+.top-status-save,
+.top-status-gallery,
 .top-status-logout {
   display: inline-flex;
   align-items: center;
@@ -1483,6 +1485,8 @@ html, body {
 }
 
 .top-status-login:hover,
+.top-status-save:hover,
+.top-status-gallery:hover,
 .top-status-logout:hover {
   background: var(--accent);
   color: var(--bar);

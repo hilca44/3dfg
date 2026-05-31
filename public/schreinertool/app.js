@@ -1843,7 +1843,10 @@ function renderTopStatusContent(text) {
     ? `Angemeldet als ${user}${topStatusAuth.isAdmin ? " (Admin)" : ""}`
     : (topStatusAuth.loaded ? "Nicht angemeldet" : "Login wird geprueft...");
   const authAction = user
-    ? `<button type="button" class="top-status-logout" data-top-status-logout>Logout</button>`
+    ? `
+        <button type="button" class="top-status-save" data-top-status-private-save>In meiner Galerie speichern</button>
+        <a class="top-status-gallery" href="/gallery?mine=1">Zu meiner Galerie</a>
+        <button type="button" class="top-status-logout" data-top-status-logout>Logout</button>`
     : `<a class="top-status-login" href="/login">Login</a>`;
 
   return `
@@ -1909,6 +1912,17 @@ document.addEventListener("click", async (event) => {
   if (accountButton) {
     event.preventDefault();
     toggleTopStatusAccountMenu();
+    return;
+  }
+
+  if (event.target.closest?.("[data-top-status-private-save]")) {
+    event.preventDefault();
+    try {
+      await saveCurrentProjectToPrivateGallery();
+    } catch (err) {
+      console.error("Speichern in meiner Galerie fehlgeschlagen", err);
+      alert(err?.message || "Speichern fehlgeschlagen.");
+    }
     return;
   }
 
@@ -5535,26 +5549,7 @@ function freeHolzlisteText(text, kind = "export") {
 }
 
 async function publishProjectEntry({ projektText, currentInn, projectUrl, img64 }) {
-  let imageUrl = "";
-
-  if (img64) {
-    try {
-      const uploadRes = await fetch("/publish-image", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ img: img64 })
-      });
-
-      const uploadData = await uploadRes.json().catch(() => ({}));
-      if (uploadRes.ok && uploadData.ok) {
-        imageUrl = uploadData.imageUrl || "";
-      } else {
-        console.warn("Bild-Upload fehlgeschlagen", uploadData);
-      }
-    } catch (err) {
-      console.warn("Bild-Upload fehlgeschlagen", err);
-    }
-  }
+  const imageUrl = await uploadProjectImage(img64);
 
   const publishRes = await fetch("/publish", {
     method: "POST",
@@ -5575,6 +5570,71 @@ async function publishProjectEntry({ projektText, currentInn, projectUrl, img64 
   alert("Erfolgreich veröffentlicht.");
 
   return imageUrl;
+}
+
+async function uploadProjectImage(img64) {
+  if (!img64) return "";
+
+  try {
+    const uploadRes = await fetch("/publish-image", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ img: img64 })
+    });
+
+    const uploadData = await uploadRes.json().catch(() => ({}));
+    if (uploadRes.ok && uploadData.ok) return uploadData.imageUrl || "";
+    console.warn("Bild-Upload fehlgeschlagen", uploadData);
+  } catch (err) {
+    console.warn("Bild-Upload fehlgeschlagen", err);
+  }
+
+  return "";
+}
+
+async function saveCurrentProjectToPrivateGallery() {
+  if (!topStatusAuth.user) {
+    window.location.href = "/login";
+    return;
+  }
+
+  const currentInn = document.getElementById("inn")?.value || window.PR?.inn || "";
+  if (!currentInn.trim()) {
+    alert("Kein Projekt zum Speichern gefunden.");
+    return;
+  }
+
+  if (currentInn !== window.PR?.inn) {
+    window.PR = await new Proj(currentInn).getall();
+    window.PR.inn = currentInn;
+  }
+
+  const projektText = generateShortDescription(window.PR);
+  const projectUrl = innToUrl(currentInn);
+  const imageUrl = await uploadProjectImage(makeCanvasScreenshot());
+
+  const saveRes = await fetch("/private-save", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      txt: projektText,
+      inn: currentInn,
+      url: projectUrl,
+      img: imageUrl
+    })
+  });
+
+  const saveData = await saveRes.json().catch(() => ({}));
+  if (saveRes.status === 401) {
+    window.location.href = "/login";
+    return;
+  }
+  if (!saveRes.ok || !saveData.ok) {
+    throw new Error(saveData.error || saveData.msg || "Speichern fehlgeschlagen");
+  }
+
+  alert("Projekt wurde in deiner Galerie gespeichert.");
+  toggleTopStatusAccountMenu(false);
 }
 
 async function downloadHolzliste(options = {}) {

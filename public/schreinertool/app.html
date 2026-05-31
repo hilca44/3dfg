@@ -263,7 +263,7 @@
 <script src="./random.js"></script>
   <script type="module">
 	    import { magie } from "./main.js?v=arrayparse39";
-	    import { DEFAULT_CORPUS, normalizeCornerRefs, urlToInn } from "./fu.js?v=dockparse1";
+	    import { DEFAULT_CORPUS, normalizeCornerRefs, urlToInnAsync } from "./fu.js?v=dockparse1";
 	    import { expandAliases, materializeAliases } from "./alias.js?v=dockparse2";
 	    import { convertLegacyToModern } from "./legacy-converter.js?v=dockparse1";
 
@@ -303,7 +303,7 @@
       try {
       await window.colorsReady;
       await window.freeLimitsReady;
-      const parsed = urlToInn(window.location.href);
+      const parsed = await urlToInnAsync(window.location.href);
       let text = convertLegacyToModern(materializeAliases(parsed || ""));
       if (/^test\s+mat\.19,(?:bt,f|wheat),14,1\s+mat\.16,(?:bl,e|cornflowerblue),16(?:,0)?\s*\r?\na\s*$/i.test(text)) {
         text = DEFAULT_CORPUS;

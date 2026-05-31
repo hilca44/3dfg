@@ -136,6 +136,7 @@ async function loadURLfromDWG(dwgName) {
           let decoded = decodeURI(t);
           decoded = decoded
             .replace(/_N_/g, "\n")
+            .replace(/~/g, " ")
             .replace(/_S_/g, " ")
             .replace(/_P_/g, "+");
           
@@ -179,6 +180,7 @@ function decodeTNew(name, value) {
 function decodeT(txt) {
   return decodeURI(
     txt
+      .replace(/~/g, " ")
       .replace(/_S_/g, " ")
       .replace(/_N_/g, "\n")
       .replace(/_P_/g, "+")
@@ -223,10 +225,7 @@ function innToUrl(inn) {
     .map(line => line.split(/\s+/).join("~"))
     .join("--");
 
-  const url = new URL(location.origin + location.pathname);
-  url.searchParams.set(name, value);
-
-  return url.toString();
+  return `${location.origin}${location.pathname}?${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
 }
 
 function urlToInn(url) {
@@ -284,6 +283,23 @@ function urlToInn(url) {
   return defaultInn;
 }
 
+async function urlToInnAsync(url) {
+  const u = url ? new URL(url, location.origin) : new URL(location.href);
+  const id = u.searchParams.get("s") || u.searchParams.get("short");
+  if (!id) return urlToInn(url);
+
+  try {
+    const res = await fetch(`/short-url/${encodeURIComponent(id)}`, { cache: "no-store" });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data?.inn) return data.inn;
+    console.warn("Kurzlink konnte nicht geladen werden", data);
+  } catch (err) {
+    console.warn("Kurzlink konnte nicht geladen werden", err);
+  }
+
+  return DEFAULT_CORPUS;
+}
+
 function urlToInnCurrent() {
   return urlToInn(window.location.href);
 }
@@ -317,7 +333,7 @@ function encodeT(txt) {
     txt
       .replace(/\+/g, "_P_")
       .replace(/\n/g, "_N_")
-      .replace(/ /g, "_S_")
+      .replace(/[ \t]+/g, "~")
   );
 }
 
@@ -351,16 +367,7 @@ function makeFullUrlFromInn(inn) {
   const m = inn.trim().match(/^([a-z0-9_-]+)/i);
   const name = m ? m[1] : "project";
 
-  const qs = new URLSearchParams();
-  qs.set(name, encodeT(inn));
-
-  // komplette URL zusammenbauen
-  return (
-    window.location.origin +
-    window.location.pathname +
-    "?" +
-    qs.toString()
-  );
+  return `${window.location.origin}${window.location.pathname}?${encodeURIComponent(name)}=${encodeT(inn)}`;
 }
 
 
@@ -501,6 +508,7 @@ export {
   decodeTOld,
 innToUrl,
 urlToInn,
+urlToInnAsync,
 urlToInnCurrent,
 setUrlNoReload, 
   onRenderClicked,

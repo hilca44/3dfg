@@ -27,6 +27,7 @@ const USER_GALLERY_DIR = path.join(GALLERY_DATA_DIR, "users");
 const USER_DB_PATH = path.join(GALLERY_DATA_DIR, "users.json");
 const PAID_EMAILS_PATH = path.join(GALLERY_DATA_DIR, "paid-emails.json");
 const Q_PATH = path.join(GALLERY_DATA_DIR, ".q.json");
+const SHORT_URLS_PATH = path.join(GALLERY_DATA_DIR, "short-urls.json");
 const FREE_LIMITS_PATH = path.join(__dirname, "public", "schreinertool", "free-limits.json");
 const DEFAULT_LANG = "de";
 const SUPPORTED_LANGS = ["de", "en", "fr", "nl", "pl", "it"];
@@ -434,6 +435,9 @@ stt.use((req, res, next) => {
   next();
 });
 
+stt.use(express.json({ limit: "10mb" }));
+stt.use(express.urlencoded({ extended: true }));
+
 stt.get(["/gallery", "/gallery/"], (req, res) => {
   res.send(renderHTMLPage("schreinertool", "Galerie", galleryPageContent(), getLang(req), "/gallery"));
 });
@@ -441,10 +445,49 @@ stt.get(["/login", "/login/"], (req, res) => {
   res.send(renderHTMLPage("schreinertool", "Login", loginPageContent(), getLang(req), "/login"));
 });
 
+stt.get("/s/:id", (req, res) => {
+  const id = String(req.params.id || "").trim().toLowerCase();
+  res.redirect(`/app.html?s=${encodeURIComponent(id)}`);
+});
+
+stt.get("/short-url/:id", (req, res) => {
+  const id = String(req.params.id || "").trim().toLowerCase();
+  const links = readJSON(SHORT_URLS_PATH, {});
+  const entry = links[id];
+  if (!entry?.inn) return res.status(404).json({ ok: false, error: "Kurzlink nicht gefunden" });
+  res.json({ ok: true, id, inn: entry.inn });
+});
+
+stt.post("/short-url", (req, res) => {
+  const inn = String(req.body?.inn || req.body?.project || "").trim();
+  if (!inn) return res.status(400).json({ ok: false, error: "missing project text" });
+
+  try {
+    new Proj(expandAliases(inn), projectLimitOptions(requestProjectPlan(req))).getall();
+  } catch (err) {
+    return res.status(err?.status || 400).json({
+      ok: false,
+      error: err?.message || String(err),
+      code: err?.code,
+      details: err?.details
+    });
+  }
+
+  const links = readJSON(SHORT_URLS_PATH, {});
+  const id = shortProjectId(inn, links);
+  links[id] = {
+    id,
+    inn,
+    hash: hash(normalize(inn)),
+    created: new Date().toISOString().slice(0, 10)
+  };
+  writeGalleryDB(SHORT_URLS_PATH, links);
+
+  res.json({ ok: true, id, url: publicShortUrl(req, id) });
+});
+
 stt.use(express.static(path.join(__dirname,"public","schreinertool")));
 stt.use(express.static(path.join(__dirname,"public","schreinertool","gallery")));
-stt.use(express.json({ limit: "10mb" }));
-stt.use(express.urlencoded({ extended: true }));
 
 /* -------------------------------------------------- */
 /* API                                                */
@@ -546,6 +589,31 @@ function writeGalleryDB(file, db) {
   const tmp = file + ".tmp";
   fs.writeFileSync(tmp, JSON.stringify(db, null, 2));
   fs.renameSync(tmp, file);
+}
+
+function shortProjectId(inn, links) {
+  const normalized = String(inn || "").trim();
+  const project = normalized.split(/\s+/)[0] || "projekt";
+  const slug = project
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 32) || "projekt";
+  const digest = crypto.createHash("sha1").update(normalized).digest("base64url").toLowerCase();
+
+  for (let len = 6; len <= 12; len++) {
+    const id = `${slug}-${digest.slice(0, len)}`;
+    if (!links[id] || links[id].inn === normalized) return id;
+  }
+
+  return `${slug}-${digest.slice(0, 12)}-${Date.now().toString(36)}`;
+}
+
+function publicShortUrl(req, id) {
+  const proto = req.headers["x-forwarded-proto"] || req.protocol || "https";
+  const host = req.headers["x-forwarded-host"] || req.headers.host || "3dfg.de";
+  return `${proto}://${host}/s/${id}`;
 }
 
 function cleanGalleryText(value) {

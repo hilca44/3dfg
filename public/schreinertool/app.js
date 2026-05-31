@@ -5258,7 +5258,7 @@ document.getElementById("c3cadFileInput").addEventListener("change", (e) => {
 
 
 async function copyProjectLink(){
-  const u = location.href.split("#")[0];
+  const u = await getCurrentProjectUrl();
   try{
     await navigator.clipboard.writeText(u);
     // optional: toast
@@ -5267,15 +5267,35 @@ async function copyProjectLink(){
   }
 }
 
-function getCurrentProjectUrl() {
-  const inn = document.getElementById("inn")?.value;
-  return inn ? innToUrl(inn) : location.href.split("#")[0];
+async function createShortProjectUrl(inn) {
+  const text = String(inn || "").trim();
+  if (!text) return location.href.split("#")[0];
+
+  try {
+    const res = await fetch("/short-url", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ inn: text })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data?.url) return data.url;
+    console.warn("Kurzlink konnte nicht erzeugt werden", data);
+  } catch (err) {
+    console.warn("Kurzlink konnte nicht erzeugt werden", err);
+  }
+
+  return innToUrl(text);
 }
 
-function shareProjectByMail() {
+async function getCurrentProjectUrl() {
+  const inn = document.getElementById("inn")?.value;
+  return inn ? await createShortProjectUrl(inn) : location.href.split("#")[0];
+}
+
+async function shareProjectByMail() {
   const projectName = window.PR?.nme || "projekt";
   const subject = `3dfg projekt: ${projectName}`;
-  const body = getCurrentProjectUrl();
+  const body = await getCurrentProjectUrl();
 
   window.location.href =
     "mailto:" +
@@ -5309,7 +5329,7 @@ function resetToDefaultProject() {
       let s = sks
         .replace(/\+/g, "_P_")   // echte Zeilenumbrüche durch __NL__ ersetzen
         .replace(/\n/g, "_N_")   // echte Zeilenumbrüche durch __NL__ ersetzen
-        .replace(/ /g, "_S_");    // echte Leerzeichen durch __SP__ ersetzen
+        .replace(/[ \t]+/g, "~"); // Leerzeichen lesbar in der URL halten
 
       let zuu = encodeURI(s);
       let u0 = "index.html";

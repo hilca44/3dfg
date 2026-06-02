@@ -1,4 +1,5 @@
 import { splitDslList, splitDslPath, splitLegacyCompactChars } from "./dsl-parser.js?v=dockparse1";
+import { expandAliases } from "./alias.js?v=dockparse2";
 
  const LIB={
   logo: "t=logo_S_mat.100,goldenrod_S_mat.16,cornflowerblue_N_D_S_d18_N_Z_S_10_N_W_S_50_N_-background_N_h_S_pb_S_w110_S_D_S_h110_S_mb2_S__N_-c-char_N_a_S_pgtl_S_wW_S_D_S_h50_S_z30_S_x10_N_-3-char_N_b_S_pgtr_S_wW_S_D_S_h50_S_zZ_S_x50_N_c_S_pgtr_S_wW_S_D_S_h50_S_cl0_bt0",
@@ -212,7 +213,9 @@ function innToUrl(inn) {
 
   if (!inn) return location.origin + location.pathname;
 
-  const lines = inn
+  const compactInn = expandAliases(inn);
+
+  const lines = compactInn
     .trim()
     .split("\n")
     .map(l => l.trim())

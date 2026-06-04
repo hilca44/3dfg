@@ -979,8 +979,7 @@ function makeRoundedPlateGeometry(w, d, h, radius) {
             ? { a: w, b: h, depth: d }
             : { a: w, b: d, depth: h };
 
-    const maxRadius = Math.max(0, Math.min(profile.a, profile.b) * 0.5 - 0.001);
-    const r = Math.min(Number(radius) || 0, maxRadius);
+    const r = Math.min(Number(radius) || 0, profile.a * 0.5, profile.b * 0.5);
     if (r <= 0) return new THREE.BoxGeometry(w, d, h);
 
     const x0 = -profile.a * 0.5;

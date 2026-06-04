@@ -31,7 +31,15 @@ git push "$REMOTE_NAME" "$BRANCH"
 ssh "$REMOTE_HOST" "
 set -e
 cd '$REMOTE_DIR'
-git pull --rebase --autostash '$REMOTE_NAME' '$BRANCH'
+git config user.name '3dfg sync'
+git config user.email 'sync@3dfg.de'
+SERVER_BRANCH=\$(git branch --show-current)
+if [ -z \"\$SERVER_BRANCH\" ]; then
+  echo 'Kein aktiver Git-Branch auf dem Server gefunden.' >&2
+  exit 1
+fi
+echo \"Server-Branch: \$SERVER_BRANCH\"
+git pull --rebase --autostash '$REMOTE_NAME' \"\$SERVER_BRANCH\"
 pm2 restart all
 "
 

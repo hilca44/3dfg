@@ -9,6 +9,7 @@ import sanitize from "sanitize-html";
 import vhost from "vhost";
 import crypto from "crypto";
 import { expandAliases } from "./public/schreinertool/alias.js";
+import { createRechRouter } from "./routes/rech/index.js";
 
 /* -------------------------------------------------- */
 /* __dirname Ersatz (ESM)                             */
@@ -34,6 +35,8 @@ const FREE_LIMITS = readJSON(FREE_LIMITS_PATH, {
   cutplan: { freePlates: 1 }
 });
 const PROJECT_PART_LIMITS = FREE_LIMITS.projectParts || { free: 100, pro: 600 };
+const RECH_PUBLIC_DIR = path.join(__dirname, "public", "schreinertool", "rech");
+const RECH_DATA_DIR = path.join(__dirname, "data", "schreinertool", "rech");
 
 /* -------------------------------------------------- */
 /* App                                                */
@@ -414,6 +417,12 @@ stt.get(["/gallery", "/gallery/"], (req, res) => {
 stt.get(["/login", "/login/"], (req, res) => {
   res.send(renderHTMLPage("schreinertool", "Login", loginPageContent(), getLang(req), "/login"));
 });
+
+stt.use("/rech", createRechRouter({
+  publicDir: RECH_PUBLIC_DIR,
+  dataDir: RECH_DATA_DIR,
+  currentUser: currentGalleryUser
+}));
 
 stt.use(express.static(path.join(__dirname,"public","schreinertool")));
 stt.use(express.static(path.join(__dirname,"public","schreinertool","gallery")));

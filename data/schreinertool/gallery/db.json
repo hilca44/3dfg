@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1774427493098,
+    "txt": "schränke_mit_abstand",
+    "inn": "schränke_mit_abstand m19bt14,1 m16bl16,0\na plrgtbc 60,55,72 mb\nba c x5",
+    "url": "https://schreinertool.de/app.html?schr%C3%A4nke_mit_abstand=m19bt14%2C1%7Em16bl16%2C0--a%7Eplrgtbc%7E60%2C55%2C72%7Emb--ba%7Ec%7Ex5",
+    "img": "/gallery/1774427493098.png",
+    "hash": "1f59938b688755132f053b598100c81d",
+    "date": "2026-03-25",
+    "views": 0,
+    "likes": 0
+  },
+  {
+    "id": 1774428933880,
+    "txt": "test",
+    "inn": "test m19btf14,1 m16ble16 \na plrgtbc 60,55,72 mb",
+    "url": "https://schreinertool.de/app.html?test=m19btf14%2C1%7Em16ble16--a%7Eplrgtbc%7E60%2C55%2C72%7Emb",
+    "img": "/gallery/1774428933880.png",
+    "hash": "eaa3925fae36a3b43e04930ea6c09c27",
+    "date": "2026-03-25",
+    "views": 0,
+    "likes": 0
+  }
+]

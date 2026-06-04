@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rechnungen</title>
+  <link rel="stylesheet" href="/rech/style.css">
+</head>
+<body>
+  <main class="appShell">
+    <aside class="sidebar">
+      <div class="brandRow">
+        <div>
+          <p class="eyebrow">3dfg</p>
+          <h1>Rechnungen</h1>
+        </div>
+        <a class="iconLink" href="/gallery?mine=1" title="Zur Galerie">↩</a>
+      </div>
+
+      <div class="userBox" id="userBox">Lade Anmeldung ...</div>
+
+      <button class="primaryBtn" id="newBtn" type="button">Neue Rechnung</button>
+      <div class="invoiceList" id="invoiceList"></div>
+    </aside>
+
+    <section class="workspace">
+      <form class="editor" id="invoiceForm">
+        <div class="topbar">
+          <div>
+            <label for="number">Rechnungsnummer</label>
+            <input id="number" name="number" autocomplete="off">
+          </div>
+          <div>
+            <label for="status">Status</label>
+            <select id="status" name="status">
+              <option>Entwurf</option>
+              <option>Gesendet</option>
+              <option>Bezahlt</option>
+              <option>Storniert</option>
+            </select>
+          </div>
+          <div>
+            <label for="date">Datum</label>
+            <input id="date" name="date" type="date">
+          </div>
+          <div>
+            <label for="dueDate">Faellig am</label>
+            <input id="dueDate" name="dueDate" type="date">
+          </div>
+        </div>
+
+        <div class="addressGrid">
+          <label>Absender
+            <textarea id="sender" name="sender" rows="5" placeholder="Firma&#10;Name&#10;Strasse&#10;PLZ Ort"></textarea>
+          </label>
+          <label>Empfaenger
+            <textarea id="recipient" name="recipient" rows="5" placeholder="Kunde&#10;Name&#10;Strasse&#10;PLZ Ort"></textarea>
+          </label>
+        </div>
+
+        <label>Betreff
+          <input id="subject" name="subject" placeholder="z. B. Rechnung fuer Projekt ...">
+        </label>
+
+        <div class="itemsHeader">
+          <h2>Positionen</h2>
+          <button class="secondaryBtn" id="addItemBtn" type="button">Position hinzufuegen</button>
+        </div>
+        <div class="itemsTable" id="itemsTable"></div>
+
+        <div class="bottomGrid">
+          <label>Zahlungsinfo
+            <textarea id="payment" name="payment" rows="4" placeholder="IBAN, Zahlungsziel, Verwendungszweck"></textarea>
+          </label>
+          <label>Notizen
+            <textarea id="notes" name="notes" rows="4" placeholder="Freundliche Gruesse ..."></textarea>
+          </label>
+          <div class="totalsBox" id="totalsBox"></div>
+        </div>
+
+        <div class="actions">
+          <button class="primaryBtn" type="submit">Speichern</button>
+          <button class="secondaryBtn" id="printBtn" type="button">Drucken / PDF</button>
+          <button class="dangerBtn" id="deleteBtn" type="button">Loeschen</button>
+          <span class="statusLine" id="statusLine"></span>
+        </div>
+      </form>
+
+      <section class="preview" id="preview"></section>
+    </section>
+  </main>
+
+  <script src="/rech/app.js" type="module"></script>
+</body>
+</html>

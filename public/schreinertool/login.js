@@ -18,6 +18,8 @@ document.getElementById("loginForm")?.addEventListener("submit", async event => 
     return;
   }
 
-  status.textContent = "Login erfolgreich. Galerie wird geöffnet ...";
-  location.href = "/gallery?mine=1";
+  const params = new URLSearchParams(location.search);
+  const next = params.get("next") || "/gallery?mine=1";
+  status.textContent = "Login erfolgreich. Seite wird geöffnet ...";
+  location.href = next.startsWith("/") && !next.startsWith("//") ? next : "/gallery?mine=1";
 });

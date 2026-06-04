@@ -1628,6 +1628,7 @@ roundExprNumber(value) {
 evalMathExpression(expr) {
   const fns = {
     round: Math.round,
+    rund: Math.round,
     r: Math.round,
     floor: Math.floor,
     ceil: Math.ceil,
@@ -1648,7 +1649,7 @@ evalMathExpression(expr) {
 
 evalInputExpression(obj, expr) {
   expr = this.replaceDimensions(expr);
-  const mathFns = new Set(["round", "r", "floor", "ceil", "abs"]);
+  const mathFns = new Set(["round", "rund", "r", "floor", "ceil", "abs"]);
   const resolvedExpr = String(expr).replace(/[a-zA-Z][a-zA-Z0-9_.]*/g, key => {
     if (mathFns.has(key)) return key;
 

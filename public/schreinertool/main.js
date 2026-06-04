@@ -967,6 +967,67 @@ function makePartLocalBB(w, d, h) {
     );
 }
 
+function makeRoundedPlateGeometry(w, d, h, radius) {
+    const dims = { x: w, y: d, z: h };
+    const axis = dims.x <= dims.y && dims.x <= dims.z
+        ? "x"
+        : (dims.y <= dims.z ? "y" : "z");
+
+    const profile = axis === "x"
+        ? { a: d, b: h, depth: w }
+        : axis === "y"
+            ? { a: w, b: h, depth: d }
+            : { a: w, b: d, depth: h };
+
+    const r = Math.min(Number(radius) || 0, profile.a * 0.5, profile.b * 0.5);
+    if (r <= 0) return new THREE.BoxGeometry(w, d, h);
+
+    const x0 = -profile.a * 0.5;
+    const x1 = profile.a * 0.5;
+    const y0 = -profile.b * 0.5;
+    const y1 = profile.b * 0.5;
+    const shape = new THREE.Shape();
+
+    shape.moveTo(x0 + r, y0);
+    shape.lineTo(x1 - r, y0);
+    shape.quadraticCurveTo(x1, y0, x1, y0 + r);
+    shape.lineTo(x1, y1 - r);
+    shape.quadraticCurveTo(x1, y1, x1 - r, y1);
+    shape.lineTo(x0 + r, y1);
+    shape.quadraticCurveTo(x0, y1, x0, y1 - r);
+    shape.lineTo(x0, y0 + r);
+    shape.quadraticCurveTo(x0, y0, x0 + r, y0);
+
+    const geo = new THREE.ExtrudeGeometry(shape, {
+        depth: profile.depth,
+        bevelEnabled: false,
+        curveSegments: 12
+    });
+    geo.translate(0, 0, -profile.depth * 0.5);
+
+    const pos = geo.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+        const a = pos.getX(i);
+        const b = pos.getY(i);
+        const depth = pos.getZ(i);
+
+        if (axis === "x") pos.setXYZ(i, depth, a, b);
+        else if (axis === "y") pos.setXYZ(i, a, depth, b);
+    }
+
+    pos.needsUpdate = true;
+    geo.computeVertexNormals();
+    geo.computeBoundingBox();
+    geo.computeBoundingSphere();
+    return geo;
+}
+
+function makePartGeometry(part, w, d, h) {
+    const radius = cc(part?.rund, 0);
+    if (radius > 0) return makeRoundedPlateGeometry(w, d, h, radius);
+    return new THREE.BoxGeometry(w, d, h);
+}
+
 function rotationPivotOffsetZ(localBB, angleRad, corner) {
     if (corner == null || !angleRad || !localBB) return new THREE.Vector3();
 
@@ -999,9 +1060,7 @@ function makeM(k, e1, e) {
         d = partDim(e.d, `${k.nme}.${e1}.d`),
         h = partDim(e.h, `${k.nme}.${e1}.h`);
 
-    const geo = resTracker.track(
-        new THREE.BoxGeometry(w, d, h)
-    );
+    const geo = resTracker.track(makePartGeometry(e, w, d, h));
 
     if (e.__edgeOnly) {
         const edge = resTracker.track(new THREE.LineSegments(

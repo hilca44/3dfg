@@ -31,7 +31,7 @@ git push "$REMOTE_NAME" "$BRANCH"
 ssh "$REMOTE_HOST" "
 set -e
 cd '$REMOTE_DIR'
-git pull --ff-only '$REMOTE_NAME' '$BRANCH'
+git pull --rebase --autostash '$REMOTE_NAME' '$BRANCH'
 pm2 restart all
 "
 

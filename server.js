@@ -418,10 +418,7 @@ stt.get(["/login", "/login/"], (req, res) => {
   res.send(renderHTMLPage("schreinertool", "Login", loginPageContent(), getLang(req), "/login"));
 });
 
-stt.use("/rech", createRechRouter({
-  publicDir: RECH_PUBLIC_DIR,
-  dataDir: RECH_DATA_DIR,
-  currentUser: currentGalleryUser
+stt.use("currentUser: currentGalleryUser
 }));
 
 stt.use(express.static(path.join(__dirname,"public","schreinertool")));

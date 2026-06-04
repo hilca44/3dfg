@@ -852,13 +852,13 @@ export class Proj {
             "nx", "ny", "nz", "sx", "sy", "sz",
             "i", "cur", "tar", "o", "ox", "oy", "oz",
             "layout", "cols", "fit", "vi", "leg", "wdh",
-            "co", "n", "sc", "box", "l", "r", "g", "t", "b", "f", "c", "v"
+            "co", "n", "sc", "box", "rund", "l", "r", "g", "t", "b", "f", "c", "v"
         ]);
         const parts = new Set(["l", "r", "g", "t", "b", "f", "c", "v", "gg"]);
         const partProps = new Set([
             "w", "d", "h", "x", "y", "z", "m", "s", "u",
             "sx", "sy", "sz", "nx", "ny", "nz",
-            "o", "ox", "oy", "oz", "vi", "co"
+            "o", "ox", "oy", "oz", "vi", "co", "rund"
         ]);
         const valueLooksBroken = value => {
             const text = String(value ?? "").trim();
@@ -3744,6 +3744,7 @@ if (k.c && k.c.n != null) {
     if (basePart === "t") z += explodeZ;
 
     Object.assign(o, { w, d, h, x, y, z });
+    if (o.rund == null && k.rund != null) o.rund = k.rund;
 
     if (basePart === "v") verticalRuns.push({ x: o.x, w: o.w });
     if (basePart === "c") shelfRuns.push({ z: o.z, h: o.h });
